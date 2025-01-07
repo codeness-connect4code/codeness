@@ -1,5 +1,6 @@
 package com.connect.codeness.domain.file;
 
+import com.connect.codeness.domain.mentorrequest.MentorRequest;
 import com.connect.codeness.global.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
