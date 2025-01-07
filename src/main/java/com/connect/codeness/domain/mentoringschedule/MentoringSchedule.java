@@ -16,7 +16,7 @@ import java.time.LocalTime;
 import lombok.Getter;
 
 @Getter
-@Entity(name = "user")
+@Entity
 @Table(name = "mentoring_schedule")
 public class MentoringSchedule extends BaseEntity {
 	@Id
