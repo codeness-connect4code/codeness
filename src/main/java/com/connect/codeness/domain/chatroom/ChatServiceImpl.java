@@ -1,4 +1,4 @@
-package com.connect.codeness.domain.chat;
+package com.connect.codeness.domain.chatroom;
 
 import org.springframework.stereotype.Service;
 

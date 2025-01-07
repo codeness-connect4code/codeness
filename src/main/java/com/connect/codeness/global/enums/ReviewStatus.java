@@ -1,4 +1,5 @@
 package com.connect.codeness.global.enums;
 
-public enum Role {
+public enum ReviewStatus {
+	NOT_YET,COMPLETE;
 }
