@@ -1,10 +1,7 @@
-package com.connect.codeness.domain.comment;
+package com.connect.codeness.domain.file;
 
-
-import com.connect.codeness.domain.post.Post;
 import com.connect.codeness.domain.user.User;
 import com.connect.codeness.global.entity.BaseEntity;
-import com.connect.codeness.global.enums.CommunityStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -12,31 +9,32 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import lombok.Getter;
 
 @Getter
 @Entity
-public class Comment extends BaseEntity {
+@Table(name = "file_profile")
+public class ProfileImage extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
 	private User user;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "post_id")
-	private Post post;
+	@Column(nullable = false)
+	private String fileName;
 
 	@Column(nullable = false)
-	private String content;
+	private String fileType;
 
 	@Column(nullable = false)
-	private CommunityStatus status;
+	private Long fileSize;
 
-	public Comment() {
+	public ProfileImage() {
 	}
 }
