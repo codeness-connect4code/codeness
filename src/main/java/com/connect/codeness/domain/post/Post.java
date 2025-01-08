@@ -36,7 +36,7 @@ public class Post extends BaseEntity {
 	private String content;
 
 	@Column(nullable = false)
-	private Long count;
+	private Long view;
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
@@ -47,12 +47,12 @@ public class Post extends BaseEntity {
 	private CommunityStatus Status;
 
 	@Builder
-	public Post(User user, String title, String content, Long count, PostType type,
+	public Post(User user, String title, String content, Long view, PostType type,
 		CommunityStatus status) {
 		this.user = user;
 		this.title = title;
 		this.content = content;
-		this.count = count;
+		this.view = view;
 		this.Type = type;
 		this.Status = status;
 	}

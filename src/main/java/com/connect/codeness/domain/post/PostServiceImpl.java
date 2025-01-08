@@ -25,9 +25,9 @@ public class PostServiceImpl implements PostService {
 		Post post = new Post().builder()
 			.title(dto.getTitle())
 			.content(dto.getContent())
-			.count(0l)
+			.view(0l)
 			.type(dto.getPostType())
-			.status(CommunityStatus.ALIVE)
+			.status(CommunityStatus.DISPLAYED)
 			.build();
 
 		// 객체 저장
