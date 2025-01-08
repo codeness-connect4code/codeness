@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -41,6 +42,15 @@ public class ReviewController {
     ){
         CommonResponseDto<Page<ReviewFindResponseDto>> commonResponseDto
             = reviewService.findReviews(mentoringPostId, pageNumber);
+
+        return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/reviews/{reviewId}")
+    public ResponseEntity<CommonResponseDto> deleteReview(
+        @PathVariable Long reviewId
+    ){
+        CommonResponseDto commonResponseDto = reviewService.deleteReview(reviewId,1L);
 
         return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
     }
