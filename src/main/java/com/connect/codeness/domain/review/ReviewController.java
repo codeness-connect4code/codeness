@@ -3,6 +3,7 @@ package com.connect.codeness.domain.review;
 import com.connect.codeness.domain.review.dto.ReviewCreateRequestDto;
 import com.connect.codeness.domain.review.dto.ReviewFindResponseDto;
 import com.connect.codeness.global.dto.CommonResponseDto;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +26,7 @@ public class ReviewController {
     @PostMapping("/payment-list/{paymentListId}/reviews")
     public ResponseEntity<CommonResponseDto> createReview(
         @PathVariable Long paymentListId,
-        @RequestBody ReviewCreateRequestDto dto
+        @Valid @RequestBody ReviewCreateRequestDto dto
     ){
 
         CommonResponseDto commonResponseDto = reviewService.createReview(paymentListId, dto);
