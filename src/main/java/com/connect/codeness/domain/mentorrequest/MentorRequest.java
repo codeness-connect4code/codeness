@@ -1,8 +1,8 @@
 package com.connect.codeness.domain.mentorrequest;
 
-import com.connect.codeness.global.enums.Field;
 import com.connect.codeness.domain.user.User;
 import com.connect.codeness.global.entity.CreateTimeEntity;
+import com.connect.codeness.global.enums.FieldType;
 import com.connect.codeness.global.enums.MentorRequestStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -58,13 +58,13 @@ public class MentorRequest extends CreateTimeEntity {
 //	private String employeeCardUrl;
 
 	@Enumerated(EnumType.STRING)
-	private Field field;
+	private FieldType field;
 
 	@Builder
 	public MentorRequest(
 		User user, String company, String phoneNumber,
 		String position, Integer career, String companyEmail,
-		MentorRequestStatus isAccepted, Field field
+		MentorRequestStatus isAccepted, FieldType field
 		) {
 		this.user = user;
 		this.company = company;

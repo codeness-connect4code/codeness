@@ -10,5 +10,7 @@ public interface ReviewService {
     CommonResponseDto createReview(Long paymentListId, ReviewCreateRequestDto dto);
 
     CommonResponseDto<Page<ReviewFindResponseDto>> findReviews(Long mentoringPostId, int pageNumber);
+
+    CommonResponseDto deleteReview(Long reviewId, Long userId);
 }
 

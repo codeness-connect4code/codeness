@@ -2,6 +2,7 @@ package com.connect.codeness.domain.review;
 
 import com.connect.codeness.domain.paymentlist.PaymentList;
 import com.connect.codeness.global.entity.BaseEntity;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -29,10 +30,11 @@ public class Review extends BaseEntity {
 	@NotNull
 	private PaymentList paymentList;
 
-	@NotNull
 	@Min(1)
 	@Max(5)
+	@Column(nullable = false, length = 5)
 	private Integer starRating;
+
 
 	@NotBlank
 	@Size(max = 300)

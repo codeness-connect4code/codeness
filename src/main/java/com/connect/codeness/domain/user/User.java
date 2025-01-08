@@ -1,8 +1,8 @@
 package com.connect.codeness.domain.user;
 
-import com.connect.codeness.global.enums.Field;
 import com.connect.codeness.domain.file.ProfileImage;
 import com.connect.codeness.global.entity.BaseEntity;
+import com.connect.codeness.global.enums.FieldType;
 import com.connect.codeness.global.enums.UserRole;
 import com.connect.codeness.global.enums.UserStatus;
 import jakarta.persistence.CascadeType;
@@ -30,7 +30,6 @@ public class User extends BaseEntity {
 	private String email;
 
 	@Column(nullable = false)
-	@Size(max = 30, message = "이 필드는 최대 {max}자까지 가능합니다.")
 	private String password;
 
 	@Enumerated(EnumType.STRING)
@@ -76,11 +75,12 @@ public class User extends BaseEntity {
 	@OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	private ProfileImage profileImage;
 
+	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
-	private Field field;
+	private FieldType field;
 
 	@Builder
-	public User(String email, String password,String name, String userNickname, String phoneNumber, Field field, UserRole role) {
+	public User(String email, String password,String name, String userNickname, String phoneNumber, FieldType field, UserRole role) {
 		this.email = email;
 		this.password = password;
 		this.name = name;
