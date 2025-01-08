@@ -86,5 +86,19 @@ public class ReviewServiceImpl implements ReviewService {
             .data(responseDto)
             .build();
     }
+
+    @Override
+    public CommonResponseDto deleteReview(Long reviewId, Long userId) {
+        Review review = reviewRepository.findByIdOrElseThrow(reviewId);
+
+        //내가 작성한 리뷰가 아니면 삭제 못함!
+        if(review.getPaymentList().getUser().getId() != userId){
+            throw new BusinessException(ExceptionType.UNAUTHORIZED_DELETE_REQUEST);
+        }
+
+        reviewRepository.delete(review);
+
+        return CommonResponseDto.builder().msg("리뷰 삭제가 완료되었습니다.").build();
+    }
 }
 
