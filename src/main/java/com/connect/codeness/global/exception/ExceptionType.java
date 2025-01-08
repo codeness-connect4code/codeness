@@ -36,9 +36,7 @@ public enum ExceptionType {
 
 	;
 
-
-
-	private final HttpStatus httpStatus;
+    private final HttpStatus httpStatus;
 	private final String errorMessage;
 
 	ExceptionType(HttpStatus httpStatus, String errorMessage) {
