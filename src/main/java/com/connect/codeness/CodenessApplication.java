@@ -11,4 +11,5 @@ public class CodenessApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(CodenessApplication.class, args);
 	}
+
 }

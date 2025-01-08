@@ -9,6 +9,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
@@ -29,8 +30,8 @@ public class MentoringPost extends CreateTimeEntity {
 	@JoinColumn(name = "mentor_id")
 	private User user;//사용자 고유 식별자 (외래키)
 
-	//연관관계 : 1:1
-	@OneToOne
+	//연관관계 : N:1
+	@ManyToOne
 	@JoinColumn(name = "field_id")
 	private Field field;//분야 고유 식별자 (외래키)
 
