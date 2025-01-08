@@ -1,6 +1,7 @@
 package com.connect.codeness.domain.mentoringschedule;
 
 
+import com.connect.codeness.domain.mentoringpost.MentoringPost;
 import com.connect.codeness.global.entity.BaseEntity;
 import com.connect.codeness.global.enums.BookedStatus;
 import jakarta.persistence.Column;
@@ -10,6 +11,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -21,7 +24,11 @@ import lombok.Getter;
 public class MentoringSchedule extends BaseEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id; //멘토링  스케쥴 고유 식별자
+	private Long id; //멘토링 스케쥴 고유 식별자
+
+	@ManyToOne
+	@JoinColumn(name = "mentoring_post_id")
+	private MentoringPost mentoringPost;//멘토링 공고 고유 식별자
 
 	@Column(nullable = false)
 	private LocalDate mentoringDate; //멘토링 날짜
