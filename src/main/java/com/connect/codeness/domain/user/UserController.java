@@ -2,6 +2,7 @@ package com.connect.codeness.domain.user;
 
 import com.connect.codeness.domain.user.dto.UserCreateRequestDto;
 import com.connect.codeness.global.dto.CommonResponseDto;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Null;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,7 @@ public class UserController {
 	}
 
 	@PostMapping
-	public ResponseEntity<CommonResponseDto> createUser(@RequestBody UserCreateRequestDto userCreateRequestDto) {
+	public ResponseEntity<CommonResponseDto> createUser(@Valid @RequestBody UserCreateRequestDto userCreateRequestDto) {
 		CommonResponseDto response = userService.createUser(userCreateRequestDto);
 
 		return new ResponseEntity<>(response, HttpStatus.CREATED);
