@@ -8,6 +8,11 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -21,10 +26,16 @@ public class Review extends BaseEntity {
 
 	@OneToOne
 	@JoinColumn(name = "payment_list_id")
+	@NotNull
 	private PaymentList paymentList;
 
+	@NotNull
+	@Min(1)
+	@Max(5)
 	private Integer starRating;
 
+	@NotBlank
+	@Size(max = 300)
 	private String reviewContent;
 
 	public Review(){ }
