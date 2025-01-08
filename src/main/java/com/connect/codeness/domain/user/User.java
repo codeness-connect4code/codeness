@@ -75,6 +75,7 @@ public class User extends BaseEntity {
 	@OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	private ProfileImage profileImage;
 
+	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private FieldType field;
 
