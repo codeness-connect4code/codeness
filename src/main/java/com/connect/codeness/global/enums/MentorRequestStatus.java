@@ -1,5 +1,5 @@
 package com.connect.codeness.global.enums;
 
-public enum MentorRequestAccepted {
+public enum MentorRequestStatus {
 	WAITING, ACCEPTED, REJECTED;
 }

@@ -4,7 +4,7 @@ import com.connect.codeness.domain.mentorrequest.dto.MentorRequestCreateResponse
 import com.connect.codeness.domain.user.User;
 import com.connect.codeness.domain.user.UserRepository;
 import com.connect.codeness.global.dto.CommonResponseDto;
-import com.connect.codeness.global.enums.MentorRequestAccepted;
+import com.connect.codeness.global.enums.MentorRequestStatus;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
 import org.springframework.stereotype.Service;
@@ -36,9 +36,15 @@ public class MentorRequestServiceImpl implements MentorRequestService {
 		}
 
 		MentorRequest mentorRequest = MentorRequest.builder()
-			.user(user).company(dto.getCompany()).phoneNumber(dto.getPhoneNumber())
-			.position(dto.getPosition()).career(dto.getCareer()).companyEmail(dto.getCompanyEmail())
-			.isAccepted(MentorRequestAccepted.WAITING).field(dto.getField()).build();
+			.user(user)
+			.company(dto.getCompany())
+			.phoneNumber(dto.getPhoneNumber())
+			.position(dto.getPosition())
+			.career(dto.getCareer())
+			.companyEmail(dto.getCompanyEmail())
+			.isAccepted(MentorRequestStatus.WAITING)
+			.field(dto.getField())
+			.build();
 
 			mentorRequestRepository.save(mentorRequest);
 

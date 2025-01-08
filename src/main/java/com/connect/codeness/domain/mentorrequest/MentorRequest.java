@@ -3,7 +3,7 @@ package com.connect.codeness.domain.mentorrequest;
 import com.connect.codeness.global.enums.Field;
 import com.connect.codeness.domain.user.User;
 import com.connect.codeness.global.entity.CreateTimeEntity;
-import com.connect.codeness.global.enums.MentorRequestAccepted;
+import com.connect.codeness.global.enums.MentorRequestStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -14,6 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -30,23 +31,27 @@ public class MentorRequest extends CreateTimeEntity {
 	private User user;
 
 	@Column(nullable = false)
+	@Size(max = 30, message = "이 필드는 최대 {max}자까지 가능합니다.")
 	private String company;
 
 	@Column(nullable = false)
+	@Size(max = 30, message = "이 필드는 최대 {max}자까지 가능합니다.")
 	private String phoneNumber;
 
 	@Column(nullable = false)
+	@Size(max = 30, message = "이 필드는 최대 {max}자까지 가능합니다.")
 	private String position;
 
 	@Column(nullable = false)
 	private Integer career;
 
 	@Column(nullable = false)
+	@Size(max = 30, message = "이 필드는 최대 {max}자까지 가능합니다.")
 	private String companyEmail;
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
-	private MentorRequestAccepted isAccepted;
+	private MentorRequestStatus isAccepted;
 
 	//todo : file service 구현 시 추가 수정
 //	@Column(nullable = false)
@@ -59,7 +64,7 @@ public class MentorRequest extends CreateTimeEntity {
 	public MentorRequest(
 		User user, String company, String phoneNumber,
 		String position, Integer career, String companyEmail,
-		MentorRequestAccepted isAccepted, Field field
+		MentorRequestStatus isAccepted, Field field
 		) {
 		this.user = user;
 		this.company = company;
