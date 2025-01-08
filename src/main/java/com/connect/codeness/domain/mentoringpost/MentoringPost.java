@@ -15,7 +15,9 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import lombok.Builder;
 import lombok.Getter;
 
 @Getter
