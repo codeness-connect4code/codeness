@@ -1,5 +1,6 @@
 package com.connect.codeness.domain.user;
 
+import com.connect.codeness.global.enums.Field;
 import com.connect.codeness.domain.file.ProfileImage;
 import com.connect.codeness.global.entity.BaseEntity;
 import com.connect.codeness.global.enums.UserRole;
@@ -14,6 +15,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToOne;
 import lombok.Getter;
+import lombok.Builder;
 
 @Getter
 @Entity(name = "user")
@@ -61,6 +63,21 @@ public class User extends BaseEntity {
 
 	@OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	private ProfileImage profileImage;
+
+	@Column(nullable = false)
+	private Field field;
+
+	@Builder
+	public User(String email, String password,String name, String userNickname, String phoneNumber, Field field, UserRole role) {
+		this.email = email;
+		this.password = password;
+		this.name = name;
+		this.userNickname = userNickname;
+		this.phoneNumber = phoneNumber;
+		this.field = field;
+		this.role = role;
+		this.userStatus = UserStatus.ACTIVE;
+	}
 
 	public User() {}
 }
