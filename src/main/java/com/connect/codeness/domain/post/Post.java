@@ -14,6 +14,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import lombok.Builder;
 import lombok.Getter;
 
 @Getter
@@ -44,6 +45,17 @@ public class Post extends BaseEntity {
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private CommunityStatus Status;
+
+	@Builder
+	public Post(User user, String title, String content, Long count, PostType type,
+		CommunityStatus status) {
+		this.user = user;
+		this.title = title;
+		this.content = content;
+		this.count = count;
+		this.Type = type;
+		this.Status = status;
+	}
 
 	public Post() {
 	}
