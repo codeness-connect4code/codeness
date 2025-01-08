@@ -24,14 +24,15 @@ public enum ExceptionType {
 	// 404 NOT_FOUND
 	NOT_FOUND(HttpStatus.NOT_FOUND,"리소스를 찾을 수 없습니다."),
 	NOT_FOUND_POST(HttpStatus.NOT_FOUND, "게시글을 찾을 수 없습니다."),
-
+	NOT_FOUND_PAYMENTLIST(HttpStatus.NOT_FOUND, "거래 내역을 찾을 수 없습니다."),
 	// 409 CONFLICT
 	DUPLICATE_VALUE(HttpStatus.CONFLICT, "중복된 정보입니다."),
 	USER_ALREADY_DELETED(HttpStatus.CONFLICT, "이미 탈퇴한 사용자 아이디입니다."),
 
 	;
 
-	private final HttpStatus httpStatus;
+
+    private final HttpStatus httpStatus;
 	private final String errorMessage;
 
 	ExceptionType(HttpStatus httpStatus, String errorMessage) {
