@@ -17,11 +17,11 @@ public class MentoringPostController {
 		this.mentoringPostService = mentoringPostService;
 	}
 
-	//todo : 파일 service 구현시 파일 추가로 수정 (사원증 이미지 첨부)
-	@PostMapping("/mentors")
-	public ResponseEntity<CommonResponseDto> createMentoringPost(
-		@RequestBody MentoringPostCreateDto mentoringPostCreateDto
-	) {}
+//	//todo : 파일 service 구현시 파일 추가로 수정 (사원증 이미지 첨부)
+//	@PostMapping("/mentors")
+//	public ResponseEntity<CommonResponseDto> createMentoringPost(
+//		@RequestBody MentoringPostCreateDto mentoringPostCreateDto
+//	) {}
 
 	
 
