@@ -1,5 +1,6 @@
 package com.connect.codeness.domain.user;
 
+import com.connect.codeness.global.enums.Field;
 import com.connect.codeness.domain.file.ProfileImage;
 import com.connect.codeness.global.entity.BaseEntity;
 import com.connect.codeness.global.enums.UserRole;
@@ -13,7 +14,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToOne;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
+import lombok.Builder;
 
 @Getter
 @Entity(name = "user")
@@ -23,9 +26,11 @@ public class User extends BaseEntity {
 	private Long id;
 
 	@Column(name = "email", unique = true, nullable = false)
+	@Size(max = 30, message = "이 필드는 최대 {max}자까지 가능합니다.")
 	private String email;
 
 	@Column(nullable = false)
+	@Size(max = 30, message = "이 필드는 최대 {max}자까지 가능합니다.")
 	private String password;
 
 	@Enumerated(EnumType.STRING)
@@ -33,34 +38,58 @@ public class User extends BaseEntity {
 	private UserRole role;
 
 	@Column(nullable = false)
+	@Size(max = 30, message = "이 필드는 최대 {max}자까지 가능합니다.")
 	private String name;
 
 	@Column(nullable = false)
+	@Size(max = 30, message = "이 필드는 최대 {max}자까지 가능합니다.")
 	private String userNickname;
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private UserStatus userStatus;
 
+	@Size(max = 30, message = "이 필드는 최대 {max}자까지 가능합니다.")
 	private String phoneNumber;
 
+	@Size(max = 30, message = "이 필드는 최대 {max}자까지 가능합니다.")
 	private String region;
 
 	private int career;
 
+	@Size(max = 5, message = "이 필드는 최대 {max}자까지 가능합니다.")
 	private String mbti;
 
+	@Size(max = 100, message = "이 필드는 최대 {max}자까지 가능합니다.")
 	private String site_link;
 
 	//사용자 계좌
+	@Size(max = 30, message = "이 필드는 최대 {max}자까지 가능합니다.")
 	private String account;
 
+	@Size(max = 30, message = "이 필드는 최대 {max}자까지 가능합니다.")
 	private String bankName;
 
+	@Size(max = 100, message = "이 필드는 최대 {max}자까지 가능합니다.")
 	private String firebaseUserId;
 
 	@OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	private ProfileImage profileImage;
+
+	@Column(nullable = false)
+	private Field field;
+
+	@Builder
+	public User(String email, String password,String name, String userNickname, String phoneNumber, Field field, UserRole role) {
+		this.email = email;
+		this.password = password;
+		this.name = name;
+		this.userNickname = userNickname;
+		this.phoneNumber = phoneNumber;
+		this.field = field;
+		this.role = role;
+		this.userStatus = UserStatus.ACTIVE;
+	}
 
 	public User() {}
 }

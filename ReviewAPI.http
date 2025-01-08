@@ -1,0 +1,14 @@
+### 리뷰 생성하기
+POST localhost:8080/payment-list/1/reviews
+Content-Type: application/json
+
+{
+	"content": "리뷰1",
+	"starRating": 5
+}
+
+
+### 리뷰 조회하기
+GET localhost:8080/mentoring-posts/1/reviews?pageNumber=0
+
+###
