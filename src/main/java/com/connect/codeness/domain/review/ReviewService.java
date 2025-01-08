@@ -1,7 +1,10 @@
 package com.connect.codeness.domain.review;
 
 
-public interface ReviewService {
+import com.connect.codeness.domain.review.dto.ReviewCreateRequestDto;
+import com.connect.codeness.global.dto.CommonResponseDto;
 
+public interface ReviewService {
+    CommonResponseDto createReview(Long paymentListId, ReviewCreateRequestDto dto);
 }
 
