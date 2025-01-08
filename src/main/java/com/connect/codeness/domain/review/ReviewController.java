@@ -25,7 +25,7 @@ public class ReviewController {
     ){
 
         CommonResponseDto commonResponseDto = reviewService.createReview(paymentListId, dto);
-        hihihihihi5678
+
         return new ResponseEntity<>(commonResponseDto, HttpStatus.CREATED);
     }
 }
