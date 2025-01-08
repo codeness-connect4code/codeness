@@ -1,6 +1,6 @@
 package com.connect.codeness.domain.mentorrequest.dto;
 
-import com.connect.codeness.global.enums.Field;
+import com.connect.codeness.global.enums.FieldType;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -18,7 +18,7 @@ public class MentorRequestCreateResponseDto {
 	 private String company;
 
 	@NotNull
-	 private Field field;
+	 private FieldType field;
 
 	@Size(max = 30, message = "이 필드는 최대 {max}자까지 가능합니다.")
 	@NotNull

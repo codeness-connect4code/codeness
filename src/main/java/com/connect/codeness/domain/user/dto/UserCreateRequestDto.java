@@ -1,6 +1,6 @@
 package com.connect.codeness.domain.user.dto;
 
-import com.connect.codeness.global.enums.Field;
+import com.connect.codeness.global.enums.FieldType;
 import com.connect.codeness.global.enums.UserRole;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -28,7 +28,7 @@ public class UserCreateRequestDto {
 	@Size(max = 30, message = "이 필드는 최대 {max}자까지 가능합니다.")
 	private String phoneNumber;
 
-	private Field field;
+	private FieldType field;
 
 	private UserRole userRole;
 }
