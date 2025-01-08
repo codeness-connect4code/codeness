@@ -16,7 +16,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import lombok.Getter;
-import org.hibernate.mapping.ToOne;
 
 @Getter
 @Entity

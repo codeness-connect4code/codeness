@@ -12,6 +12,7 @@ public enum ExceptionType {
 	INVALID_EMAIL(HttpStatus.BAD_REQUEST, "이메일 형식이 올바르지 않습니다."),
 	ALEADY_EXIST_EMAIL(HttpStatus.BAD_REQUEST,"이미 사용중인 이메일 입니다."),
 	MENTOR_REQUEST_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST,"한 명당 하나의 신청만 가능합니다."),
+	TOO_EARLY_REVIEW(HttpStatus.BAD_REQUEST, "아직 후기를 작성할 수 없습니다."),
 
 	// 401 Unauthorized
 	UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증이 필요합니다."),
@@ -32,7 +33,6 @@ public enum ExceptionType {
 	USER_ALREADY_DELETED(HttpStatus.CONFLICT, "이미 탈퇴한 사용자 아이디입니다."),
 
 	;
-
 
     private final HttpStatus httpStatus;
 	private final String errorMessage;
