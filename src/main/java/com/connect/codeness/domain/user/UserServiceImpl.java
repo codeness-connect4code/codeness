@@ -2,6 +2,7 @@ package com.connect.codeness.domain.user;
 
 import com.connect.codeness.domain.user.dto.UserCreateRequestDto;
 import com.connect.codeness.global.config.PasswordEncoder;
+import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	@Transactional
-	public void createUser(UserCreateRequestDto dto) {
+	public CommonResponseDto createUser(UserCreateRequestDto dto) {
 		String encodedPassword = passwordEncoder.encode(dto.getPassword());
 
 		if(userRepository.existsByEmail(dto.getEmail())){
@@ -39,6 +40,8 @@ public class UserServiceImpl implements UserService {
 			.build();
 
 		userRepository.save(user);
+
+		return CommonResponseDto.builder().msg("회원가입 완료").build();
 	}
 }
 

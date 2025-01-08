@@ -19,13 +19,10 @@ public class UserController {
 		this.userService = userService;
 	}
 
-	//todo : 검증, 이메일중복예외처리
 	@PostMapping
 	public ResponseEntity<CommonResponseDto> createUser(@RequestBody UserCreateRequestDto userCreateRequestDto) {
-		userService.createUser(userCreateRequestDto);
-		CommonResponseDto response = CommonResponseDto.builder()
-			.msg("회원가입 완료")
-			.build();
+		CommonResponseDto response = userService.createUser(userCreateRequestDto);
+
 		return new ResponseEntity<>(response, HttpStatus.CREATED);
 	}
 }
