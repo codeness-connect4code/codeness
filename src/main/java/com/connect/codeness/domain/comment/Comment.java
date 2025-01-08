@@ -13,6 +13,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.validation.constraints.Size;
+import lombok.Builder;
 import lombok.Getter;
 
 @Getter
@@ -32,11 +34,20 @@ public class Comment extends BaseEntity {
 	private Post post;
 
 	@Column(nullable = false)
+	@Size(max = 100)
 	private String content;
 
 	@Column(nullable = false)
 	private CommunityStatus status;
 
 	public Comment() {
+	}
+
+	@Builder
+	public Comment(User user, Post post, String content, CommunityStatus status) {
+		this.user = user;
+		this.post = post;
+		this.content = content;
+		this.status = status;
 	}
 }
