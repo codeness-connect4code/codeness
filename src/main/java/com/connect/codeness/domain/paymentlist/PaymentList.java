@@ -62,6 +62,7 @@ public class PaymentList extends CreateTimeEntity {
 	@Column(nullable = true)
 	private LocalDateTime canceledAt; //결제 취소일
 
+	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private ReviewStatus reviewStatus; //후기 작성 상태
 

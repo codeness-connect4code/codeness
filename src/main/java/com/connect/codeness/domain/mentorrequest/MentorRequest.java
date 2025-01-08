@@ -1,19 +1,21 @@
 package com.connect.codeness.domain.mentorrequest;
 
-import com.connect.codeness.domain.field.Field;
 import com.connect.codeness.domain.user.User;
 import com.connect.codeness.global.entity.CreateTimeEntity;
+import com.connect.codeness.global.enums.FieldType;
+import com.connect.codeness.global.enums.MentorRequestStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalTime;
+import jakarta.validation.constraints.Size;
+import lombok.Builder;
 import lombok.Getter;
 
 @Getter
@@ -28,37 +30,52 @@ public class MentorRequest extends CreateTimeEntity {
 	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
 
-	@ManyToOne
-	@JoinColumn(name = "field", nullable = false)
-	private Field field;
-
 	@Column(nullable = false)
-	private String title;
-
-	@Column(nullable = false)
+	@Size(max = 30, message = "이 필드는 최대 {max}자까지 가능합니다.")
 	private String company;
+
+	@Column(nullable = false)
+	@Size(max = 30, message = "이 필드는 최대 {max}자까지 가능합니다.")
+	private String phoneNumber;
+
+	@Column(nullable = false)
+	@Size(max = 30, message = "이 필드는 최대 {max}자까지 가능합니다.")
+	private String position;
 
 	@Column(nullable = false)
 	private Integer career;
 
 	@Column(nullable = false)
-	private String region;
+	@Size(max = 30, message = "이 필드는 최대 {max}자까지 가능합니다.")
+	private String companyEmail;
 
+	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
-	private BigDecimal price;
+	private MentorRequestStatus isAccepted;
 
-	@Column(nullable = false)
-	private LocalDate startDate;
+	//todo : file service 구현 시 추가 수정
+//	@Column(nullable = false)
+//	private String employeeCardUrl;
 
-	@Column(nullable = false)
-	private LocalDate endDate;
+	@Enumerated(EnumType.STRING)
+	private FieldType field;
 
-	@Column(nullable = false)
-	private LocalTime startTime;
+	@Builder
+	public MentorRequest(
+		User user, String company, String phoneNumber,
+		String position, Integer career, String companyEmail,
+		MentorRequestStatus isAccepted, FieldType field
+		) {
+		this.user = user;
+		this.company = company;
+		this.phoneNumber = phoneNumber;
+		this.position = position;
+		this.career = career;
+		this.companyEmail = companyEmail;
+		this.isAccepted = isAccepted;
+		this.field = field;
+	}
 
-	@Column(nullable = false)
-	private LocalTime endTime;
+	public MentorRequest() {}
 
-	@Column(nullable = false)
-	private String description;
 }

@@ -1,7 +1,9 @@
 package com.connect.codeness.domain.user;
 
+import com.connect.codeness.domain.user.dto.UserCreateRequestDto;
+import com.connect.codeness.global.dto.CommonResponseDto;
 
 public interface UserService {
-
+	CommonResponseDto createUser(UserCreateRequestDto userCreateRequestDto);
 }
 
