@@ -68,9 +68,9 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public CommonResponseDto<Page<ReviewFindResponseDto>> findReviews(Long mentoringPostId, int pageNumber) {
+    public CommonResponseDto<Page<ReviewFindResponseDto>> findReviews(Long mentoringPostId, int pageNumber, int pageSize) {
 
-        Pageable pageable = PageRequest.of(pageNumber, Constants.PAGE_SIZE, Sort.by("createdAt").descending());
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("createdAt").descending());
 
         Page<Review> reviews = reviewRepository.findByMentoringPostId(mentoringPostId, pageable);
 
