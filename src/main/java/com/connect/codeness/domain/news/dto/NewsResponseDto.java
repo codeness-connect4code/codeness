@@ -11,6 +11,4 @@ public class NewsResponseDto {
 	private String by;
 	private String time;
 	private String url;
-	//
-	private boolean deleted;
 }
