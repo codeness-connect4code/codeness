@@ -5,17 +5,19 @@ import com.connect.codeness.domain.paymentlist.PaymentList;
 import com.connect.codeness.domain.paymentlist.PaymentListRepository;
 import com.connect.codeness.domain.review.dto.ReviewCreateRequestDto;
 import com.connect.codeness.domain.review.dto.ReviewFindResponseDto;
-import com.connect.codeness.global.constants.Constants;
 import com.connect.codeness.global.dto.CommonResponseDto;
+import com.connect.codeness.global.enums.ReviewStatus;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Objects;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ReviewServiceImpl implements ReviewService {
@@ -31,6 +33,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     }
 
+    @Transactional
     @Override
     public CommonResponseDto createReview(Long paymentListId, ReviewCreateRequestDto dto) {
         PaymentList paymentList = paymentListRepository.findById(paymentListId).orElseThrow(
@@ -62,7 +65,9 @@ public class ReviewServiceImpl implements ReviewService {
             .starRating(dto.getStarRating())
             .build();
 
+        //후기 내용 작성 후 결제내역의 후기 작성 상태 COMPLETE
         reviewRepository.save(review);
+        paymentList.updateReviewStatus(ReviewStatus.COMPLETE);
 
         return CommonResponseDto.builder().msg("리뷰 생성이 완료되었습니다.").build();
     }
@@ -92,7 +97,7 @@ public class ReviewServiceImpl implements ReviewService {
         Review review = reviewRepository.findByIdOrElseThrow(reviewId);
 
         //내가 작성한 리뷰가 아니면 삭제 못함!
-        if(review.getPaymentList().getUser().getId() != userId){
+        if(!Objects.equals(review.getPaymentList().getUser().getId(), userId)){
             throw new BusinessException(ExceptionType.UNAUTHORIZED_DELETE_REQUEST);
         }
 
