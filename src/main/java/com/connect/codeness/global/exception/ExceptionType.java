@@ -29,6 +29,8 @@ public enum ExceptionType {
 	NOT_FOUND(HttpStatus.NOT_FOUND,"리소스를 찾을 수 없습니다."),
 	NOT_FOUND_POST(HttpStatus.NOT_FOUND, "게시글을 찾을 수 없습니다."),
 	NOT_FOUND_PAYMENTLIST(HttpStatus.NOT_FOUND, "거래 내역을 찾을 수 없습니다."),
+	NOT_FOUND_NEWS(HttpStatus.NOT_FOUND,"뉴스를 찾을 수 없습니다."),
+
 	NOT_FOUND_REVIEW(HttpStatus.NOT_FOUND, "후기를 찾을 수 없습니다."),
 	// 409 CONFLICT
 	DUPLICATE_VALUE(HttpStatus.CONFLICT, "중복된 정보입니다."),
@@ -36,7 +38,7 @@ public enum ExceptionType {
 
 	;
 
-    private final HttpStatus httpStatus;
+	private final HttpStatus httpStatus;
 	private final String errorMessage;
 
 	ExceptionType(HttpStatus httpStatus, String errorMessage) {
