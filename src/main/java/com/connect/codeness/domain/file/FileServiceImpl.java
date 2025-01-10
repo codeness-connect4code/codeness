@@ -55,9 +55,9 @@ public class FileServiceImpl implements FileService{
 		checkExtension(fileExtension);
 
 		// s3 저장 경로 및 파일 이름 설정
-		String folderPath =category.getPath();
+		String folderPath =category.getCategoryText();
 
-		String fileName = userId + "-" + category.getPath() + fileExtension;
+		String fileName = userId + "-" + category.getCategoryText() + fileExtension;
 
 		String s3Key = folderPath + "/" + fileName;
 
@@ -70,11 +70,14 @@ public class FileServiceImpl implements FileService{
 			RequestBody.fromInputStream(inputFile.getInputStream(), inputFile.getSize())
 		);
 
+		String fileUrl = getPublicUrl(s3Key);
+
 		ImageFile imageFile = new ImageFile().builder()
 			.user(user)
 			.fileName(getFilename(inputFile.getOriginalFilename()))
 			.fileType(fileExtension)
 			.fileSize(inputFile.getSize())
+			.filePath(fileUrl)
 			.category(category)
 			.build();
 
@@ -83,7 +86,7 @@ public class FileServiceImpl implements FileService{
 		// url 반환
 		return CommonResponseDto.builder()
 			.msg("사진 업로드가 완료되었습니다.")
-			.data(getPublicUrl(s3Key))
+			.data(fileUrl)
 			.build();
 	}
 

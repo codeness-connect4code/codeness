@@ -20,7 +20,7 @@ import lombok.Getter;
 
 @Getter
 @Entity
-@Table(name = "file_profile")
+@Table(name = "file")
 public class ImageFile extends BaseEntity {
 
 	@Id
@@ -41,6 +41,9 @@ public class ImageFile extends BaseEntity {
 	private Long fileSize;
 
 	@Column(nullable = false)
+	private String filePath;
+
+	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)
 	private FileCategory category;
 
@@ -48,12 +51,13 @@ public class ImageFile extends BaseEntity {
 	}
 
 	@Builder
-	public ImageFile(User user, String fileName, String fileType, Long fileSize,
+	public ImageFile(User user, String fileName, String fileType, Long fileSize, String filePath,
 		FileCategory category) {
 		this.user = user;
 		this.fileName = fileName;
 		this.fileType = fileType;
 		this.fileSize = fileSize;
+		this.filePath = filePath;
 		this.category = category;
 	}
 }

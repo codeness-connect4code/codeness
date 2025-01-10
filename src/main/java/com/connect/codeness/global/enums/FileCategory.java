@@ -8,9 +8,9 @@ public enum FileCategory {
 	EMPLOYEE_CARD("EmployeeCard"),;
 
 	@Getter
-	private final String path;
+	private final String categoryText;
 
-	FileCategory(String path) {
-		this.path = path;
+	FileCategory(String categoryText) {
+		this.categoryText = categoryText;
 	}
 }
