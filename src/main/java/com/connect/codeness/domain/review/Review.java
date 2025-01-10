@@ -38,6 +38,7 @@ public class Review extends BaseEntity {
 
 	@NotBlank
 	@Size(max = 300)
+	@Column(nullable = false, length = 300)
 	private String reviewContent;
 
 	public Review(){ }

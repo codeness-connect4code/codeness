@@ -28,5 +28,4 @@ public class MentorRequestController {
 		CommonResponseDto response = mentorRequestService.createMentorRequest(1L, mentorRequestCreateResponseDto);
 		return new ResponseEntity<>(response, HttpStatus.CREATED);
 	}
-
 }

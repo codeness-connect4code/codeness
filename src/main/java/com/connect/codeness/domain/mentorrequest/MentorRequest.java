@@ -53,10 +53,6 @@ public class MentorRequest extends CreateTimeEntity {
 	@Column(nullable = false)
 	private MentorRequestStatus isAccepted;
 
-	//todo : file service 구현 시 추가 수정
-//	@Column(nullable = false)
-//	private String employeeCardUrl;
-
 	@Enumerated(EnumType.STRING)
 	private FieldType field;
 

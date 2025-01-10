@@ -1,11 +1,10 @@
 package com.connect.codeness.domain.user;
 
-import com.connect.codeness.domain.file.ProfileImage;
+
 import com.connect.codeness.global.entity.BaseEntity;
 import com.connect.codeness.global.enums.FieldType;
 import com.connect.codeness.global.enums.UserRole;
 import com.connect.codeness.global.enums.UserStatus;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -13,7 +12,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Builder;
@@ -71,9 +69,6 @@ public class User extends BaseEntity {
 
 	@Size(max = 100, message = "이 필드는 최대 {max}자까지 가능합니다.")
 	private String firebaseUserId;
-
-	@OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-	private ProfileImage profileImage;
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)

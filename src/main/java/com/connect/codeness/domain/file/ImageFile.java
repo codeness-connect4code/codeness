@@ -1,9 +1,8 @@
-package com.connect.codeness.domain.post;
+package com.connect.codeness.domain.file;
 
 import com.connect.codeness.domain.user.User;
 import com.connect.codeness.global.entity.BaseEntity;
-import com.connect.codeness.global.enums.CommunityStatus;
-import com.connect.codeness.global.enums.PostType;
+import com.connect.codeness.global.enums.FileCategory;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -14,13 +13,15 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.validation.constraints.Size;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import lombok.Builder;
 import lombok.Getter;
 
 @Getter
 @Entity
-public class Post extends BaseEntity {
+@Table(name = "file")
+public class ImageFile extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,34 +32,36 @@ public class Post extends BaseEntity {
 	private User user;
 
 	@Column(nullable = false)
-	@Size(max = 50)
-	private String title;
+	private String fileName;
 
 	@Column(nullable = false)
-	private String content;
+	private String fileType;
 
 	@Column(nullable = false)
-	private Long view;
+	private Long fileSize;
 
+	@Column(nullable = false)
+	private String fileKey;
+
+	@Column(nullable = false)
+	private String filePath;
+
+	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)
-	@Column(nullable = false)
-	private PostType Type;
+	private FileCategory fileCategory;
 
-	@Enumerated(EnumType.STRING)
-	@Column(nullable = false)
-	private CommunityStatus Status;
-
-	@Builder
-	public Post(User user, String title, String content, Long view, PostType type,
-		CommunityStatus status) {
-		this.user = user;
-		this.title = title;
-		this.content = content;
-		this.view = view;
-		this.Type = type;
-		this.Status = status;
+	public ImageFile() {
 	}
 
-	public Post() {
+	@Builder
+	public ImageFile(User user, String fileName, String fileType, Long fileSize, String filePath,
+		String fileKey, FileCategory category) {
+		this.user = user;
+		this.fileName = fileName;
+		this.fileType = fileType;
+		this.fileSize = fileSize;
+		this.fileKey = fileKey;
+		this.filePath = filePath;
+		this.fileCategory = category;
 	}
 }
