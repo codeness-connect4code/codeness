@@ -6,7 +6,6 @@ import com.connect.codeness.domain.paymentlist.PaymentListRepository;
 import com.connect.codeness.domain.review.dto.ReviewCreateRequestDto;
 import com.connect.codeness.domain.review.dto.ReviewFindResponseDto;
 import com.connect.codeness.global.dto.CommonResponseDto;
-import com.connect.codeness.global.enums.ReviewStatus;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
 import java.time.LocalDate;
@@ -67,7 +66,7 @@ public class ReviewServiceImpl implements ReviewService {
 
         //후기 내용 작성 후 결제내역의 후기 작성 상태 COMPLETE
         reviewRepository.save(review);
-        paymentList.updateReviewStatus(ReviewStatus.COMPLETE);
+        //paymentList.updateReviewStatus(ReviewStatus.COMPLETE);
 
         return CommonResponseDto.builder().msg("리뷰 생성이 완료되었습니다.").build();
     }
