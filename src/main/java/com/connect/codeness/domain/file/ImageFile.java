@@ -41,23 +41,27 @@ public class ImageFile extends BaseEntity {
 	private Long fileSize;
 
 	@Column(nullable = false)
+	private String fileKey;
+
+	@Column(nullable = false)
 	private String filePath;
 
 	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)
-	private FileCategory category;
+	private FileCategory fileCategory;
 
 	public ImageFile() {
 	}
 
 	@Builder
 	public ImageFile(User user, String fileName, String fileType, Long fileSize, String filePath,
-		FileCategory category) {
+		String fileKey, FileCategory category) {
 		this.user = user;
 		this.fileName = fileName;
 		this.fileType = fileType;
 		this.fileSize = fileSize;
+		this.fileKey = fileKey;
 		this.filePath = filePath;
-		this.category = category;
+		this.fileCategory = category;
 	}
 }

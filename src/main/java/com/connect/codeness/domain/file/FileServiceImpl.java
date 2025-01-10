@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 @Service
@@ -77,6 +78,7 @@ public class FileServiceImpl implements FileService{
 			.fileName(getFilename(inputFile.getOriginalFilename()))
 			.fileType(fileExtension)
 			.fileSize(inputFile.getSize())
+			.fileKey(s3Key)
 			.filePath(fileUrl)
 			.category(category)
 			.build();
@@ -89,6 +91,30 @@ public class FileServiceImpl implements FileService{
 			.data(fileUrl)
 			.build();
 	}
+
+	// 파일 삭제 메서드
+	public CommonResponseDto deleteFile(Long userId, FileCategory category) throws IOException {
+
+		// 유저 ID와 파일 카테고리로 파일 찾기
+		ImageFile imageFile = fileRepository.findByUserIdAndFileCategoryOrElseThrow(userId, category);
+
+		// 파일에서
+		String s3Key = imageFile.getFileKey();
+
+		s3Client.deleteObject(
+			DeleteObjectRequest.builder()
+				.bucket(bucketName)
+				.key(s3Key)
+				.build()
+		);
+
+		fileRepository.delete(imageFile);
+
+		return CommonResponseDto.builder()
+			.msg("사진이 S3와 DB에서 삭제되었습니다.")
+			.build();
+	}
+
 
 	// 파일 확장자 가져오기
 	private String getFileExtension(String originalFilename) {
