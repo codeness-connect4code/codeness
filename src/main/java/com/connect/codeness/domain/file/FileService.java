@@ -9,4 +9,7 @@ public interface FileService {
 
 	// 파일 업로드 메서드
 	CommonResponseDto createFile(MultipartFile inputFile, Long userId, FileCategory category) throws IOException;
+
+	// 파일 삭제 메서드
+	CommonResponseDto deleteFile(Long userId, FileCategory category) throws IOException;
 }

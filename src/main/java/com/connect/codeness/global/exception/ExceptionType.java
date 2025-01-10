@@ -32,7 +32,7 @@ public enum ExceptionType {
 	NOT_FOUND_POST(HttpStatus.NOT_FOUND, "게시글을 찾을 수 없습니다."),
 	NOT_FOUND_PAYMENTLIST(HttpStatus.NOT_FOUND, "거래 내역을 찾을 수 없습니다."),
 	NOT_FOUND_NEWS(HttpStatus.NOT_FOUND,"뉴스를 찾을 수 없습니다."),
-
+	NOT_FOUND_USER(HttpStatus.NOT_FOUND,"유저를 찾을 수 없습니다."),
 	NOT_FOUND_REVIEW(HttpStatus.NOT_FOUND, "후기를 찾을 수 없습니다."),
 	NOT_FOUND_FILE(HttpStatus.NOT_FOUND, "파일을 찾을 수 없습니다."),
 

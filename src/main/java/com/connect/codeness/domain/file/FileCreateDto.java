@@ -6,7 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @Builder
-public class testDto {
+public class FileCreateDto {
 
 	private MultipartFile file;
 
