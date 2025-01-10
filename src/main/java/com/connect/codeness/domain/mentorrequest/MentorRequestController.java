@@ -28,10 +28,4 @@ public class MentorRequestController {
 		CommonResponseDto response = mentorRequestService.createMentorRequest(1L, mentorRequestCreateResponseDto);
 		return new ResponseEntity<>(response, HttpStatus.CREATED);
 	}
-
-	@PostMapping("/asdf")
-	public ResponseEntity<CommonResponseDto> test(){
-		return new ResponseEntity<>(HttpStatus.OK);
-	}
-
 }

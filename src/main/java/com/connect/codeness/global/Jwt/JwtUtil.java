@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class JwtUtil {
 
-	SecretKey secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256); // secret key를 application.properties에 설정
+	SecretKey secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
 	private final long expirationTime = 86400000L; // 24시간
 
