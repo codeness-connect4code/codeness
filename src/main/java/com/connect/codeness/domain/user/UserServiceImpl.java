@@ -3,13 +3,13 @@ package com.connect.codeness.domain.user;
 import com.connect.codeness.domain.user.dto.LoginRequestDto;
 import com.connect.codeness.domain.user.dto.UserCreateRequestDto;
 import com.connect.codeness.global.Jwt.JwtUtil;
-import com.connect.codeness.global.config.PasswordEncoder;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
