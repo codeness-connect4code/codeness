@@ -13,6 +13,7 @@ public enum ExceptionType {
 	ALEADY_EXIST_EMAIL(HttpStatus.BAD_REQUEST,"이미 사용중인 이메일 입니다."),
 	MENTOR_REQUEST_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST,"한 명당 하나의 신청만 가능합니다."),
 	TOO_EARLY_REVIEW(HttpStatus.BAD_REQUEST, "아직 후기를 작성할 수 없습니다."),
+	NOT_SUPPORT_EXTENSION(HttpStatus.BAD_REQUEST, "올바른 확장자가 아닙니다."),
 
 	// 401 Unauthorized
 	UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증이 필요합니다."),
@@ -30,14 +31,18 @@ public enum ExceptionType {
 	NOT_FOUND(HttpStatus.NOT_FOUND,"리소스를 찾을 수 없습니다."),
 	NOT_FOUND_POST(HttpStatus.NOT_FOUND, "게시글을 찾을 수 없습니다."),
 	NOT_FOUND_PAYMENTLIST(HttpStatus.NOT_FOUND, "거래 내역을 찾을 수 없습니다."),
+	NOT_FOUND_NEWS(HttpStatus.NOT_FOUND,"뉴스를 찾을 수 없습니다."),
+
 	NOT_FOUND_REVIEW(HttpStatus.NOT_FOUND, "후기를 찾을 수 없습니다."),
+	NOT_FOUND_FILE(HttpStatus.NOT_FOUND, "파일을 찾을 수 없습니다."),
+
 	// 409 CONFLICT
 	DUPLICATE_VALUE(HttpStatus.CONFLICT, "중복된 정보입니다."),
 	USER_ALREADY_DELETED(HttpStatus.CONFLICT, "이미 탈퇴한 사용자 아이디입니다."),
 
 	;
 
-    private final HttpStatus httpStatus;
+	private final HttpStatus httpStatus;
 	private final String errorMessage;
 
 	ExceptionType(HttpStatus httpStatus, String errorMessage) {

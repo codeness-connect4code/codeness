@@ -47,6 +47,9 @@ dependencies {
     //s3
     implementation 'io.awspring.cloud:spring-cloud-aws-starter:3.1.1'
     implementation 'software.amazon.awssdk:s3:2.20.89'
+    //Cache
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
+    implementation 'com.github.ben-manes.caffeine:caffeine'
     // JWT
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'

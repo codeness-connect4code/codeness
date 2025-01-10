@@ -14,6 +14,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -30,6 +31,7 @@ public class Post extends BaseEntity {
 	private User user;
 
 	@Column(nullable = false)
+	@Size(max = 50)
 	private String title;
 
 	@Column(nullable = false)
