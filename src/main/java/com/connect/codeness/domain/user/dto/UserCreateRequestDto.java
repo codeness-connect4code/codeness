@@ -31,7 +31,9 @@ public class UserCreateRequestDto {
 	@Size(max = 30, message = "이 필드는 최대 {max}자까지 가능합니다.")
 	private String phoneNumber;
 
+	@NotBlank
 	private FieldType field;
 
+	@NotBlank
 	private UserRole userRole;
 }
