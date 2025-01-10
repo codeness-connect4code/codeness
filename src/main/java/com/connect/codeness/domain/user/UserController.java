@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping
 public class UserController {
 	private final UserService userService;
 	private final JwtUtil jwtUtil;
@@ -27,7 +27,7 @@ public class UserController {
 		this.authenticationManager = authenticationManager;
 	}
 
-	@PostMapping
+	@PostMapping("/signup")
 	public ResponseEntity<CommonResponseDto> createUser(@Valid @RequestBody UserCreateRequestDto userCreateRequestDto) {
 		CommonResponseDto response = userService.createUser(userCreateRequestDto);
 
