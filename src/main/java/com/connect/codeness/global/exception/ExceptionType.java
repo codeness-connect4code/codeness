@@ -18,6 +18,7 @@ public enum ExceptionType {
 	UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증이 필요합니다."),
 	UNAUTHORIZED_PASSWORD(HttpStatus.UNAUTHORIZED, "패스워드가 틀렸습니다."),
 	UNAUTHORIZED_DELETE_REQUEST(HttpStatus.UNAUTHORIZED, "권한이 없는 삭제 요청입니다."),
+	INVALID_TOKEN(HttpStatus.UNAUTHORIZED,"유효하지 않은 토큰입니다."),
 
 	// 403 Forbidden
 	FORBIDDEN_ACCESS(HttpStatus.FORBIDDEN,"접근이 거부됐습니다."),
