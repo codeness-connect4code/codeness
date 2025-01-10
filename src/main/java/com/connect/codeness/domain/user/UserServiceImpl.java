@@ -2,6 +2,7 @@ package com.connect.codeness.domain.user;
 
 import com.connect.codeness.domain.user.dto.LoginRequestDto;
 import com.connect.codeness.domain.user.dto.UserCreateRequestDto;
+import com.connect.codeness.domain.user.dto.UserResponseDto;
 import com.connect.codeness.global.Jwt.JwtUtil;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.exception.BusinessException;
@@ -65,6 +66,26 @@ public class UserServiceImpl implements UserService {
 		String token = jwtUtil.generateToken(user.getEmail(),user.getId(),user.getRole().toString());
 
 		return token;
+	}
+
+	@Override
+	public CommonResponseDto getUser(String email) {
+		User user = userRepository.findByEmailOrElseThrow(email);
+
+		UserResponseDto userResponseDto = UserResponseDto.builder()
+			.name(user.getName())
+			.nickname(user.getUserNickname())
+			.email(user.getEmail())
+			.phoneNumber(user.getPhoneNumber())
+			.region(user.getRegion())
+			.field(user.getField())
+			.career(user.getCareer())
+			.mbti(user.getMbti())
+			.siteLink(user.getSite_link()).build();
+
+		return CommonResponseDto.builder()
+			.msg("마이프로필 조회 성공")
+			.data(userResponseDto).build();
 	}
 }
 

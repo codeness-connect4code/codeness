@@ -7,5 +7,6 @@ import com.connect.codeness.global.dto.CommonResponseDto;
 public interface UserService {
 	CommonResponseDto createUser(UserCreateRequestDto userCreateRequestDto);
 	String login(LoginRequestDto loginRequestDto);
+	CommonResponseDto getUser(String email);
 }
 
