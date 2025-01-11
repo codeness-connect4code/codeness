@@ -1,8 +1,9 @@
 package com.connect.codeness.domain.user;
 
 import com.connect.codeness.domain.user.dto.LoginRequestDto;
+import com.connect.codeness.domain.user.dto.UserBankUpdateRequestDto;
 import com.connect.codeness.domain.user.dto.UserCreateRequestDto;
-import com.connect.codeness.domain.user.dto.UserPasswordUpdateDto;
+import com.connect.codeness.domain.user.dto.UserPasswordUpdateRequestDto;
 import com.connect.codeness.domain.user.dto.UserResponseDto;
 import com.connect.codeness.domain.user.dto.UserUpdateRequestDto;
 import com.connect.codeness.global.Jwt.JwtUtil;
@@ -101,14 +102,26 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
+	@Transactional
 	public CommonResponseDto updatePassword(Long userId,
-		UserPasswordUpdateDto dto) {
+		UserPasswordUpdateRequestDto dto) {
 		User user = userRepository.findByIdOrElseThrow(userId);
 		if(!passwordEncoder.matches(dto.getCurrentPassword(),user.getPassword())){
 			throw new BusinessException(ExceptionType.UNAUTHORIZED_PASSWORD);
 		}
 		user.setPassword(dto.getNewPassword());
+		userRepository.save(user);
 		return CommonResponseDto.builder().msg("패스워드 수정 완료").build();
+	}
+
+	@Override
+	@Transactional
+	public CommonResponseDto updateBankAccount(Long userId,
+		UserBankUpdateRequestDto dto) {
+		User user = userRepository.findByIdOrElseThrow(userId);
+		user.setBank(dto.getBankName(),dto.getBankAccount());
+		userRepository.save(user);
+		return CommonResponseDto.builder().msg("계좌 입력 완료").build();
 	}
 }
 

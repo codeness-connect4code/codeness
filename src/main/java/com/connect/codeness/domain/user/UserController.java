@@ -2,8 +2,9 @@ package com.connect.codeness.domain.user;
 
 import com.connect.codeness.domain.user.dto.JwtResponseDto;
 import com.connect.codeness.domain.user.dto.LoginRequestDto;
+import com.connect.codeness.domain.user.dto.UserBankUpdateRequestDto;
 import com.connect.codeness.domain.user.dto.UserCreateRequestDto;
-import com.connect.codeness.domain.user.dto.UserPasswordUpdateDto;
+import com.connect.codeness.domain.user.dto.UserPasswordUpdateRequestDto;
 import com.connect.codeness.domain.user.dto.UserUpdateRequestDto;
 import com.connect.codeness.global.Jwt.JwtUtil;
 import com.connect.codeness.global.dto.CommonResponseDto;
@@ -104,7 +105,7 @@ public class UserController {
 	@PatchMapping("/users/{userId}/password")
 	public ResponseEntity<CommonResponseDto> updatePassword(
 		@RequestHeader("Authorization") String authorizationHeader,
-		@RequestBody UserPasswordUpdateDto userPasswordUpdateDto,
+		@RequestBody UserPasswordUpdateRequestDto userPasswordUpdateRequestDto,
 		@PathVariable Long userId
 	){
 		String token = authorizationHeader.substring("Bearer ".length());
@@ -112,7 +113,23 @@ public class UserController {
 		if(userId != tokenId){
 			throw new BusinessException(ExceptionType.FORBIDDEN_PERMISSION);
 		}
-		CommonResponseDto commonResponseDto = userService.updatePassword(userId, userPasswordUpdateDto);
+		CommonResponseDto commonResponseDto = userService.updatePassword(userId,
+			userPasswordUpdateRequestDto);
+		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
+	}
+
+	@PatchMapping("/users/{userId}/bank-account")
+	public ResponseEntity<CommonResponseDto> updateBankAccount(
+		@RequestHeader("Authorization") String authorizationHeader,
+		@RequestBody UserBankUpdateRequestDto userBankUpdateRequestDto,
+		@PathVariable Long userId
+	){
+		String token = authorizationHeader.substring("Bearer ".length());
+		Long tokenId = jwtUtil.extractUserId(token);
+		if(userId != tokenId){
+			throw new BusinessException(ExceptionType.FORBIDDEN_PERMISSION);
+		}
+		CommonResponseDto commonResponseDto = userService.updateBankAccount(userId,userBankUpdateRequestDto);
 		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
 	}
 }

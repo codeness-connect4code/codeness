@@ -114,4 +114,9 @@ public class User extends BaseEntity {
 	public void setPassword(String password) {
 		this.password = password;
 	}
+
+	public void setBank(String bankName, String account){
+		this.bankName = bankName;
+		this.account = account;
+	}
 }
