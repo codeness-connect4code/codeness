@@ -4,6 +4,7 @@ import com.connect.codeness.domain.user.dto.JwtResponseDto;
 import com.connect.codeness.domain.user.dto.LoginRequestDto;
 import com.connect.codeness.domain.user.dto.UserBankUpdateRequestDto;
 import com.connect.codeness.domain.user.dto.UserCreateRequestDto;
+import com.connect.codeness.domain.user.dto.UserDeleteResponseDto;
 import com.connect.codeness.domain.user.dto.UserPasswordUpdateRequestDto;
 import com.connect.codeness.domain.user.dto.UserUpdateRequestDto;
 import com.connect.codeness.global.Jwt.JwtUtil;
@@ -14,6 +15,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -130,6 +132,21 @@ public class UserController {
 			throw new BusinessException(ExceptionType.FORBIDDEN_PERMISSION);
 		}
 		CommonResponseDto commonResponseDto = userService.updateBankAccount(userId,userBankUpdateRequestDto);
+		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
+	}
+
+	@DeleteMapping("/users/{userId}")
+	public ResponseEntity<CommonResponseDto> deleteUser(
+		@RequestHeader("Authorization") String authorizationHeader,
+		@RequestBody UserDeleteResponseDto userDeleteResponseDto,
+		@PathVariable Long userId
+	){
+		String token = authorizationHeader.substring("Bearer ".length());
+		Long tokenId = jwtUtil.extractUserId(token);
+		if(userId != tokenId){
+			throw new BusinessException(ExceptionType.FORBIDDEN_PERMISSION);
+		}
+		CommonResponseDto commonResponseDto = userService.deleteUser(userId,userDeleteResponseDto);
 		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
 	}
 }

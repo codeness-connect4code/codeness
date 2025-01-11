@@ -3,6 +3,7 @@ package com.connect.codeness.domain.user;
 import com.connect.codeness.domain.user.dto.LoginRequestDto;
 import com.connect.codeness.domain.user.dto.UserBankUpdateRequestDto;
 import com.connect.codeness.domain.user.dto.UserCreateRequestDto;
+import com.connect.codeness.domain.user.dto.UserDeleteResponseDto;
 import com.connect.codeness.domain.user.dto.UserPasswordUpdateRequestDto;
 import com.connect.codeness.domain.user.dto.UserResponseDto;
 import com.connect.codeness.domain.user.dto.UserUpdateRequestDto;
@@ -122,6 +123,18 @@ public class UserServiceImpl implements UserService {
 		user.setBank(dto.getBankName(),dto.getBankAccount());
 		userRepository.save(user);
 		return CommonResponseDto.builder().msg("계좌 입력 완료").build();
+	}
+
+	@Override
+	@Transactional
+	public CommonResponseDto deleteUser(Long userId, UserDeleteResponseDto dto) {
+		User user = userRepository.findByIdOrElseThrow(userId);
+		if (!passwordEncoder.matches(dto.getPassword(),user.getPassword())){
+			throw new BusinessException(ExceptionType.UNAUTHORIZED_PASSWORD);
+		}
+		user.deleteUser();
+		userRepository.save(user);
+		return CommonResponseDto.builder().msg("회원 탈퇴 완료").build();
 	}
 }
 

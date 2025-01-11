@@ -119,4 +119,8 @@ public class User extends BaseEntity {
 		this.bankName = bankName;
 		this.account = account;
 	}
+
+	public void deleteUser() {
+		this.userStatus = UserStatus.LEAVE;
+	}
 }
