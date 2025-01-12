@@ -1,10 +1,13 @@
 package com.connect.codeness.domain.user;
 
 
+import com.connect.codeness.domain.file.ImageFile;
+import com.connect.codeness.domain.user.dto.UserUpdateRequestDto;
 import com.connect.codeness.global.entity.BaseEntity;
 import com.connect.codeness.global.enums.FieldType;
 import com.connect.codeness.global.enums.UserRole;
 import com.connect.codeness.global.enums.UserStatus;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -12,9 +15,12 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.Size;
-import lombok.Getter;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Builder;
+import lombok.Getter;
 
 @Getter
 @Entity(name = "user")
@@ -74,6 +80,9 @@ public class User extends BaseEntity {
 	@Column(nullable = false)
 	private FieldType field;
 
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<ImageFile> imageFiles = new ArrayList<>();
+
 	@Builder
 	public User(String email, String password,String name, String userNickname, String phoneNumber, FieldType field, UserRole role) {
 		this.email = email;
@@ -87,4 +96,31 @@ public class User extends BaseEntity {
 	}
 
 	public User() {}
+
+	public void update(UserUpdateRequestDto dto) {
+		this.userNickname = dto.getNickname();
+		this.phoneNumber = dto.getPhoneNumber();
+		this.region = dto.getRegion();
+		this.career = dto.getCareer();
+		this.mbti = dto.getMbti();
+		this.site_link = dto.getSiteLink();
+		this.field = dto.getField();
+	}
+
+	public void setImageFiles(ImageFile imageFile) {
+		this.imageFiles.add(imageFile);
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public void setBank(String bankName, String account){
+		this.bankName = bankName;
+		this.account = account;
+	}
+
+	public void deleteUser() {
+		this.userStatus = UserStatus.LEAVE;
+	}
 }
