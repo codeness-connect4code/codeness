@@ -6,7 +6,7 @@ import com.connect.codeness.global.dto.CommonResponseDto;
 
 public interface PostService {
 
-	CommonResponseDto createPost(PostCreateRequestDto postCreateRequestDto);
+	CommonResponseDto createPost(Long userId, PostCreateRequestDto postCreateRequestDto);
 
 }
 

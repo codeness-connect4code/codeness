@@ -1,6 +1,8 @@
 package com.connect.codeness.domain.post;
 
 import com.connect.codeness.domain.post.dto.PostCreateRequestDto;
+import com.connect.codeness.domain.user.User;
+import com.connect.codeness.domain.user.UserRepository;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.enums.CommunityStatus;
 import org.springframework.stereotype.Service;
@@ -9,20 +11,21 @@ import org.springframework.stereotype.Service;
 public class PostServiceImpl implements PostService {
 
 	private PostRepository postRepository;
+	private UserRepository userRepository;
 
-	public PostServiceImpl(PostRepository postRepository) {
+	public PostServiceImpl(PostRepository postRepository, UserRepository userRepository) {
 		this.postRepository = postRepository;
+		this.userRepository = userRepository;
 	}
 
 	// 게시글 생성 메서드
 	@Override
-	public CommonResponseDto createPost(PostCreateRequestDto dto){
+	public CommonResponseDto createPost(Long userId, PostCreateRequestDto dto){
 
-		/*
-		* 게시글 객체 생성
-		* todo. 토큰에서 유저 객체 받아와서 넣어줘야함.
-		*/
+		User user = userRepository.findByIdOrElseThrow(userId);
+
 		Post post = new Post().builder()
+			.user(user)
 			.title(dto.getTitle())
 			.content(dto.getContent())
 			.view(0l)
