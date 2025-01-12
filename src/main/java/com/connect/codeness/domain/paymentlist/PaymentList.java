@@ -21,6 +21,7 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import lombok.Builder;
 import lombok.Getter;
 
 @Getter
@@ -72,7 +73,38 @@ public class PaymentList extends CreateTimeEntity {
 	@Column(nullable = true)
 	private String bankName; //계좌 은행명
 
-	public void updateReviewStatus(ReviewStatus reviewStatus) {
+	public PaymentList() {
+
+	}
+
+	@Builder
+	public PaymentList(Payment payment, User user, String pgTid, BigDecimal paymentCost,
+		String paymentCard, PaymentStatus paymentStatus, SettleStatus settleStatus,
+		LocalDateTime canceledAt, ReviewStatus reviewStatus, String account, String bankName) {
+		this.payment = payment;
+		this.user = user;
+		this.pgTid = pgTid;
+		this.paymentCost = paymentCost;
+		this.paymentCard = paymentCard;
+		this.paymentStatus = paymentStatus;
+		this.settleStatus = settleStatus;
+		this.canceledAt = canceledAt;
 		this.reviewStatus = reviewStatus;
+		this.account = account;
+		this.bankName = bankName;
+	}
+
+	/**
+	 * Review 상태 업데이트 메서드
+	 */
+	public void updateReviewStatus(ReviewStatus status){
+		this.reviewStatus = status;
+	}
+
+	/**
+	 * paymentList 결제 상태 수정
+	 */
+	public void updateStatus(PaymentStatus paymentStatus){
+		this.paymentStatus = PaymentStatus.COMPLETE;
 	}
 }
