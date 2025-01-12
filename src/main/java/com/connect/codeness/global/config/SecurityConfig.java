@@ -1,6 +1,7 @@
 package com.connect.codeness.global.config;
 
 import com.connect.codeness.global.Jwt.JwtFilter;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,7 +27,9 @@ public class SecurityConfig {
 		http
 			.csrf(AbstractHttpConfigurer::disable)
 			.authorizeHttpRequests(auth -> auth
-				.requestMatchers("/signup", "/login").permitAll()  // 로그인, 회원가입은 인증 없이 접근 가능
+//				.requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
+				.requestMatchers("/signup", "/login", "/login-page", "/users/**" ,"/payment", "/mentoring/**", "/loginPage.html", "/payment.html").permitAll()  // 로그인, 회원가입은 인증 없이 접근 가능
+//				.requestMatchers("/signup", "/login", "/login-page", "/users/**" ,"/payment", "/mentoring/**").permitAll()  // 로그인, 회원가입은 인증 없이 접근 가능
 				.anyRequest().authenticated())  // 그 외 요청은 인증 필요
 			.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);  // JWT 필터 추가
 

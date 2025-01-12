@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Iamport JavaScript SDK -->
+  <script src="https://cdn.iamport.kr/js/iamport.payment-1.2.0.js"></script>
+  <!-- 외부 stylesheet -->
+  <!--  <link rel="stylesheet" href="/css/style.css">-->
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+
+    h1 {
+      background-color: #84aee5;
+      color: white;
+      padding: 20px;
+      margin: 0;
+      text-align: center;
+    }
+
+    h2 {
+      color: #7597d2;
+      margin-bottom: 10px;
+    }
+
+    #schedule-list, #payment-section {
+      max-width: 600px;
+      margin: 20px auto;
+      background: white;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      padding: 20px;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      background-color: #fdfdfd;
+      transition: box-shadow 0.3s ease;
+    }
+
+    li:hover {
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    }
+
+    button {
+      background-color: #84aee5;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #84aee5;
+    }
+
+    button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+
+    #selected-schedule {
+      font-size: 16px;
+      color: #555;
+      margin-bottom: 20px;
+    }
+
+    /* 결제 섹션 스타일 */
+    #payment-section {
+      display: none;
+    }
+
+    #payment-section h2 {
+      margin-top: 0;
+    }
+
+    /* 반응형 디자인 */
+    @media (max-width: 768px) {
+      body {
+        padding: 10px;
+      }
+
+      #schedule-list, #payment-section {
+        padding: 15px;
+      }
+
+      button {
+        padding: 10px 15px;
+        font-size: 16px;
+      }
+    }
+  </style>
+  <title>멘토링 스케쥴 신청 및 결제</title>
+</head>
+<body>
+<h1>멘토링 스케쥴 신청 및 결제</h1>
+
+<!-- 멘토링 스케쥴 리스트 -->
+<div id="schedule-list">
+  <h2>박짱구 멘토님의 스케쥴</h2>
+  <ul>
+    <li>
+      <span>스케쥴: 2025-01-20 오후 7시</span>
+      <button id="applyButton" data-schedule-id="45" data-schedule-info="2025-01-20 오후 2시">신청
+      </button>
+    </li>
+  </ul>
+</div>
+
+<!-- 결제 섹션 -->
+<div id="payment-section" style="display: none;">
+  <h2>결제 정보</h2>
+  <p id="selected-schedule"></p>
+  <button id="payNow">결제하기</button>
+</div>
+
+<script>
+  // 페이지 로드 시 토큰 확인
+  document.addEventListener('DOMContentLoaded', function() {
+    const token = localStorage.getItem('jwtToken');
+    if (!token) {
+      // 토큰이 없으면 로그인 페이지로 리다이렉션
+      window.location.href = '/login.html';
+      return;
+    }
+
+    const applyButton = document.getElementById("applyButton");
+    const payNowButton = document.getElementById("payNow");
+    let selectedScheduleId = null;
+    let paymentId = null;
+
+    if (applyButton) {
+      // 신청 버튼 클릭 이벤트
+      applyButton.addEventListener("click", () => {
+        const scheduleId = applyButton.dataset.scheduleId;
+        const scheduleInfo = applyButton.dataset.scheduleInfo;
+
+        applyButton.disabled = true; // 버튼 비활성화
+        document.getElementById("selected-schedule").textContent = `선택한 스케줄: ${scheduleInfo}`;
+
+        //결제(주문) 생성 API 호출
+        fetch("/mentoring/payments", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({
+            mentoringScheduleId: scheduleId,
+            paymentCost: 1, //결제 금액
+            paymentCard: "신용카드",
+          }),
+        })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("주문 생성 요청 실패");
+          }
+          return response.json();
+        })
+        .then((data) => {
+          alert("주문이 생성되었습니다.");
+          paymentId = data.data;
+          selectedScheduleId = scheduleId;
+
+          // 결제 섹션 표시
+          document.getElementById("schedule-list").style.display = "none";
+          document.getElementById("payment-section").style.display = "block";
+        })
+        .catch((error) => {
+          console.error("주문 생성 요청 중 오류:", error);
+          alert("주문 생성 중 문제가 발생했습니다. 다시 시도해주세요.");
+          //오류 시 버튼 다시 활성화
+          applyButton.disabled = false;
+        });
+      });
+    }
+
+    if (payNowButton) {
+      // 결제하기 버튼 클릭 이벤트
+      payNowButton.addEventListener("click", () => {
+        if (!selectedScheduleId) {
+          alert("먼저 스케줄을 신청해주세요.");
+          return;
+        }
+
+        //포트원 결제창 띄움
+        const IMP = window.IMP;
+        IMP.init("imp46707766"); //포트원 가맹점 식별코드 (테스트 모드)
+
+        //결제 데이터
+        const paymentData = {
+          pg: "html5_inicis",
+          pay_method: "card",
+          merchant_uid: `order_${new Date().getTime()}`,
+          name: `멘토링 스케줄 (${selectedScheduleId})`,
+          amount: 1,
+        };
+
+        //결제 요청
+        IMP.request_pay(paymentData, (rsp) => {
+          if (rsp.success) {
+            alert("결제가 완료되었습니다.");
+
+            //결제 검증 API 호출
+            fetch(`/mentoring/payments/${paymentId}/verify`, {
+              method: "POST",
+              headers: {"Content-Type": "application/json"},
+              body: JSON.stringify({
+                mentoringScheduleId: selectedScheduleId,
+                impUid: rsp.imp_uid, //클라이언트에서 받은 포트원 결제 요청 id
+                pgTid: rsp.pg_tid, //결제 완료시 pg사에서 발급 받는 id
+                paymentCost: rsp.paid_amount,
+                paymentCard: "신용카드",
+              }),
+            })
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error("결제 검증 요청 실패");
+              }
+              return response.json();
+            })
+            .then((data) => {
+              alert("결제 확인 완료: " + data.msg);
+            })
+            .catch((error) => {
+              console.error("결제 검증 요청 중 오류:", error);
+              alert("결제 검증 중 문제가 발생했습니다.");
+            });
+          } else {
+            alert("결제가 실패하였습니다. 오류: " + rsp.error_msg);
+
+            //결제 실패, 거절시 결제 삭제 API 호출
+            fetch(`/mentoring/payments/${paymentId}`, {
+              method: "DELETE",
+              headers: {"Content-Type": "application/json"},
+              body: JSON.stringify({
+                impUid: rsp.imp_uid, //포트원 결제 요청 id
+              }),
+            })
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error("결제 삭제 요청 실패");
+              }
+              return response.json();
+            })
+            .then((data) => {
+              alert("결제가 실패하여 삭제되었습니다: " + data.msg);
+            })
+            .catch((error) => {
+              console.error("결제 삭제 요청 중 오류:", error);
+              alert("결제 삭제 중 문제가 발생했습니다.");
+            });
+          }
+        });
+      });
+    }
+  });
+</script>
+</body>
+</html>

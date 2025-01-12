@@ -12,9 +12,11 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequestMapping("/mentoring")
 public class PaymentController {
 
 	private final PaymentService paymentService;
@@ -27,7 +29,7 @@ public class PaymentController {
 	 * 결제 생성 API
 	 * - 멘토링 스케쥴 신청
 	 */
-	@PostMapping("/mentoring/payments")
+	@PostMapping("/payments")
 	public ResponseEntity<CommonResponseDto> createPayment(@Valid @RequestBody PaymentRequestDto requestDto){
 		CommonResponseDto responseDto = paymentService.createPayment(1L, requestDto);
 
@@ -38,7 +40,7 @@ public class PaymentController {
 	 * 결제 삭제 API
 	 * - 결제 거절시 결제 데이터 삭제 메서드
 	 */
-	@DeleteMapping("/mentoring/payments/{paymentId}")
+	@DeleteMapping("/payments/{paymentId}")
 	public ResponseEntity<CommonResponseDto> deletePayment(@PathVariable Long paymentId, @Valid @RequestBody PaymentDeleteRequestDto requestDto){
 
 		CommonResponseDto responseDto = paymentService.deletePayment(paymentId, requestDto);
@@ -49,7 +51,7 @@ public class PaymentController {
 	/**
 	 * 결제 검증 API
 	 */
-	@PostMapping("/mentoring/payments/{paymentId}/verify")
+	@PostMapping("/payments/{paymentId}/verify")
 	public ResponseEntity<CommonResponseDto> verifyPayment(@PathVariable Long paymentId, @Valid @RequestBody PaymentRequestDto requestDto){
 
 		CommonResponseDto responseDto = paymentService.verifyPayment(paymentId, requestDto);

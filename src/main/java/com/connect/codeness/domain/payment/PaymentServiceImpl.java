@@ -52,6 +52,10 @@ public class PaymentServiceImpl implements PaymentService {
 		if (requestDto.getImpUid() != null && paymentRepository.existsByImpUid(requestDto.getImpUid())) {
 			throw new BusinessException(ExceptionType.DUPLICATE_VALUE);
 		}
+		
+		//시간 지나면 주문 생성 안되게 하는 로직
+		
+		// 멘토링 스케쥴에서 EMPTY 상태일 경우에만 생성
 
 		User user = userRepository.findByIdOrElseThrow(userId);
 		//멘토링 스케쥴 조회
@@ -161,5 +165,6 @@ public class PaymentServiceImpl implements PaymentService {
 		return CommonResponseDto.builder().msg("결제가 완료되었습니다.").data(payment.getId()).build();
 	}
 
+	//결제 취소 -> 결제 내역 상태, 멘토링 스케쥴 예약상태
 }
 
