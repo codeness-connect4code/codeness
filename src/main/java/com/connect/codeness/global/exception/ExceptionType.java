@@ -13,6 +13,7 @@ public enum ExceptionType {
 	ALEADY_EXIST_EMAIL(HttpStatus.BAD_REQUEST, "이미 사용중인 이메일 입니다."),
 	MENTOR_REQUEST_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "한 명당 하나의 신청만 가능합니다."),
 	TOO_EARLY_REVIEW(HttpStatus.BAD_REQUEST, "아직 후기를 작성할 수 없습니다."),
+	NOT_SUPPORT_EXTENSION(HttpStatus.BAD_REQUEST, "올바른 확장자가 아닙니다."),
 	INVALID_PAYMENT(HttpStatus.BAD_REQUEST, "결제가 유효하지 않습니다."),
 	MISSING_API_KEY(HttpStatus.BAD_REQUEST, "API KEY 값이 누락되었습니다."),
 
@@ -20,6 +21,7 @@ public enum ExceptionType {
 	UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증이 필요합니다."),
 	UNAUTHORIZED_PASSWORD(HttpStatus.UNAUTHORIZED, "패스워드가 틀렸습니다."),
 	UNAUTHORIZED_DELETE_REQUEST(HttpStatus.UNAUTHORIZED, "권한이 없는 삭제 요청입니다."),
+	INVALID_TOKEN(HttpStatus.UNAUTHORIZED,"유효하지 않은 토큰입니다."),
 
 	// 403 Forbidden
 	FORBIDDEN_ACCESS(HttpStatus.FORBIDDEN, "접근이 거부됐습니다."),
@@ -31,7 +33,10 @@ public enum ExceptionType {
 	NOT_FOUND(HttpStatus.NOT_FOUND, "리소스를 찾을 수 없습니다."),
 	NOT_FOUND_POST(HttpStatus.NOT_FOUND, "게시글을 찾을 수 없습니다."),
 	NOT_FOUND_PAYMENTLIST(HttpStatus.NOT_FOUND, "거래 내역을 찾을 수 없습니다."),
+	NOT_FOUND_NEWS(HttpStatus.NOT_FOUND,"뉴스를 찾을 수 없습니다."),
+	NOT_FOUND_USER(HttpStatus.NOT_FOUND,"유저를 찾을 수 없습니다."),
 	NOT_FOUND_REVIEW(HttpStatus.NOT_FOUND, "후기를 찾을 수 없습니다."),
+	NOT_FOUND_FILE(HttpStatus.NOT_FOUND, "파일을 찾을 수 없습니다."),
 	NOT_FOUND_PAYMENT(HttpStatus.NOT_FOUND, "거래를 찾을 수 없습니다."),
 	NOT_FOUND_MENTORING_SCHEDULE(HttpStatus.NOT_FOUND, "멘토링 스케쥴을 찾을 수 없습니다."),
 	NOT_FOUND_IMPUID(HttpStatus.NOT_FOUND, "imp_uid를 찾을 수 없습니다."),
@@ -44,7 +49,6 @@ public enum ExceptionType {
 	USER_ALREADY_DELETED(HttpStatus.CONFLICT, "이미 탈퇴한 사용자 아이디입니다."),
 
 	;
-
 
 	private final HttpStatus httpStatus;
 	private final String errorMessage;

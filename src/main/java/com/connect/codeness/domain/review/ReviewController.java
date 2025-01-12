@@ -1,7 +1,10 @@
 package com.connect.codeness.domain.review;
 
+import static com.connect.codeness.global.constants.Constants.*;
+
 import com.connect.codeness.domain.review.dto.ReviewCreateRequestDto;
 import com.connect.codeness.domain.review.dto.ReviewFindResponseDto;
+import com.connect.codeness.global.constants.Constants;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -38,10 +41,11 @@ public class ReviewController {
     @GetMapping("/mentoring-posts/{mentoringPostId}/reviews")
     public ResponseEntity<CommonResponseDto<Page<ReviewFindResponseDto>>> findReviews(
         @PathVariable Long mentoringPostId,
-        @RequestParam int pageNumber
+        @RequestParam(defaultValue = PAGE_NUMBER) int pageNumber,
+        @RequestParam(defaultValue = PAGE_SIZE) int pageSize
     ){
         CommonResponseDto<Page<ReviewFindResponseDto>> commonResponseDto
-            = reviewService.findReviews(mentoringPostId, pageNumber);
+            = reviewService.findReviews(mentoringPostId, pageNumber,pageSize);
 
         return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
     }

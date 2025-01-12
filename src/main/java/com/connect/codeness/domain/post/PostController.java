@@ -2,6 +2,7 @@ package com.connect.codeness.domain.post;
 
 import com.connect.codeness.domain.post.dto.PostCreateRequestDto;
 import com.connect.codeness.global.dto.CommonResponseDto;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,7 +22,7 @@ public class PostController {
 
 	// 게시글 생성
 	@PostMapping
-	public ResponseEntity<CommonResponseDto> createPost(@RequestBody PostCreateRequestDto dto){
+	public ResponseEntity<CommonResponseDto> createPost(@Valid @RequestBody PostCreateRequestDto dto){
 
 		CommonResponseDto responseDto = postService.createPost(dto);
 
