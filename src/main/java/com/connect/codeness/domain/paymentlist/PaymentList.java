@@ -72,4 +72,7 @@ public class PaymentList extends CreateTimeEntity {
 	@Column(nullable = true)
 	private String bankName; //계좌 은행명
 
+	public void updateReviewStatus(ReviewStatus reviewStatus) {
+		this.reviewStatus = reviewStatus;
+	}
 }
