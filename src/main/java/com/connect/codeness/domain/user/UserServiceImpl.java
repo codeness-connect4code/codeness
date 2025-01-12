@@ -1,7 +1,12 @@
 package com.connect.codeness.domain.user;
 
 import com.connect.codeness.domain.user.dto.LoginRequestDto;
+import com.connect.codeness.domain.user.dto.UserBankUpdateRequestDto;
 import com.connect.codeness.domain.user.dto.UserCreateRequestDto;
+import com.connect.codeness.domain.user.dto.UserDeleteResponseDto;
+import com.connect.codeness.domain.user.dto.UserPasswordUpdateRequestDto;
+import com.connect.codeness.domain.user.dto.UserResponseDto;
+import com.connect.codeness.domain.user.dto.UserUpdateRequestDto;
 import com.connect.codeness.global.Jwt.JwtUtil;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.exception.BusinessException;
@@ -65,6 +70,71 @@ public class UserServiceImpl implements UserService {
 		String token = jwtUtil.generateToken(user.getEmail(),user.getId(),user.getRole().toString());
 
 		return token;
+	}
+
+	@Override
+	public CommonResponseDto getUser(Long userId) {
+		User user = userRepository.findByIdOrElseThrow(userId);
+
+		UserResponseDto userResponseDto = UserResponseDto.builder()
+			.name(user.getName())
+			.nickname(user.getUserNickname())
+			.email(user.getEmail())
+			.phoneNumber(user.getPhoneNumber())
+			.region(user.getRegion())
+			.field(user.getField())
+			.career(user.getCareer())
+			.mbti(user.getMbti())
+			.siteLink(user.getSite_link()).build();
+
+		return CommonResponseDto.builder()
+			.msg("마이프로필 조회 성공")
+			.data(userResponseDto).build();
+	}
+
+	@Override
+	@Transactional
+	public CommonResponseDto updateUser(Long userId, UserUpdateRequestDto dto) {
+		User user = userRepository.findByIdOrElseThrow(userId);
+		user.update(dto);
+		userRepository.save(user);
+
+		return CommonResponseDto.builder().msg("회원 정보 수정 완료").build();
+	}
+
+	@Override
+	@Transactional
+	public CommonResponseDto updatePassword(Long userId,
+		UserPasswordUpdateRequestDto dto) {
+		User user = userRepository.findByIdOrElseThrow(userId);
+		if(!passwordEncoder.matches(dto.getCurrentPassword(),user.getPassword())){
+			throw new BusinessException(ExceptionType.UNAUTHORIZED_PASSWORD);
+		}
+		user.setPassword(dto.getNewPassword());
+		userRepository.save(user);
+		return CommonResponseDto.builder().msg("패스워드 수정 완료").build();
+	}
+
+	@Override
+	@Transactional
+	public CommonResponseDto updateBankAccount(Long userId,
+		UserBankUpdateRequestDto dto) {
+		User user = userRepository.findByIdOrElseThrow(userId);
+		user.setBank(dto.getBankName(),dto.getBankAccount());
+		userRepository.save(user);
+		return CommonResponseDto.builder().msg("계좌 입력 완료").build();
+	}
+
+	@Override
+	@Transactional
+	public CommonResponseDto deleteUser(Long userId, UserDeleteResponseDto dto) {
+		User user = userRepository.findByIdOrElseThrow(userId);
+		if (!passwordEncoder.matches(dto.getPassword(),user.getPassword())){
+			throw new BusinessException(ExceptionType.UNAUTHORIZED_PASSWORD);
+		}
+		user.deleteUser();
+		userRepository.save(user);
+		return CommonResponseDto.builder().msg("회원 탈퇴 완료").build();
 	}
 }
 
