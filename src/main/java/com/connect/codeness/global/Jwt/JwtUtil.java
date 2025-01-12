@@ -50,6 +50,10 @@ public class JwtUtil {
 		return extractClaims(token).getSubject();
 	}
 
+	public Long extractUserId(String token) {
+		return extractClaims(token).get("userId", Long.class);
+	}
+
 	// JWT 토큰 만료 여부 체크
 	public boolean isTokenExpired(String token) {
 		return extractClaims(token).getExpiration().before(new Date());
