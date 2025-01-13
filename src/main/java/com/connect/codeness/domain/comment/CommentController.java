@@ -1,5 +1,7 @@
 package com.connect.codeness.domain.comment;
 
+
+import static com.connect.codeness.global.constants.Constants.AUTHORIZATION;
 import com.connect.codeness.domain.comment.dto.CommentCreateRequestDto;
 import com.connect.codeness.global.Jwt.JwtUtil;
 import com.connect.codeness.global.dto.CommonResponseDto;
@@ -28,7 +30,7 @@ public class CommentController {
 	@PostMapping
 	public ResponseEntity<CommonResponseDto> createComment(@PathVariable("postId") Long postId,
 		@Valid @RequestBody CommentCreateRequestDto dto,
-		@RequestHeader("Authorization") String token){
+		@RequestHeader(AUTHORIZATION) String token){
 
 		Long userId = jwtUtil.extractUserId(token);
 
