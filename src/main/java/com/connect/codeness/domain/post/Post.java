@@ -38,24 +38,28 @@ public class Post extends BaseEntity {
 	private String content;
 
 	@Column(nullable = false)
+	private String writer;
+
+	@Column(nullable = false)
 	private Long view;
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
-	private PostType Type;
+	private PostType postType;
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private CommunityStatus Status;
 
 	@Builder
-	public Post(User user, String title, String content, Long view, PostType type,
+	public Post(User user, String title, String content, String writer, Long view, PostType postType,
 		CommunityStatus status) {
 		this.user = user;
 		this.title = title;
+		this.writer = writer;
 		this.content = content;
 		this.view = view;
-		this.Type = type;
+		this.postType = postType;
 		this.Status = status;
 	}
 
