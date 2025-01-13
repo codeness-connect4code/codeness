@@ -13,6 +13,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import lombok.Builder;
 import lombok.Getter;
 
 @Getter
@@ -32,9 +33,12 @@ public class Payment extends CreateTimeEntity {
 	@JoinColumn(name = "mentoring_schedule_id")
 	private MentoringSchedule mentoringSchedule;// 멘토링 스케쥴 고유 식별자 (외래키)
 
-	@Column(nullable = false)
-	private String pgTid; //PG사 발급 거래 ID
+	@Column(nullable = true)
+	private String pgTid; //PG사 발급 거래 고유 ID
 
+	@Column(nullable = true)
+	private String impUid; // 거래 요청시 발급되는 포트원 고유 결제 ID
+ 
 	@Column(nullable = false)
 	private BigDecimal paymentCost; //결제 금액
 
@@ -44,4 +48,31 @@ public class Payment extends CreateTimeEntity {
 	@Column(nullable = true)
 	private LocalDateTime canceledAt; //결제 취소일
 
+	public Payment() {
+
+	}
+
+	@Builder
+	public Payment(User user, MentoringSchedule mentoringSchedule, String pgTid, String impUid, BigDecimal paymentCost,
+		String paymentCard, LocalDateTime canceledAt) {
+		this.user = user;
+		this.mentoringSchedule = mentoringSchedule;
+		this.pgTid = pgTid;
+		this.impUid = impUid;
+		this.paymentCost = paymentCost;
+		this.paymentCard = paymentCard;
+		this.canceledAt = canceledAt;
+	}
+
+	/**
+	 * Payment 테이블에 impUid & pgTid 업데이트
+	 * ImpUid : 결제 요청시 발급
+	 * PgTid : 결제 성공시 발급
+ 	 */
+	public void updateImpUidAndPgTid(String impUid, String pgTid) {
+		this.impUid = impUid;
+		this.pgTid = pgTid;
+	}
+
+	
 }

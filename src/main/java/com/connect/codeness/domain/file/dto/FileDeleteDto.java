@@ -1,4 +1,4 @@
-package com.connect.codeness.domain.file;
+package com.connect.codeness.domain.file.dto;
 
 import com.connect.codeness.global.enums.FileCategory;
 import lombok.Builder;

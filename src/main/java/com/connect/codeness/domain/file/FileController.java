@@ -1,5 +1,7 @@
 package com.connect.codeness.domain.file;
 
+import com.connect.codeness.domain.file.dto.FileCreateDto;
+import com.connect.codeness.domain.file.dto.FileDeleteDto;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.enums.FileCategory;
 import java.io.IOException;
