@@ -41,7 +41,7 @@ public class UserServiceImpl implements UserService {
 		String encodedPassword = passwordEncoder.encode(dto.getPassword());
 
 		if(userRepository.existsByEmail(dto.getEmail())){
-			throw new BusinessException(ExceptionType.ALEADY_EXIST_EMAIL);
+			throw new BusinessException(ExceptionType.ALREADY_EXIST_EMAIL);
 		}
 
 		User user = new User().builder()

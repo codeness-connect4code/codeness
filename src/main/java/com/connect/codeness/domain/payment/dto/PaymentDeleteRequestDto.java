@@ -8,6 +8,6 @@ import lombok.Getter;
 public class PaymentDeleteRequestDto {
 
 	@NotNull
-	private String impUid;//포트원 결제 요청시 생성되는 기본키
+	private String impUid; //거래 요청시 발급되는 포트원 고유 결제 ID
 
 }
