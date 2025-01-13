@@ -24,6 +24,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
 	private static final List<String> POST_EXCLUDED_PATHS = List.of("/login", "/signup", "/chat-rooms");
 	private static final List<String> GET_EXCLUDED_PATHS = List.of("/posts", "/posts/.*","/chat-rooms");
+	private static final List<String> DELETE_EXCLUDED_PATHS = List.of("/chat-rooms");
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
@@ -40,6 +41,12 @@ public class JwtFilter extends OncePerRequestFilter {
 
 		// POST 메서드에 대한 화이트리스트 확인
 		if ("POST".equalsIgnoreCase(method) && POST_EXCLUDED_PATHS.stream().anyMatch(requestPath::startsWith)) {
+			chain.doFilter(request, response);
+			return;
+		}
+
+		// DELETE 메서드에 대한 화이트리스트 확인
+		if ("DELETE".equalsIgnoreCase(method) && DELETE_EXCLUDED_PATHS.stream().anyMatch(requestPath::startsWith)) {
 			chain.doFilter(request, response);
 			return;
 		}

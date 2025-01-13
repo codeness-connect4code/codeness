@@ -40,3 +40,8 @@ GET localhost:8080/chat-rooms
 
 ### 채팅방 상세 조회
 GET localhost:8080/chat-rooms/1_2
+
+
+### 채팅방 삭제
+DELETE localhost:8080/chat-rooms/1_2
+

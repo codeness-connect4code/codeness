@@ -7,6 +7,7 @@ import com.connect.codeness.global.dto.CommonResponseDto;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -67,6 +68,16 @@ public class ChatController {
 	) {
 		CommonResponseDto<List<ChatMessageDto>> responseDto
 			= chatService.getChats(1L, chatRoomId);
+
+		return new ResponseEntity<>(responseDto, HttpStatus.OK);
+	}
+
+	@DeleteMapping("/{chatRoomId}")
+	public ResponseEntity<CommonResponseDto> deleteChatRoom(
+		// TODO: 유저 인증 정보 추가
+		@PathVariable String chatRoomId
+	){
+		CommonResponseDto responseDto = chatService.deleteChatRoom(chatRoomId);
 
 		return new ResponseEntity<>(responseDto, HttpStatus.OK);
 	}

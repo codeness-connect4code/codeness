@@ -21,4 +21,6 @@ public class ChatRoomDto {
 
 	private int unreadCount;
 
+	private boolean isActive;
+
 }

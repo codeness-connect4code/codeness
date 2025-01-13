@@ -4,10 +4,8 @@ import com.connect.codeness.domain.chat.dto.ChatCreateRequestDto;
 import com.connect.codeness.domain.chat.dto.ChatMessageDto;
 import com.connect.codeness.domain.chat.dto.ChatRoomDto;
 import com.connect.codeness.domain.chat.repository.ChatRoomUserRepository;
-import com.connect.codeness.domain.file.ImageFile;
 import com.connect.codeness.domain.user.UserRepository;
 import com.connect.codeness.global.dto.CommonResponseDto;
-import com.connect.codeness.global.enums.FileCategory;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
 import com.google.firebase.database.DataSnapshot;
@@ -15,9 +13,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,13 +33,11 @@ public class ChatServiceImpl implements ChatService {
 
 	private final FirebaseDatabase firebaseDatabase;
 	private final UserRepository userRepository;
-	private final ChatRoomUserRepository chatRoomUserRepository;
 
 	public ChatServiceImpl(FirebaseDatabase firebaseDatabase, UserRepository userRepository, ChatRoomUserRepository chatRoomUserRepository
 		) {
 		this.firebaseDatabase = firebaseDatabase;
 		this.userRepository = userRepository;
-		this.chatRoomUserRepository = chatRoomUserRepository;
 	}
 
 
@@ -89,16 +83,21 @@ public class ChatServiceImpl implements ChatService {
 			public void onDataChange(DataSnapshot dataSnapshot) {
 				List<ChatRoomDto> myChatRooms = new ArrayList<>();
 				for (DataSnapshot roomSnapshot : dataSnapshot.getChildren()) {
-					ChatRoomDto myChatRoom = ChatRoomDto.builder()
-						.chatRoomId(roomSnapshot.getKey())
-						.partnerId(roomSnapshot.child("partnerId").getValue(Long.class))
-						.partnerProfileUrl(roomSnapshot.child("partnerProfileUrl").getValue(String.class))
-						.lastMessage(roomSnapshot.child("lastMessage").getValue(String.class))
-						.lastMessageTime(
-							roomSnapshot.child("lastMessageTime").getValue(String.class))
-						.unreadCount(roomSnapshot.child("unreadCount").getValue(Integer.class))
-						.build();
-					myChatRooms.add(myChatRoom);
+					Boolean isActive = roomSnapshot.child("active").getValue(Boolean.class);
+					if (isActive) {
+						ChatRoomDto myChatRoom = ChatRoomDto.builder()
+							.chatRoomId(roomSnapshot.getKey())
+							.partnerId(roomSnapshot.child("partnerId").getValue(Long.class))
+							.partnerProfileUrl(
+								roomSnapshot.child("partnerProfileUrl").getValue(String.class))
+							.lastMessage(roomSnapshot.child("lastMessage").getValue(String.class))
+							.lastMessageTime(
+								roomSnapshot.child("lastMessageTime").getValue(String.class))
+							.unreadCount(roomSnapshot.child("unreadCount").getValue(Integer.class))
+							.isActive(roomSnapshot.child("active").getValue(Boolean.class))
+							.build();
+						myChatRooms.add(myChatRoom);
+					}
 				}
 				future.complete(myChatRooms);
 			}
@@ -208,19 +207,38 @@ public class ChatServiceImpl implements ChatService {
 		myChatRoomData.put(chatRoomId, ChatRoomDto.builder()
 			.partnerId(partnerId)
 			.partnerProfileUrl("https://example.com/partner_profile.jpg")
-			.unreadCount(0).build());
+			.unreadCount(0)
+			.isActive(true).build());
 
 
 		partnerChatRoomData.put(chatRoomId, ChatRoomDto.builder()
 			.partnerId(myId)
 			.partnerProfileUrl("https://example.com/my_profile.jpg")
-			.unreadCount(0).build());
+			.unreadCount(0)
+			.isActive(true).build());
 
 
 		myReference.setValueAsync(myChatRoomData);
 		partnerReference.setValueAsync(partnerChatRoomData);
 
 		return CommonResponseDto.builder().msg("채팅방 생성 완료").build();
+	}
+
+	@Override
+	public CommonResponseDto deleteChatRoom(String chatRoomId) {
+		//예를 들어, 1번 유저와 2번 유저가 있을 때
+		//1번 유저의 1_2와 2번 유저의 1_2의 isActive 상태를 둘다 false로 바꿔야함.
+		String[] users = chatRoomId.split("_");
+
+		DatabaseReference chatRooms = firebaseDatabase.getReference().child("chatRooms");
+		Map<String, Object> usersStatus = new HashMap<>();
+
+		usersStatus.put("%s/%s/active".formatted(users[0],chatRoomId), Boolean.FALSE);
+		usersStatus.put("%s/%s/active".formatted(users[1],chatRoomId), Boolean.FALSE);
+
+		chatRooms.updateChildrenAsync(usersStatus);
+
+		return CommonResponseDto.builder().msg("채팅방이 삭제되었습니다.").build();
 	}
 
 //	private String convertToLocalDateTime(long time){
