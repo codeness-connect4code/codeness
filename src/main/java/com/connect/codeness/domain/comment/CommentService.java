@@ -6,7 +6,7 @@ import com.connect.codeness.global.dto.CommonResponseDto;
 
 public interface CommentService {
 
-	CommonResponseDto createComment(Long postId, CommentCreateRequestDto commentCreateRequestDto);
+	CommonResponseDto createComment(Long postId, Long userId, CommentCreateRequestDto commentCreateRequestDto);
 
 }
 
