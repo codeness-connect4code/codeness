@@ -63,6 +63,10 @@ public class Post extends BaseEntity {
 		this.Status = status;
 	}
 
+	public void increaseView(Long view) {
+		this.view = view+ 1L;
+	}
+
 	public Post() {
 	}
 }
