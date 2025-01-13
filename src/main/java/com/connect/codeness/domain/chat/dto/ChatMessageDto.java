@@ -6,10 +6,10 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class MessageDto {
+public class ChatMessageDto {
 
 	private Long senderId;
 	private String content;
-	private long timestamp;
+	private String timestamp;
 
 }
