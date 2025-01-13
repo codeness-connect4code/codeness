@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface FileRepository extends JpaRepository<ImageFile, Long> {
 
-	Optional<ImageFile> findByUserId(Long userId);
+	ImageFile findByUserId(Long userId);
 
 	// fileCategory와 userId로 파일 목록 검색
 	Optional<ImageFile> findByUserIdAndFileCategory(Long userId, FileCategory fileCategory);

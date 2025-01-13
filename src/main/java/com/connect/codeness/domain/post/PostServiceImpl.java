@@ -10,8 +10,7 @@ import com.connect.codeness.domain.user.UserRepository;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.enums.CommunityStatus;
 import com.connect.codeness.global.enums.PostType;
-import com.connect.codeness.global.exception.BusinessException;
-import com.connect.codeness.global.exception.ExceptionType;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Pageable;
@@ -40,7 +39,7 @@ public class PostServiceImpl implements PostService {
 			.title(dto.getTitle())
 			.content(dto.getContent())
 			.writer(user.getUserNickname())
-			.view(0l)
+			.view(0L)
 			.postType(dto.getPostType())
 			.status(CommunityStatus.DISPLAYED)
 			.build();
@@ -77,23 +76,39 @@ public class PostServiceImpl implements PostService {
 			.build();
 	}
 
+	// 게시글 상세 조회
 	@Override
+	@Transactional
 	public CommonResponseDto<PostFindResponseDto> findPost(Long postId) {
 
 		Post post = postRepository.findByIdOrElseThrow(postId);
 
-		ImageFile writerProfile = fileRepository.findByUserId(post.getUser().getId())
-			.orElseThrow(()-> new BusinessException(ExceptionType.NOT_FOUND_USER));
+		ImageFile writerProfile = fileRepository.findByUserId(post.getUser().getId());
 
-		PostFindResponseDto postFindResult = PostFindResponseDto.builder()
-			.postId(post.getId())
-			.title(post.getTitle())
-			.writer(post.getWriter())
-			.view(post.getView())
-			.content(post.getContent())
-			.writerProfileUrl(writerProfile.getFilePath())
-			.postType(post.getPostType())
-			.build();
+		PostFindResponseDto postFindResult;
+
+		post.increaseView(post.getView());
+
+		if (writerProfile != null) {
+			postFindResult = PostFindResponseDto.builder()
+				.postId(post.getId())
+				.title(post.getTitle())
+				.writer(post.getWriter())
+				.view(post.getView())
+				.content(post.getContent())
+				.writerProfileUrl(writerProfile.getFilePath())
+				.postType(post.getPostType())
+				.build();
+		} else {
+			postFindResult = PostFindResponseDto.builder()
+				.postId(post.getId())
+				.title(post.getTitle())
+				.writer(post.getWriter())
+				.view(post.getView())
+				.content(post.getContent())
+				.postType(post.getPostType())
+				.build();
+		}
 
 		return CommonResponseDto.<PostFindResponseDto>builder()
 			.msg("게시글 상세 조회가 완료되었습니다.")
