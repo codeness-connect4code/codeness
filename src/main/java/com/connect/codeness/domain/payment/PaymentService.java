@@ -2,6 +2,7 @@ package com.connect.codeness.domain.payment;
 
 
 import com.connect.codeness.domain.payment.dto.PaymentDeleteRequestDto;
+import com.connect.codeness.domain.payment.dto.PaymentRefundRequestDto;
 import com.connect.codeness.domain.payment.dto.PaymentRequestDto;
 import com.connect.codeness.global.dto.CommonResponseDto;
 
@@ -24,5 +25,9 @@ public interface PaymentService {
 	 */
 	CommonResponseDto verifyPayment(Long paymentId, PaymentRequestDto requestDto);
 
+	/**
+	 * 결제 환불 API
+	 */
+	CommonResponseDto refundPayment(Long paymentId, PaymentRefundRequestDto requestDto);
 }
 

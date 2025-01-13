@@ -22,8 +22,7 @@ public class JwtFilter extends OncePerRequestFilter {
 	@Autowired
 	private UserDetailService userDetailService;
 
-	private static final List<String> EXCLUDED_PATHS = List.of("/login", "/signup", "/payment", "/mentoring", "/login-page", "/users", "/loginPage.html", "/payment.html");
-//	private static final List<String> EXCLUDED_PATHS = List.of("/login", "/signup", "/payment", "/mentoring", "/login-page", "/users");
+	private static final List<String> EXCLUDED_PATHS = List.of("/login", "/signup", "/payment", "/mentoring", "/login-page", "/users");
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
