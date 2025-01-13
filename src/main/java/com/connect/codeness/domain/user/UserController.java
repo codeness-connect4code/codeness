@@ -1,5 +1,6 @@
 package com.connect.codeness.domain.user;
 
+import com.connect.codeness.domain.file.FileService;
 import com.connect.codeness.domain.user.dto.JwtResponseDto;
 import com.connect.codeness.domain.user.dto.LoginRequestDto;
 import com.connect.codeness.domain.user.dto.UserBankUpdateRequestDto;
@@ -17,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,11 +33,16 @@ public class UserController {
 	private final UserService userService;
 	private final JwtUtil jwtUtil;
 	private final AuthenticationManager authenticationManager;
+	private final FileService fileService;
 
-	public UserController(UserService userService, JwtUtil jwtUtil, AuthenticationManager authenticationManager) {
+	public UserController(
+		UserService userService, JwtUtil jwtUtil, AuthenticationManager authenticationManager
+		, FileService fileService
+	) {
 		this.userService = userService;
 		this.jwtUtil =  jwtUtil;
 		this.authenticationManager = authenticationManager;
+		this.fileService = fileService;
 	}
 
 	/**
@@ -92,7 +99,7 @@ public class UserController {
 	@PatchMapping("/users/{userId}")
 	public ResponseEntity<CommonResponseDto> updateUser(
 		@RequestHeader("Authorization") String authorizationHeader,
-		@RequestBody UserUpdateRequestDto userUpdateRequestDto,
+		@ModelAttribute UserUpdateRequestDto userUpdateRequestDto,
 		@PathVariable Long userId
 	){
 		String token = authorizationHeader.substring("Bearer ".length());

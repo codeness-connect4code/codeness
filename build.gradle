@@ -21,6 +21,7 @@ configurations {
 
 repositories {
     mavenCentral()
+    google()
 }
 
 dependencies {
@@ -56,7 +57,10 @@ dependencies {
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
     //spring security
     implementation 'org.springframework.boot:spring-boot-starter-security'
+    // Spring Security OAuth2 Client
+    implementation 'org.springframework.security:spring-security-oauth2-client'
 
+    implementation 'com.google.http-client:google-http-client:1.34.2'
 
 }
 

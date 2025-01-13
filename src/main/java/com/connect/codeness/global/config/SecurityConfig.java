@@ -1,6 +1,9 @@
 package com.connect.codeness.global.config;
 
 import com.connect.codeness.global.Jwt.JwtFilter;
+import com.connect.codeness.global.handler.OAuth2SuccessHandler;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -9,30 +12,80 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
+@Slf4j
 public class SecurityConfig {
 
 	private final JwtFilter jwtFilter;
+	private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
-	public SecurityConfig(JwtFilter jwtFilter) {
+	public SecurityConfig(JwtFilter jwtFilter, OAuth2SuccessHandler oAuth2SuccessHandler) {
 		this.jwtFilter = jwtFilter;
+		this.oAuth2SuccessHandler = oAuth2SuccessHandler;
+		log.info("OAuth2SuccessHandler 주입됨: {}", oAuth2SuccessHandler);
 	}
 
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+		log.info("보안 필터 체인 구성 시작");
 		http
 			.csrf(AbstractHttpConfigurer::disable)
 			.authorizeHttpRequests(auth -> auth
-				.requestMatchers("/signup", "/login").permitAll()  // 로그인, 회원가입은 인증 없이 접근 가능
-				.anyRequest().authenticated())  // 그 외 요청은 인증 필요
-			.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);  // JWT 필터 추가
+				.requestMatchers(
+					"/signup",
+					"/login",
+					"/api/**",
+					"/login-page",
+					"/users/**",
+					"/payment",
+					"/mentoring/**",
+					"/loginPage.html",
+					"/payment.html",
+					"/oauth2/**",
+					"/login/oauth2/code/**",
+					"/favicon.ico",
+					"/error"
+				).permitAll()
+				.requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
+				.anyRequest().authenticated()
+			)
+			.oauth2Login(oauth2 -> {
+				log.info("OAuth2 로그인 구성");
+				oauth2.loginPage("/loginPage.html")
+					.successHandler(oAuth2SuccessHandler)
+					.failureHandler((request, response, exception) -> {
+						log.error("OAuth2 로그인 실패", exception);
+						response.sendRedirect("/loginPage.html?error=" + exception.getMessage());
+					})
+					.userInfoEndpoint(userInfo ->
+						userInfo.userService(customOAuth2UserService()));
+			})
+			.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
+		log.info("보안 필터 체인 구성 완료");
 		return http.build();
 	}
 
+	@Bean
+	public OAuth2UserService<OAuth2UserRequest, OAuth2User> customOAuth2UserService() {
+		return new DefaultOAuth2UserService() {
+			@Override
+			public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
+				log.info("OAuth2 사용자 로드 시작");
+				OAuth2User user = super.loadUser(userRequest);
+				log.info("OAuth2 사용자 정보 로드 완료: {}", user.getAttributes());
+				return user;
+			}
+		};
+	}
 
 	@Bean
 	public PasswordEncoder passwordEncoder() {

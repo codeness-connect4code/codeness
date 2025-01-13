@@ -9,4 +9,5 @@ import lombok.Getter;
 public class JwtResponseDto {
 	private String token;
 	private CommonResponseDto dto;
+
 }

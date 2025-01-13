@@ -9,8 +9,10 @@ import com.connect.codeness.domain.user.dto.UserResponseDto;
 import com.connect.codeness.domain.user.dto.UserUpdateRequestDto;
 import com.connect.codeness.global.Jwt.JwtUtil;
 import com.connect.codeness.global.dto.CommonResponseDto;
+import com.connect.codeness.global.enums.UserRole;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
+import java.util.Optional;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -52,6 +54,7 @@ public class UserServiceImpl implements UserService {
 			.phoneNumber(dto.getPhoneNumber())
 			.field(dto.getField())
 			.role(dto.getUserRole())
+			.provider("local")
 			.build();
 
 		userRepository.save(user);
@@ -135,6 +138,21 @@ public class UserServiceImpl implements UserService {
 		user.deleteUser();
 		userRepository.save(user);
 		return CommonResponseDto.builder().msg("회원 탈퇴 완료").build();
+	}
+
+	@Transactional
+	public User findOrCreateUser(UserCreateRequestDto userCreateRequestDto) {
+		Optional<User> userOptional = userRepository.findByEmail(userCreateRequestDto.getEmail());
+		if(userOptional.isEmpty()){
+			User newUser = User.builder()
+				.email(userCreateRequestDto.getEmail())
+				.role(UserRole.MENTEE)
+				.name(userCreateRequestDto.getName())
+				.provider("google")
+				.build();
+			return userRepository.save(newUser);
+		}
+		return userOptional.get();
 	}
 }
 
