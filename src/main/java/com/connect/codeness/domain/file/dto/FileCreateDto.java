@@ -1,4 +1,4 @@
-package com.connect.codeness.domain.file;
+package com.connect.codeness.domain.file.dto;
 
 import lombok.Builder;
 import lombok.Getter;
