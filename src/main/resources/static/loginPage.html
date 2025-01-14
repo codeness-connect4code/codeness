@@ -164,8 +164,8 @@
           throw new Error('토큰이 응답에 포함되어 있지 않습니다.');
         }
       } else {
-        const error = await response.json();
-        errorMessage.textContent = error.message || '로그인에 실패했습니다.';
+        const errorData = await response.json();
+        errorMessage.textContent = errorData.message || '로그인에 실패했습니다.';
         errorMessage.style.display = 'block';
       }
     } catch (error) {
@@ -175,7 +175,6 @@
     }
   });
 
-  // URL의 에러 파라미터 체크
   document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
     const error = urlParams.get('error');
@@ -185,7 +184,6 @@
       errorMessage.style.display = 'block';
     }
 
-    // 토큰 파라미터 체크 (OAuth2 로그인 성공 후 리다이렉트)
     const token = urlParams.get('token');
     if (token) {
       localStorage.setItem('jwtToken', token);

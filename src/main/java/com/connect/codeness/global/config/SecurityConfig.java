@@ -21,7 +21,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
-@Slf4j
 public class SecurityConfig {
 
 	private final JwtFilter jwtFilter;
@@ -30,12 +29,10 @@ public class SecurityConfig {
 	public SecurityConfig(JwtFilter jwtFilter, OAuth2SuccessHandler oAuth2SuccessHandler) {
 		this.jwtFilter = jwtFilter;
 		this.oAuth2SuccessHandler = oAuth2SuccessHandler;
-		log.info("OAuth2SuccessHandler 주입됨: {}", oAuth2SuccessHandler);
 	}
 
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		log.info("보안 필터 체인 구성 시작");
 		http
 			.csrf(AbstractHttpConfigurer::disable)
 			.authorizeHttpRequests(auth -> auth
@@ -58,11 +55,9 @@ public class SecurityConfig {
 				.anyRequest().authenticated()
 			)
 			.oauth2Login(oauth2 -> {
-				log.info("OAuth2 로그인 구성");
 				oauth2.loginPage("/loginPage.html")
 					.successHandler(oAuth2SuccessHandler)
 					.failureHandler((request, response, exception) -> {
-						log.error("OAuth2 로그인 실패", exception);
 						response.sendRedirect("/loginPage.html?error=" + exception.getMessage());
 					})
 					.userInfoEndpoint(userInfo ->
@@ -70,7 +65,6 @@ public class SecurityConfig {
 			})
 			.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
-		log.info("보안 필터 체인 구성 완료");
 		return http.build();
 	}
 
@@ -79,9 +73,7 @@ public class SecurityConfig {
 		return new DefaultOAuth2UserService() {
 			@Override
 			public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-				log.info("OAuth2 사용자 로드 시작");
 				OAuth2User user = super.loadUser(userRequest);
-				log.info("OAuth2 사용자 정보 로드 완료: {}", user.getAttributes());
 				return user;
 			}
 		};

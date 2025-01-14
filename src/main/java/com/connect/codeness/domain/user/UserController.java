@@ -1,6 +1,9 @@
 package com.connect.codeness.domain.user;
 
+import com.connect.codeness.domain.file.FileRepository;
 import com.connect.codeness.domain.file.FileService;
+import com.connect.codeness.domain.file.ImageFile;
+import com.connect.codeness.domain.file.dto.FileCreateDto;
 import com.connect.codeness.domain.user.dto.JwtResponseDto;
 import com.connect.codeness.domain.user.dto.LoginRequestDto;
 import com.connect.codeness.domain.user.dto.UserBankUpdateRequestDto;
@@ -10,9 +13,12 @@ import com.connect.codeness.domain.user.dto.UserPasswordUpdateRequestDto;
 import com.connect.codeness.domain.user.dto.UserUpdateRequestDto;
 import com.connect.codeness.global.Jwt.JwtUtil;
 import com.connect.codeness.global.dto.CommonResponseDto;
+import com.connect.codeness.global.enums.FileCategory;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
 import jakarta.validation.Valid;
+import java.io.IOException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -29,20 +35,25 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping
+@Slf4j
 public class UserController {
 	private final UserService userService;
 	private final JwtUtil jwtUtil;
 	private final AuthenticationManager authenticationManager;
 	private final FileService fileService;
+	private final FileRepository fileRepository;
+	private final UserRepository userRepository;
 
 	public UserController(
 		UserService userService, JwtUtil jwtUtil, AuthenticationManager authenticationManager
-		, FileService fileService
-	) {
+		, FileService fileService,
+		FileRepository fileRepository, UserRepository userRepository) {
 		this.userService = userService;
 		this.jwtUtil =  jwtUtil;
 		this.authenticationManager = authenticationManager;
 		this.fileService = fileService;
+		this.fileRepository = fileRepository;
+		this.userRepository = userRepository;
 	}
 
 	/**
@@ -101,15 +112,28 @@ public class UserController {
 		@RequestHeader("Authorization") String authorizationHeader,
 		@ModelAttribute UserUpdateRequestDto userUpdateRequestDto,
 		@PathVariable Long userId
-	){
+	)throws IOException{
 		String token = authorizationHeader.substring("Bearer ".length());
 		Long tokenId = jwtUtil.extractUserId(token);
-		if(userId != tokenId){
+		if (userId != tokenId){
 			throw new BusinessException(ExceptionType.FORBIDDEN_PERMISSION);
 		}
-		CommonResponseDto commonResponseDto = userService.updateUser(userId, userUpdateRequestDto);
-		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
+
+		if (
+			fileRepository.findByUserIdAndFileCategory(userId, FileCategory.PROFILE).isPresent()
+		){
+			fileService.deleteFile(userId,FileCategory.PROFILE);
+		}
+
+		CommonResponseDto fileDto =
+			fileService.createFile(
+				userUpdateRequestDto.getMultipartFile(), userId, FileCategory.PROFILE);
+		ImageFile imageFile = fileRepository.findByUserIdAndFileCategoryOrElseThrow(userId, FileCategory.PROFILE);
+		CommonResponseDto dto = userService.updateUser(userId, userUpdateRequestDto, imageFile);
+
+		return new ResponseEntity<>(dto, HttpStatus.OK);
 	}
+
 
 	@PatchMapping("/users/{userId}/password")
 	public ResponseEntity<CommonResponseDto> updatePassword(
@@ -156,4 +180,6 @@ public class UserController {
 		CommonResponseDto commonResponseDto = userService.deleteUser(userId,userDeleteResponseDto);
 		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
 	}
+
+
 }

@@ -1,5 +1,9 @@
 package com.connect.codeness.domain.user;
 
+import com.connect.codeness.domain.file.FileRepository;
+import com.connect.codeness.domain.file.FileService;
+import com.connect.codeness.domain.file.FileServiceImpl;
+import com.connect.codeness.domain.file.ImageFile;
 import com.connect.codeness.domain.user.dto.LoginRequestDto;
 import com.connect.codeness.domain.user.dto.UserBankUpdateRequestDto;
 import com.connect.codeness.domain.user.dto.UserCreateRequestDto;
@@ -9,10 +13,13 @@ import com.connect.codeness.domain.user.dto.UserResponseDto;
 import com.connect.codeness.domain.user.dto.UserUpdateRequestDto;
 import com.connect.codeness.global.Jwt.JwtUtil;
 import com.connect.codeness.global.dto.CommonResponseDto;
-import com.connect.codeness.global.enums.UserRole;
+import com.connect.codeness.global.enums.FileCategory;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
+import java.awt.Image;
+import java.io.IOException;
 import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -20,6 +27,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -27,13 +35,18 @@ public class UserServiceImpl implements UserService {
 	private final PasswordEncoder passwordEncoder;
 	private final AuthenticationManager authenticationManager;
 	private final JwtUtil jwtUtil;
+	private final FileRepository fileRepository;
+	private final FileService fileService;
 
 	public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder,
-		AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
+		AuthenticationManager authenticationManager, JwtUtil jwtUtil, FileRepository fileRepository,
+		FileServiceImpl fileService) {
 		this.userRepository = userRepository;
 		this.passwordEncoder = passwordEncoder;
 		this.authenticationManager = authenticationManager;
 		this.jwtUtil = jwtUtil;
+		this.fileRepository = fileRepository;
+		this.fileService = fileService;
 	}
 
 
@@ -54,7 +67,6 @@ public class UserServiceImpl implements UserService {
 			.phoneNumber(dto.getPhoneNumber())
 			.field(dto.getField())
 			.role(dto.getUserRole())
-			.provider("local")
 			.build();
 
 		userRepository.save(user);
@@ -97,13 +109,14 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	@Transactional
-	public CommonResponseDto updateUser(Long userId, UserUpdateRequestDto dto) {
+	public CommonResponseDto updateUser(Long userId, UserUpdateRequestDto dto, ImageFile imageFile)
+		throws IOException {
 		User user = userRepository.findByIdOrElseThrow(userId);
-		user.update(dto);
+		user.update(dto, imageFile);
 		userRepository.save(user);
-
-		return CommonResponseDto.builder().msg("회원 정보 수정 완료").build();
+		return CommonResponseDto.builder().msg("유저 수정 완료").build();
 	}
+
 
 	@Override
 	@Transactional
@@ -139,20 +152,4 @@ public class UserServiceImpl implements UserService {
 		userRepository.save(user);
 		return CommonResponseDto.builder().msg("회원 탈퇴 완료").build();
 	}
-
-	@Transactional
-	public User findOrCreateUser(UserCreateRequestDto userCreateRequestDto) {
-		Optional<User> userOptional = userRepository.findByEmail(userCreateRequestDto.getEmail());
-		if(userOptional.isEmpty()){
-			User newUser = User.builder()
-				.email(userCreateRequestDto.getEmail())
-				.role(UserRole.MENTEE)
-				.name(userCreateRequestDto.getName())
-				.provider("google")
-				.build();
-			return userRepository.save(newUser);
-		}
-		return userOptional.get();
-	}
 }
-

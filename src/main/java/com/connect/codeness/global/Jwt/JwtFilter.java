@@ -24,8 +24,7 @@ public class JwtFilter extends OncePerRequestFilter {
 	private CustomUserDetailService userDetailService;
 
 	private static final List<String> EXCLUDED_PATHS = List.of("/oauth2/authorization/google","/login", "/signup", "/payment", "/mentoring", "/login-page", "/users", "/loginPage.html", "/payment.html");
-//	private static final List<String> EXCLUDED_PATHS = List.of("/login", "/signup", "/payment", "/mentoring", "/login-page", "/users");
-	private static final List<String> POST_EXCLUDED_PATHS = List.of("/login", "/signup");
+	private static final List<String> POST_EXCLUDED_PATHS = List.of("/login", "/signup","/api/login");
 	private static final List<String> GET_EXCLUDED_PATHS = List.of("/posts", "/posts/.*");
 
 	@Override

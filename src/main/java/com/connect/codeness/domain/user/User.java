@@ -97,7 +97,7 @@ public class User extends BaseEntity {
 
 	public User() {}
 
-	public void update(UserUpdateRequestDto dto) {
+	public void update(UserUpdateRequestDto dto, ImageFile imageFile) {
 		this.userNickname = dto.getNickname();
 		this.phoneNumber = dto.getPhoneNumber();
 		this.region = dto.getRegion();
@@ -105,6 +105,7 @@ public class User extends BaseEntity {
 		this.mbti = dto.getMbti();
 		this.site_link = dto.getSiteLink();
 		this.field = dto.getField();
+		setImageFiles(imageFile);
 	}
 
 	private String provider;
