@@ -44,14 +44,14 @@ public enum ExceptionType {
 	NOT_FOUND_PGTID(HttpStatus.NOT_FOUND, "pg_tid를 찾을 수 없습니다."),
 	NOT_FOUND_AMOUNT(HttpStatus.NOT_FOUND, "결제 금액이 올바르지 않습니다."),
 	NOT_FOUND_PAYMENT_BY_IAMPORT(HttpStatus.NOT_FOUND, "포트원에서 결제 내역을 조회할 수 없습니다."),
-
 	// 409 CONFLICT
 	DUPLICATE_VALUE(HttpStatus.CONFLICT, "중복된 정보입니다."),
 	USER_ALREADY_DELETED(HttpStatus.CONFLICT, "이미 탈퇴한 사용자 아이디입니다."),
 
 	// 500 INTERNAL_SERVER_ERROR
 	LOAD_FAIL_CHATROOMLIST(HttpStatus.INTERNAL_SERVER_ERROR, "채팅방 정보를 가져오기에 실패했습니다."),
-	LOAD_FAIL_CHATLIST(HttpStatus.INTERNAL_SERVER_ERROR, "채팅 정보를 가져오기에 실패했습니다.");
+	LOAD_FAIL_CHATLIST(HttpStatus.INTERNAL_SERVER_ERROR, "채팅 정보를 가져오기에 실패했습니다."),
+	;
 
 	private final HttpStatus httpStatus;
 	private final String errorMessage;

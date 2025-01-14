@@ -1,8 +1,11 @@
 package com.connect.codeness.domain.chat;
 
+import static com.connect.codeness.global.constants.Constants.AUTHORIZATION;
+
 import com.connect.codeness.domain.chat.dto.ChatCreateRequestDto;
 import com.connect.codeness.domain.chat.dto.ChatMessageDto;
 import com.connect.codeness.domain.chat.dto.ChatRoomDto;
+import com.connect.codeness.global.Jwt.JwtUtil;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import java.util.List;
 import org.springframework.http.HttpStatus;
@@ -12,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -20,18 +24,22 @@ import org.springframework.web.bind.annotation.RestController;
 public class ChatController {
 
 	private final ChatService chatService;
+	private final JwtUtil jwtUtil;
 
-	public ChatController(ChatService chatService) {
+	public ChatController(ChatService chatService, JwtUtil jwtUtil) {
 		this.chatService = chatService;
+		this.jwtUtil = jwtUtil;
 	}
 
 	//TODO:나중에 지울 것
 	//채팅방 생성
 	@PostMapping
 	public ResponseEntity<CommonResponseDto> createChatRoom(
-
+		@RequestHeader(AUTHORIZATION) String token,
+		@RequestBody ChatRoomCreateRequestDto dto
 	){
-		CommonResponseDto responseDto = chatService.createChatRoom(1L, 2L);
+		Long userId = jwtUtil.extractUserId(token);
+		CommonResponseDto responseDto = chatService.createChatRoom(userId, dto);
 
 		return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
 	}
@@ -39,10 +47,12 @@ public class ChatController {
 	//채팅 보내기
 	@PostMapping("/chat")
 	public ResponseEntity<CommonResponseDto> sendMessage(
-		//TODO: 유저 인증 정보 추가
+		@RequestHeader(AUTHORIZATION) String token,
 		@RequestBody ChatCreateRequestDto dto
 	) {
-		CommonResponseDto commonResponseDto = chatService.sendMessage(1L, dto);
+		Long userId = jwtUtil.extractUserId(token);
+
+		CommonResponseDto commonResponseDto = chatService.sendMessage(userId, dto);
 
 		return new ResponseEntity<>(commonResponseDto, HttpStatus.CREATED);
 	}
@@ -51,11 +61,12 @@ public class ChatController {
 	//채팅방 목록 보여주기
 	@GetMapping
 	public ResponseEntity<CommonResponseDto<List<ChatRoomDto>>> getChatRooms(
-		//TODO: 유저 인증 정보 추가
+		@RequestHeader(AUTHORIZATION) String token
 	) {
+		Long userId = jwtUtil.extractUserId(token);
 
 		CommonResponseDto<List<ChatRoomDto>> responseDto
-			= chatService.getChatRooms(1L);
+			= chatService.getChatRooms(userId);
 
 		return new ResponseEntity<>(responseDto, HttpStatus.OK);
 	}
@@ -63,21 +74,26 @@ public class ChatController {
 	//채팅방 상세 조회
 	@GetMapping("/{chatRoomId}")
 	public ResponseEntity<CommonResponseDto<List<ChatMessageDto>>> getChats(
-		//TODO: 유저 인증 정보 추가
+		@RequestHeader(AUTHORIZATION) String token,
 		@PathVariable String chatRoomId
 	) {
+		Long userId = jwtUtil.extractUserId(token);
+
 		CommonResponseDto<List<ChatMessageDto>> responseDto
-			= chatService.getChats(1L, chatRoomId);
+			= chatService.getChats(userId, chatRoomId);
 
 		return new ResponseEntity<>(responseDto, HttpStatus.OK);
 	}
 
 	@DeleteMapping("/{chatRoomId}")
 	public ResponseEntity<CommonResponseDto> deleteChatRoom(
-		// TODO: 유저 인증 정보 추가
+		@RequestHeader(AUTHORIZATION) String token,
 		@PathVariable String chatRoomId
 	){
-		CommonResponseDto responseDto = chatService.deleteChatRoom(chatRoomId);
+
+		Long userId = jwtUtil.extractUserId(token);
+
+		CommonResponseDto responseDto = chatService.deleteChatRoom(userId, chatRoomId);
 
 		return new ResponseEntity<>(responseDto, HttpStatus.OK);
 	}

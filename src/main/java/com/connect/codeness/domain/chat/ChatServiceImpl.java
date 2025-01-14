@@ -3,9 +3,13 @@ package com.connect.codeness.domain.chat;
 import com.connect.codeness.domain.chat.dto.ChatCreateRequestDto;
 import com.connect.codeness.domain.chat.dto.ChatMessageDto;
 import com.connect.codeness.domain.chat.dto.ChatRoomDto;
-import com.connect.codeness.domain.chat.repository.ChatRoomUserRepository;
+import com.connect.codeness.domain.chat.entity.ChatRoomHistory;
+import com.connect.codeness.domain.chat.repository.ChatRoomHistoryRepository;
+import com.connect.codeness.domain.file.ImageFile;
+import com.connect.codeness.domain.user.User;
 import com.connect.codeness.domain.user.UserRepository;
 import com.connect.codeness.global.dto.CommonResponseDto;
+import com.connect.codeness.global.enums.FileCategory;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
 import com.google.firebase.database.DataSnapshot;
@@ -26,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -33,17 +38,81 @@ public class ChatServiceImpl implements ChatService {
 
 	private final FirebaseDatabase firebaseDatabase;
 	private final UserRepository userRepository;
+	private final ChatRoomHistoryRepository chatRoomHistoryRepository;
 
-	public ChatServiceImpl(FirebaseDatabase firebaseDatabase, UserRepository userRepository, ChatRoomUserRepository chatRoomUserRepository
+	public ChatServiceImpl(FirebaseDatabase firebaseDatabase,
+		UserRepository userRepository, ChatRoomHistoryRepository chatRoomHistoryRepository
 		) {
 		this.firebaseDatabase = firebaseDatabase;
 		this.userRepository = userRepository;
+		this.chatRoomHistoryRepository = chatRoomHistoryRepository;
 	}
 
 
 	//채팅방 생성
+	@Transactional
+	@Override
+	public CommonResponseDto createChatRoom(Long myId, ChatRoomCreateRequestDto dto) {
 
-	//채팅 보내기
+		Long partnerId = dto.getPartnerId();
+
+		//데이터 소스를 가져온다.
+		DatabaseReference myReference = firebaseDatabase.getReference("chatRooms")
+			.child(String.valueOf(myId));
+
+		DatabaseReference partnerReference = firebaseDatabase.getReference("chatRooms")
+			.child(String.valueOf(partnerId));
+
+		//채팅방ID를 생성한다.
+		String chatRoomId = generateChatRoomId(myId, partnerId);
+
+		//내 이미지 가져오기
+		ImageFile myProfileUrl = userRepository.findByIdOrElseThrow(myId).getImageFiles().stream()
+			.filter(
+				imageFile -> imageFile.getFileCategory() == FileCategory.PROFILE
+			).findFirst().get();
+
+		//상대방 이미지 가져오기
+		ImageFile partnerProfileUrl = userRepository.findByIdOrElseThrow(partnerId).getImageFiles().stream()
+			.filter(
+				imageFile -> imageFile.getFileCategory() == FileCategory.PROFILE
+			).findFirst().get();
+
+
+		//내 채팅방 구조
+		Map<String, Object> myChatRoomData = new HashMap<>();
+		Map<String, Object> partnerChatRoomData = new HashMap<>();
+
+		myChatRoomData.put(chatRoomId, ChatRoomDto.builder()
+			.partnerId(partnerId)
+			.partnerProfileUrl(partnerProfileUrl)
+			.unreadCount(0)
+			.isActive(true).build());
+
+
+		partnerChatRoomData.put(chatRoomId, ChatRoomDto.builder()
+			.partnerId(myId)
+			.partnerProfileUrl("https://example.com/my_profile.jpg")
+			.unreadCount(0)
+			.isActive(true).build());
+
+
+		myReference.setValueAsync(myChatRoomData);
+		partnerReference.setValueAsync(partnerChatRoomData);
+
+		//채팅방 이력에 저장
+		User user = userRepository.findByIdOrElseThrow(myId);
+		ChatRoomHistory chatRoomHistory = ChatRoomHistory.builder()
+			.user(user)
+			.chatRoomId(chatRoomId)
+			.build();
+
+		chatRoomHistoryRepository.save(chatRoomHistory);
+
+		return CommonResponseDto.builder().msg("채팅방 생성 완료").build();
+	}
+
+	//채팅 전송
 	@Override
 	public CommonResponseDto sendMessage(Long userId, ChatCreateRequestDto dto) {
 		DatabaseReference reference = firebaseDatabase.getReference()
@@ -69,7 +138,7 @@ public class ChatServiceImpl implements ChatService {
 		return CommonResponseDto.builder().msg("채팅 전송 완료").build();
 	}
 
-	//파이어베이스 DB에서 내 채팅방 정보 가져오기
+	//내 채팅방 목록 조회
 	@Override
 	public CommonResponseDto<List<ChatRoomDto>> getChatRooms(long userId) {
 		DatabaseReference roomReference = firebaseDatabase.getReference()
@@ -121,7 +190,7 @@ public class ChatServiceImpl implements ChatService {
 		}
 	}
 
-	//채팅방에 있는 데이터 가져오기
+	//채팅방 상세 조회
 	@Override
 	public CommonResponseDto<List<ChatMessageDto>> getChats(Long userId, String chatRoomId) {
 		DatabaseReference chatReference = firebaseDatabase.getReference()
@@ -175,57 +244,13 @@ public class ChatServiceImpl implements ChatService {
 			.build();
 	}
 
+
+	//채팅방 삭제
 	@Override
-	public CommonResponseDto createChatRoom(Long myId, Long partnerId) {
-		//데이터 소스를 가져온다.
-		DatabaseReference myReference = firebaseDatabase.getReference("chatRooms")
-			.child(String.valueOf(myId));
+	public CommonResponseDto deleteChatRoom(Long userId, String chatRoomId) {
+		//내가 삭제할 권한이 없으면 예외 처리
+		chatRoomHistoryRepository.findByChatRoomAndUserOrElseThrow(chatRoomId,userId);
 
-		DatabaseReference partnerReference = firebaseDatabase.getReference("chatRooms")
-			.child(String.valueOf(partnerId));
-
-		//채팅방ID를 생성한다.
-		String chatRoomId = generateChatRoomId(myId, partnerId);
-
-//		//내 이미지 가져오기
-//		ImageFile myProfileUrl = userRepository.findByIdOrElseThrow(myId).getImageFiles().stream()
-//			.filter(
-//				imageFile -> imageFile.getFileCategory() == FileCategory.PROFILE
-//			).findFirst().orElseThrow(() -> new BusinessException(ExceptionType.NOT_FOUND_FILE));
-//
-//		//상대방 이미지 가져오기
-//		ImageFile partnerProfileUrl = userRepository.findByIdOrElseThrow(partnerId).getImageFiles().stream()
-//			.filter(
-//				imageFile -> imageFile.getFileCategory() == FileCategory.PROFILE
-//			).findFirst().orElseThrow(() -> new BusinessException(ExceptionType.NOT_FOUND_FILE));
-
-
-		//내 채팅방 구조
-		Map<String, Object> myChatRoomData = new HashMap<>();
-		Map<String, Object> partnerChatRoomData = new HashMap<>();
-
-		myChatRoomData.put(chatRoomId, ChatRoomDto.builder()
-			.partnerId(partnerId)
-			.partnerProfileUrl("https://example.com/partner_profile.jpg")
-			.unreadCount(0)
-			.isActive(true).build());
-
-
-		partnerChatRoomData.put(chatRoomId, ChatRoomDto.builder()
-			.partnerId(myId)
-			.partnerProfileUrl("https://example.com/my_profile.jpg")
-			.unreadCount(0)
-			.isActive(true).build());
-
-
-		myReference.setValueAsync(myChatRoomData);
-		partnerReference.setValueAsync(partnerChatRoomData);
-
-		return CommonResponseDto.builder().msg("채팅방 생성 완료").build();
-	}
-
-	@Override
-	public CommonResponseDto deleteChatRoom(String chatRoomId) {
 		//예를 들어, 1번 유저와 2번 유저가 있을 때
 		//1번 유저의 1_2와 2번 유저의 1_2의 isActive 상태를 둘다 false로 바꿔야함.
 		String[] users = chatRoomId.split("_");
@@ -240,14 +265,6 @@ public class ChatServiceImpl implements ChatService {
 
 		return CommonResponseDto.builder().msg("채팅방이 삭제되었습니다.").build();
 	}
-
-//	private String convertToLocalDateTime(long time){
-//		ZoneId koreaZoneId = ZoneId.of("Asia/Seoul");
-//
-//		return Instant.ofEpochMilli(time)
-//			.atZone(koreaZoneId)
-//			.toLocalDateTime().toString();
-//	}
 
 
 	private void updateChatRoomInfoWhenSend(String chatRoomId, ChatMessageDto message, Long senderId) {

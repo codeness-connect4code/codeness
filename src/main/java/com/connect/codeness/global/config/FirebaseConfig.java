@@ -22,7 +22,7 @@ public class FirebaseConfig {
 	private String configPath;
 
 	@Bean
-	public FirebaseDatabase firebaseDatabase() throws IOException{
+	public FirebaseDatabase firebaseDatabase() throws IOException {
 		Resource resource = new ClassPathResource(configPath);
 		InputStream serviceAccount = resource.getInputStream();
 

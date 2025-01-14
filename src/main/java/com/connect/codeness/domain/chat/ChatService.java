@@ -15,8 +15,8 @@ public interface ChatService {
 
 	CommonResponseDto<List<ChatMessageDto>> getChats(Long userId, String chatRoomId);
 
-	CommonResponseDto createChatRoom(Long userId, Long partnerId);
+	CommonResponseDto createChatRoom(Long userId, ChatRoomCreateRequestDto dto);
 
-	CommonResponseDto deleteChatRoom(String chatRoomId);
+	CommonResponseDto deleteChatRoom(Long userId, String chatRoomId);
 }
 
