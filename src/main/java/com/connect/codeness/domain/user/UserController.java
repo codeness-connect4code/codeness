@@ -1,5 +1,7 @@
 package com.connect.codeness.domain.user;
 
+import static com.connect.codeness.global.constants.Constants.AUTHORIZATION;
+
 import com.connect.codeness.domain.file.FileRepository;
 import com.connect.codeness.domain.file.FileService;
 import com.connect.codeness.domain.file.ImageFile;
@@ -93,7 +95,7 @@ public class UserController {
 	 * @return
 	 */
 	@GetMapping("/users")
-	public ResponseEntity<CommonResponseDto> getUser(@RequestHeader("Authorization")String authorizationHeader) {
+	public ResponseEntity<CommonResponseDto> getUser(@RequestHeader(AUTHORIZATION)String authorizationHeader) {
 		String token = authorizationHeader.substring("Bearer ".length());
 		Long userId = jwtUtil.extractUserId(token);
 		CommonResponseDto commonResponseDto = userService.getUser(userId);
@@ -109,7 +111,7 @@ public class UserController {
 	 */
 	@PatchMapping("/users/{userId}")
 	public ResponseEntity<CommonResponseDto> updateUser(
-		@RequestHeader("Authorization") String authorizationHeader,
+		@RequestHeader(AUTHORIZATION) String authorizationHeader,
 		@ModelAttribute UserUpdateRequestDto userUpdateRequestDto,
 		@PathVariable Long userId
 	)throws IOException{
@@ -137,7 +139,7 @@ public class UserController {
 
 	@PatchMapping("/users/{userId}/password")
 	public ResponseEntity<CommonResponseDto> updatePassword(
-		@RequestHeader("Authorization") String authorizationHeader,
+		@RequestHeader(AUTHORIZATION) String authorizationHeader,
 		@RequestBody UserPasswordUpdateRequestDto userPasswordUpdateRequestDto,
 		@PathVariable Long userId
 	){
@@ -153,7 +155,7 @@ public class UserController {
 
 	@PatchMapping("/users/{userId}/bank-account")
 	public ResponseEntity<CommonResponseDto> updateBankAccount(
-		@RequestHeader("Authorization") String authorizationHeader,
+		@RequestHeader(AUTHORIZATION) String authorizationHeader,
 		@RequestBody UserBankUpdateRequestDto userBankUpdateRequestDto,
 		@PathVariable Long userId
 	){
@@ -168,7 +170,7 @@ public class UserController {
 
 	@DeleteMapping("/users/{userId}")
 	public ResponseEntity<CommonResponseDto> deleteUser(
-		@RequestHeader("Authorization") String authorizationHeader,
+		@RequestHeader(AUTHORIZATION) String authorizationHeader,
 		@RequestBody UserDeleteResponseDto userDeleteResponseDto,
 		@PathVariable Long userId
 	){
@@ -183,7 +185,7 @@ public class UserController {
 
 	 @GetMapping("/users/mentoring")
 	public ResponseEntity<CommonResponseDto> getRecommendMentor(
-		@RequestHeader(Constants.AUTHORIZATION) String authorizationHeader
+		@RequestHeader(AUTHORIZATION) String authorizationHeader
 	 ){
 		String token = authorizationHeader.substring("Bearer ".length());
 		Long tokenId = jwtUtil.extractUserId(token);
