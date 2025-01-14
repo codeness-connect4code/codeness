@@ -6,7 +6,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -16,6 +15,4 @@ public interface MentorRequestRepository extends JpaRepository<MentorRequest, Lo
 	@Query("SELECT new com.connect.codeness.domain.mentorrequest.dto.MentorRequestResponseDto(mr) " +
 		"FROM MentorRequest mr WHERE mr.isAccepted = :status")
 	Page<MentorRequestResponseDto> findByIsAccepted(MentorRequestStatus status, Pageable pageable);
-
-
 }

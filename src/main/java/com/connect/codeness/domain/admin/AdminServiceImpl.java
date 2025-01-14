@@ -1,5 +1,6 @@
 package com.connect.codeness.domain.admin;
 
+import com.connect.codeness.domain.admin.dto.AdminUpdateMentorRequestDto;
 import com.connect.codeness.domain.mentorrequest.MentorRequest;
 import com.connect.codeness.domain.mentorrequest.MentorRequestRepository;
 import com.connect.codeness.domain.mentorrequest.dto.MentorRequestResponseDto;
@@ -17,6 +18,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AdminServiceImpl implements AdminService {
@@ -51,7 +53,7 @@ public class AdminServiceImpl implements AdminService {
 	}
 
 	@Override
-	public CommonResponseDto<Page<MentorRequestResponseDto>> getMentorRequest(int pageNumber, int pageSize) {
+	public CommonResponseDto<Page<MentorRequestResponseDto>> getMentorRequests(int pageNumber, int pageSize) {
 		Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("createdAt").descending());
 		Page<MentorRequestResponseDto> mentorRequestResponseDto
 			= mentorRequestRepository.findByIsAccepted(MentorRequestStatus.WAITING, pageable);
@@ -60,6 +62,34 @@ public class AdminServiceImpl implements AdminService {
 			.msg("멘토 신청 리스트가 조회되었습니다.")
 			.data(mentorRequestResponseDto)
 			.build();
+	}
+
+	@Override
+	public CommonResponseDto<MentorRequestResponseDto> getMentorRequest(Long mentoringRequestId) {
+		MentorRequest mentorRequest = mentorRequestRepository.findById(mentoringRequestId)
+			.orElseThrow(() -> new BusinessException(ExceptionType.NOT_FOUND));
+
+		return CommonResponseDto.<MentorRequestResponseDto>builder()
+			.msg("멘토 신청 상세가 조회 되었습니다.")
+			.data(new MentorRequestResponseDto(mentorRequest)).build();
+	}
+
+	@Override
+	@Transactional
+	public CommonResponseDto updateMentor(Long mentorRequestId,
+		AdminUpdateMentorRequestDto dto) {
+		MentorRequest mentorRequest = mentorRequestRepository.findById(mentorRequestId).orElseThrow(
+			() -> new BusinessException(ExceptionType.NOT_FOUND)
+		);
+		if (
+			mentorRequest.getIsAccepted().equals(MentorRequestStatus.REJECTED)|| mentorRequest.getIsAccepted().equals(MentorRequestStatus.ACCEPTED)
+		) {
+			throw new BusinessException(ExceptionType.BAD_REQUEST);
+		}
+		mentorRequest.updateStatus(dto.getIsAccepted());
+		mentorRequestRepository.save(mentorRequest);
+		return CommonResponseDto.builder()
+			.msg("멘토 신청 상태 변경이 완료되었습니다.").build();
 	}
 }
 
