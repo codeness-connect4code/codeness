@@ -23,5 +23,8 @@ public interface PostService {
 
 	// 게시글 수정
 	CommonResponseDto updatePost(Long userId, Long postId, PostUpdateRequestDto postUpdateRequestDto);
+
+	// 게시글 삭제
+	CommonResponseDto deletePost(Long userId, Long postId);
 }
 
