@@ -33,6 +33,8 @@ public enum ExceptionType {
 	FORBIDDEN_PERMISSION(HttpStatus.FORBIDDEN, "사용자 권한이 없습니다."),
 	FORBIDDEN_LOGIN(HttpStatus.FORBIDDEN, "이미 탈퇴한 유저입니다."),
 	NOT_YOUR_COMMENT(HttpStatus.FORBIDDEN, "해당 댓글의 작성자가 아닙니다."),
+	FORBIDDEN_PAYMENT_ACCESS(HttpStatus.FORBIDDEN, "다른 사용자의 결제 내역을 조회할 수 없습니다."),
+	FORBIDDEN_SETTLEMENT_ACCESS(HttpStatus.FORBIDDEN, "정산 신청을 할 수 있는 권한이 없습니다."),
 
 	// 404 NOT_FOUND
 	NOT_FOUND(HttpStatus.NOT_FOUND, "리소스를 찾을 수 없습니다."),
@@ -48,6 +50,7 @@ public enum ExceptionType {
 	NOT_FOUND_PGTID(HttpStatus.NOT_FOUND, "pg_tid를 찾을 수 없습니다."),
 	NOT_FOUND_AMOUNT(HttpStatus.NOT_FOUND, "결제 금액이 올바르지 않습니다."),
 	NOT_FOUND_PAYMENT_BY_IAMPORT(HttpStatus.NOT_FOUND, "아임포트에서 결제 내역을 조회할 수 없습니다."),
+	NOT_FOUND_SETTLEMENT_DATE(HttpStatus.NOT_FOUND, "정산 가능한 결제 내역이 없습니다."),
 
 	// 409 CONFLICT
 	DUPLICATE_VALUE(HttpStatus.CONFLICT, "중복된 정보입니다."),

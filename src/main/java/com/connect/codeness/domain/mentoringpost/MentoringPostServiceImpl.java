@@ -26,6 +26,7 @@ public class MentoringPostServiceImpl implements MentoringPostService {
 	@Override
 	@Transactional
 	public CommonResponseDto createMentoringPost(long userId, MentoringPostCreateRequestDto requestDto) {
+		//유저 조회
 		User user = userRepository.findByIdOrElseThrow(userId);
 
 		// FieldType 변환

@@ -49,7 +49,6 @@ public class JwtUtil {
 		return extractClaims(token).getSubject();
 	}
 
-
 	// JWT 토큰 만료 여부 체크
 	public boolean isTokenExpired(String token) {
 		return extractClaims(token).getExpiration().before(new Date());

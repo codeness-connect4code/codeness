@@ -1,12 +1,16 @@
 package com.connect.codeness.domain.mentorrequest;
 
+import com.connect.codeness.domain.file.FileService;
+import com.connect.codeness.domain.file.ImageFile;
 import com.connect.codeness.domain.mentorrequest.dto.MentorRequestCreateResponseDto;
 import com.connect.codeness.domain.user.User;
 import com.connect.codeness.domain.user.UserRepository;
 import com.connect.codeness.global.dto.CommonResponseDto;
+import com.connect.codeness.global.enums.FileCategory;
 import com.connect.codeness.global.enums.MentorRequestStatus;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
+import java.io.IOException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,11 +19,13 @@ public class MentorRequestServiceImpl implements MentorRequestService {
 
 	private final MentorRequestRepository mentorRequestRepository;
 	private final UserRepository userRepository;
+	private final FileService fileService;
 
 	public MentorRequestServiceImpl(MentorRequestRepository mentorRequestRepository,
-		UserRepository userRepository) {
+		UserRepository userRepository, FileService fileService) {
 		this.mentorRequestRepository = mentorRequestRepository;
 		this.userRepository = userRepository;
+		this.fileService = fileService;
 	}
 
 	//멘토 신청 api
@@ -27,7 +33,7 @@ public class MentorRequestServiceImpl implements MentorRequestService {
 	@Transactional
 	public CommonResponseDto createMentorRequest(
 		Long userId,
-		MentorRequestCreateResponseDto dto) {
+		MentorRequestCreateResponseDto dto, ImageFile imageFile){
 
 		User user = userRepository.findByIdOrElseThrow(userId);
 
@@ -46,9 +52,12 @@ public class MentorRequestServiceImpl implements MentorRequestService {
 			.field(dto.getField())
 			.build();
 
-			mentorRequestRepository.save(mentorRequest);
+		user.updateImageFiles(imageFile);
 
-			return CommonResponseDto.builder().msg("멘토 신청 완료").build();
+		userRepository.save(user);
+		mentorRequestRepository.save(mentorRequest);
+
+		return CommonResponseDto.builder().msg("멘토 신청 완료").build();
 	}
 }
 

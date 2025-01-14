@@ -1,5 +1,6 @@
 package com.connect.codeness.global.Jwt;
 
+import com.connect.codeness.global.security.CustomUserDetailService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,7 +21,7 @@ public class JwtFilter extends OncePerRequestFilter {
 	private JwtUtil jwtUtil;
 
 	@Autowired
-	private UserDetailService userDetailService;
+	private CustomUserDetailService userDetailService;
 
 	private static final List<String> POST_EXCLUDED_PATHS = List.of("/login", "/signup");
 	private static final List<String> GET_EXCLUDED_PATHS = List.of("/posts", "/posts/.*","/news");
