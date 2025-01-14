@@ -88,7 +88,7 @@ public class FileServiceImpl implements FileService{
 		// url 반환
 		return CommonResponseDto.builder()
 			.msg("사진 업로드가 완료되었습니다.")
-			.data(imageFile)
+			.data(fileUrl)
 			.build();
 	}
 

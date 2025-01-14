@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class PostResearchResponseDto {
+public class PostFindAllResponseDto {
 
 	private Long postId;
 
