@@ -7,6 +7,7 @@ import com.connect.codeness.domain.paymentlist.dto.PaymentListResponseDto;
 import com.connect.codeness.domain.user.User;
 import com.connect.codeness.domain.user.UserRepository;
 import com.connect.codeness.global.dto.CommonResponseDto;
+import com.connect.codeness.global.enums.SettleStatus;
 import com.connect.codeness.global.enums.UserRole;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
@@ -33,6 +34,7 @@ public class PaymentListServiceImpl implements PaymentListService {
 	/**
 	 * 결제내역 전체 조회 서비스 메서드
 	 * - 멘티 & 멘토
+	 * - TODO : 어드민 추가
 	 */
 	@Override
 	public CommonResponseDto<List<PaymentListResponseDto>> getAllPaymentHistory(Long userId) {
@@ -40,14 +42,15 @@ public class PaymentListServiceImpl implements PaymentListService {
 		//유저 조회
 		User user = userRepository.findByIdOrElseThrow(userId);
 
-		//로그인한 유저 id로 결제 list 조회
+		//로그인한 유저 id로 결제 list를 조회
 		List<Payment> payments = paymentRepository.findAllByUserId(user.getId());
 
-		//결제 id로 paymentList 조회, list로 가져오기
+		//결제 list에 대한 결제내역 list를 조회
 		List<PaymentList> paymentLists = payments.stream()
 			.flatMap(payment -> paymentListRepository.findAllByPaymentId(payment.getId()).stream())
 			.toList();
 
+		//결제내역 list를 dto로 변환
 		List<PaymentListResponseDto> paymentListResponseDtos = paymentLists.stream()
 			.map(paymentList -> helperPaymentList(paymentList, user.getRole()))
 			.toList();
@@ -59,6 +62,7 @@ public class PaymentListServiceImpl implements PaymentListService {
 	/**
 	 * 유저 롤에 따른 결제 내역 응답 메서드
 	 * - TODO : 현재 해당하지 않는 필드는 null로 나오는데 responseDto 멘토, 멘티 분리하는게 나을지 고민
+	 * -
 	 */
 	private PaymentListResponseDto helperPaymentList(PaymentList paymentList, UserRole userRole) {
 		PaymentListResponseDto.PaymentListResponseDtoBuilder builder = PaymentListResponseDto.builder()
@@ -89,7 +93,8 @@ public class PaymentListServiceImpl implements PaymentListService {
 
 	/**
 	 * 결제내역 단건 조회 서비스 메서드
-	 * - 멘티
+	 * - 멘티 & 멘토
+	 * - TODO : 로그인한 회원만 조회 빼기
 	 */
 	@Override
 	public CommonResponseDto<PaymentListResponseDto> getPaymentHistory(Long userId, Long paymentListId) {
@@ -97,7 +102,7 @@ public class PaymentListServiceImpl implements PaymentListService {
 		//유저 조회
 		User user = userRepository.findByIdOrElseThrow(userId);
 
-		//결제 내역 조회
+		//결제 내역 조회 - 다른 유저 결제내역 조회시 예외
 		PaymentList paymentList = paymentListRepository.findByIdAndUserId(paymentListId, user.getId())
 			.orElseThrow(() -> new BusinessException(ExceptionType.FORBIDDEN_PAYMENT_ACCESS));
 
@@ -125,10 +130,24 @@ public class PaymentListServiceImpl implements PaymentListService {
 	 */
 	@Transactional
 	@Override
-	public CommonResponseDto requestSettlement(Long userId, Long paymentListId) {
+	public CommonResponseDto requestSettlement(Long userId) {
 		//유저 조회
+		User user = userRepository.findByIdOrElseThrow(userId);
 
-		//
+		//유저가 멘티거나 어드민일 경우
+		if(user.getRole().equals(UserRole.MENTEE) || user.getRole().equals(UserRole.ADMIN)){
+			throw new BusinessException(ExceptionType.FORBIDDEN_SETTLEMENT_ACCESS);
+		}
+
+		//정산 상태가 미처리인 결제 내역 조회
+		List<PaymentList> unprocessedPaymentLists = paymentListRepository.findAllByUserIdAndSettleStatus(user.getId(), SettleStatus.UNPROCESSED);
+		//정산 상태가 미처리인 결제 내역이 없을 경우
+		if(unprocessedPaymentLists.isEmpty()){
+			throw new BusinessException(ExceptionType.NOT_FOUND_SETTLEMENT_DATE);
+		}
+
+		//정산 상태 처리중으로 업데이트
+		unprocessedPaymentLists.forEach(paymentList -> paymentList.updateSettleStatus(SettleStatus.PROCESSING));
 
 		return CommonResponseDto.builder().msg("정산 신청이 완료되었습니다.").build();
 	}

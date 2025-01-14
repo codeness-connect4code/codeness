@@ -54,7 +54,7 @@ public class PaymentServiceImpl implements PaymentService {
 	/**
 	 * 결제 생성 서비스 메서드
 	 * - 멘토링 스케쥴 신청
-	 * - TODO : 채팅방 생성 로직 추가
+	 * - TODO : 채팅방 생성 로직 추가 & 멘토는 신청 못하는 로직 추가
 	 */
 	@Transactional
 	@Override
@@ -66,6 +66,8 @@ public class PaymentServiceImpl implements PaymentService {
 
 		//유저 조회
 		User user = userRepository.findByIdOrElseThrow(userId);
+
+		//TODO : 멘토링 스케쥴 전체 조회 API 구현시 코드 옮기기
 		//멘토링 스케쥴 조회
 		MentoringSchedule mentoringSchedule = mentoringScheduleRepository.findByIdOrElseThrow(requestDto.getMentoringScheduleId());
 

@@ -1,9 +1,9 @@
 package com.connect.codeness.domain.paymentlist;
 
 
+import static com.connect.codeness.global.constants.Constants.AUTHORIZATION;
 import com.connect.codeness.domain.paymentlist.dto.PaymentListResponseDto;
 import com.connect.codeness.global.Jwt.JwtUtil;
-import com.connect.codeness.global.constants.Constants;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import java.util.List;
 import org.springframework.http.HttpStatus;
@@ -38,8 +38,7 @@ public class PaymentListController {
 	 * - 멘티 & 멘토
 	 */
 	@GetMapping("/mentoring/payment-list")
-	public ResponseEntity<CommonResponseDto<List<PaymentListResponseDto>>> getAllPaymentHistory(
-		@RequestHeader(Constants.AUTHORIZATION) String token) {
+	public ResponseEntity<CommonResponseDto<List<PaymentListResponseDto>>> getAllPaymentHistory(@RequestHeader(AUTHORIZATION) String token) {
 		Long userId = jwtUtil.extractUserId(token);
 
 		CommonResponseDto<List<PaymentListResponseDto>> responseDto = paymentListService.getAllPaymentHistory(userId);
@@ -51,7 +50,7 @@ public class PaymentListController {
 	 * - 멘티
 	 */
 	@GetMapping("/mentoring/payment-list/{paymentListId}")
-	public ResponseEntity<CommonResponseDto> getPaymentHistory(@RequestHeader(Constants.AUTHORIZATION) String token, @PathVariable Long paymentListId) {
+	public ResponseEntity<CommonResponseDto> getPaymentHistory(@RequestHeader(AUTHORIZATION) String token, @PathVariable Long paymentListId) {
 		Long userId = jwtUtil.extractUserId(token);
 
 		CommonResponseDto<PaymentListResponseDto> responseDto = paymentListService.getPaymentHistory(userId, paymentListId);
@@ -63,11 +62,11 @@ public class PaymentListController {
 	 * - 멘토
 	 * - 정산상태 변경
 	 */
-	@PatchMapping("/mentors/mentoring/payment-list/{paymentListId}/settles")
-	public ResponseEntity<CommonResponseDto> requestSettlement(@RequestHeader(Constants.AUTHORIZATION) String token, @PathVariable Long paymentListId){
+	@PatchMapping("/mentors/mentoring/payment-list/settles")
+	public ResponseEntity<CommonResponseDto> requestSettlement(@RequestHeader(AUTHORIZATION) String token){
 		Long userId = jwtUtil.extractUserId(token);
 
-		CommonResponseDto responseDto = paymentListService.requestSettlement(userId, paymentListId);
+		CommonResponseDto responseDto = paymentListService.requestSettlement(userId);
 		return new ResponseEntity<>(responseDto, HttpStatus.OK);
 	}
 	

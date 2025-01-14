@@ -1,6 +1,7 @@
 package com.connect.codeness.domain.paymentlist;
 
 
+import com.connect.codeness.global.enums.SettleStatus;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
 import java.util.List;
@@ -26,5 +27,13 @@ public interface PaymentListRepository extends JpaRepository<PaymentList, Long> 
 
 	@Query("SELECT p FROM PaymentList p WHERE p.id = :paymentListId AND p.payment.user.id = :userId")
 	Optional<PaymentList> findByIdAndUserId(Long paymentListId, Long userId);
+
+	Optional<PaymentList> findByUserId(Long userId);
+
+//	default PaymentList findByUserIdOrElseThrow(Long userId){
+//		return findByUserId(userId).orElseThrow(() -> new BusinessException(ExceptionType.NOT_FOUND_PAYMENTLIST));
+//	}
+
+	List<PaymentList> findAllByUserIdAndSettleStatus(Long userId, SettleStatus settleStatus);
 
 }

@@ -20,6 +20,6 @@ public interface PaymentListService {
 	/**
 	 * 결제내역 정산 신청 메서드
 	 */
-	CommonResponseDto requestSettlement(Long userId, Long paymentListId);
+	CommonResponseDto requestSettlement(Long userId);
 }
 

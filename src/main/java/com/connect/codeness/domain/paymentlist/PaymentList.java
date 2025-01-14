@@ -114,4 +114,11 @@ public class PaymentList extends CreateTimeEntity {
 	public void updatePaymentStatus(PaymentStatus paymentStatus) {
 		this.paymentStatus = PaymentStatus.CANCEL;
 	}
+
+	/**
+	 * paymentList 정산 상태 수정 UNPROCESSED -> PROCESSING
+	 */
+	public void updateSettleStatus(SettleStatus settleStatus) {
+		this.settleStatus = SettleStatus.PROCESSING;
+	}
 }
