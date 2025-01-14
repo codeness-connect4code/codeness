@@ -38,3 +38,6 @@ out/
 
 ### env ###
 .env
+
+### fire-base-key ###
+src/main/resources/firebase-codeness-key.json

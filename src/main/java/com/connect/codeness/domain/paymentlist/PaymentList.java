@@ -3,6 +3,7 @@ package com.connect.codeness.domain.paymentlist;
 
 import com.connect.codeness.domain.payment.Payment;
 import com.connect.codeness.domain.user.User;
+import com.connect.codeness.global.entity.BaseEntity;
 import com.connect.codeness.global.entity.CreateTimeEntity;
 import com.connect.codeness.global.enums.PaymentStatus;
 import com.connect.codeness.global.enums.ReviewStatus;

@@ -12,17 +12,17 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ReviewRepository extends JpaRepository<Review, Long> {
 
-    default Review findByIdOrElseThrow(Long reviewId){
-        return findById(reviewId).orElseThrow(
-            () -> new BusinessException(ExceptionType.NOT_FOUND_REVIEW)
-        );
-    }
+	default Review findByIdOrElseThrow(Long reviewId) {
+		return findById(reviewId).orElseThrow(
+			() -> new BusinessException(ExceptionType.NOT_FOUND_REVIEW)
+		);
+	}
 
-    @Query("""
-        SELECT r FROM Review r
-        JOIN FETCH r.paymentList pl
-        JOIN FETCH pl.payment p
-        WHERE p.mentoringSchedule.mentoringPost.id = :postId
-    """)
-    Page<Review> findByMentoringPostId(@Param("postId") Long postId, Pageable pageable);
+	@Query("""
+		    SELECT r FROM Review r
+		    JOIN FETCH r.paymentList pl
+		    JOIN FETCH pl.payment p
+		    WHERE p.mentoringSchedule.mentoringPost.id = :postId
+		""")
+	Page<Review> findByMentoringPostId(@Param("postId") Long postId, Pageable pageable);
 }
