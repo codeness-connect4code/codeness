@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
+import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @Builder
@@ -35,5 +36,7 @@ public class MentorRequestCreateResponseDto {
 	@NotNull
 	@Pattern(regexp = "^(?:\\w+\\.?)*\\w+@(?:\\w+\\.)+\\w+$", message = "이메일 형식이 올바르지 않습니다.")
 	 private String companyEmail;
+
+	private MultipartFile multipartFile;
 
 }
