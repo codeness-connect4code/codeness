@@ -1,12 +1,16 @@
 package com.connect.codeness.domain.post;
 
+import com.connect.codeness.domain.file.FileRepository;
+import com.connect.codeness.domain.file.ImageFile;
 import com.connect.codeness.domain.post.dto.PostCreateRequestDto;
-import com.connect.codeness.domain.post.dto.PostResearchResponseDto;
+import com.connect.codeness.domain.post.dto.PostFindAllResponseDto;
+import com.connect.codeness.domain.post.dto.PostFindResponseDto;
 import com.connect.codeness.domain.user.User;
 import com.connect.codeness.domain.user.UserRepository;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.enums.CommunityStatus;
 import com.connect.codeness.global.enums.PostType;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Pageable;
@@ -16,10 +20,12 @@ public class PostServiceImpl implements PostService {
 
 	private PostRepository postRepository;
 	private UserRepository userRepository;
+	private FileRepository fileRepository;
 
-	public PostServiceImpl(PostRepository postRepository, UserRepository userRepository) {
+	public PostServiceImpl(PostRepository postRepository, UserRepository userRepository, FileRepository fileRepository) {
 		this.postRepository = postRepository;
 		this.userRepository = userRepository;
+		this.fileRepository = fileRepository;
 	}
 
 	// 게시글 생성 메서드
@@ -33,7 +39,7 @@ public class PostServiceImpl implements PostService {
 			.title(dto.getTitle())
 			.content(dto.getContent())
 			.writer(user.getUserNickname())
-			.view(0l)
+			.view(0L)
 			.postType(dto.getPostType())
 			.status(CommunityStatus.DISPLAYED)
 			.build();
@@ -47,15 +53,15 @@ public class PostServiceImpl implements PostService {
 			.build();
 	}
 
-	// 게시글 조회 메서드
+	// 게시글 목록 조회
 	@Override
-	public CommonResponseDto<Page<PostResearchResponseDto>> findAllPost(PostType postType, String keyword, String writer, Pageable pageable) {
+	public CommonResponseDto<Page<PostFindAllResponseDto>> findAllPost(PostType postType, String keyword, String writer, Pageable pageable) {
 
 		// DB 에서 게시글 가져오기
 		Page<Post> posts = postRepository.findByTypeAndKeyword(postType, keyword, writer, pageable);
 
 		// DTO로 매핑
-		Page<PostResearchResponseDto> postList = posts.map(post -> PostResearchResponseDto.builder()
+		Page<PostFindAllResponseDto> postList = posts.map(post -> PostFindAllResponseDto.builder()
 				.postId(post.getId())
 				.title(post.getTitle())
 				.writer(post.getWriter())
@@ -64,9 +70,49 @@ public class PostServiceImpl implements PostService {
 				.build());
 
 		// CommonResponseDto에 Page를 직접 포함
-		return CommonResponseDto.<Page<PostResearchResponseDto>>builder()
-			.msg("게시글 조회가 완료되었습니다.")
+		return CommonResponseDto.<Page<PostFindAllResponseDto>>builder()
+			.msg("게시글 목록 조회가 완료되었습니다.")
 			.data(postList)
+			.build();
+	}
+
+	// 게시글 상세 조회
+	@Override
+	@Transactional
+	public CommonResponseDto<PostFindResponseDto> findPost(Long postId) {
+
+		Post post = postRepository.findByIdOrElseThrow(postId);
+
+		ImageFile writerProfile = fileRepository.findByUserId(post.getUser().getId());
+
+		PostFindResponseDto postFindResult;
+
+		post.increaseView(post.getView());
+
+		if (writerProfile != null) {
+			postFindResult = PostFindResponseDto.builder()
+				.postId(post.getId())
+				.title(post.getTitle())
+				.writer(post.getWriter())
+				.view(post.getView())
+				.content(post.getContent())
+				.writerProfileUrl(writerProfile.getFilePath())
+				.postType(post.getPostType())
+				.build();
+		} else {
+			postFindResult = PostFindResponseDto.builder()
+				.postId(post.getId())
+				.title(post.getTitle())
+				.writer(post.getWriter())
+				.view(post.getView())
+				.content(post.getContent())
+				.postType(post.getPostType())
+				.build();
+		}
+
+		return CommonResponseDto.<PostFindResponseDto>builder()
+			.msg("게시글 상세 조회가 완료되었습니다.")
+			.data(postFindResult)
 			.build();
 	}
 }
