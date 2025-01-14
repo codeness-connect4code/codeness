@@ -23,7 +23,8 @@ public class JwtFilter extends OncePerRequestFilter {
 	private UserDetailService userDetailService;
 
 	private static final List<String> POST_EXCLUDED_PATHS = List.of("/login", "/signup");
-	private static final List<String> GET_EXCLUDED_PATHS = List.of("/posts", "/posts/.*");
+	private static final List<String> GET_EXCLUDED_PATHS = List.of("/posts", "/posts/.*","/news");
+	private static final List<String> DELETE_EXCLUDED_PATHS = List.of("");
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
@@ -43,6 +44,12 @@ public class JwtFilter extends OncePerRequestFilter {
 			chain.doFilter(request, response);
 			return;
 		}
+
+		// DELETE 메서드에 대한 화이트리스트 확인
+//		if ("DELETE".equalsIgnoreCase(method) && DELETE_EXCLUDED_PATHS.stream().anyMatch(requestPath::startsWith)) {
+//			chain.doFilter(request, response);
+//			return;
+//		}
 
 		String authorizationHeader = request.getHeader("Authorization");
 

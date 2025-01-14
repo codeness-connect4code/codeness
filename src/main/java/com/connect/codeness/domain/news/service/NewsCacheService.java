@@ -1,4 +1,4 @@
-package com.connect.codeness.domain.news;
+package com.connect.codeness.domain.news.service;
 
 import com.connect.codeness.domain.news.dto.NewsResponseDto;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -17,6 +17,7 @@ public class NewsCacheService {
 
 	private final RestTemplate restTemplate;
 	private final String BASE_URL = "https://hacker-news.firebaseio.com/v0";  // https로 변경
+	private final String SUB_URL = "newstories.json";
 
 	public NewsCacheService(RestTemplate restTemplate) {
 		this.restTemplate = restTemplate;
@@ -25,7 +26,7 @@ public class NewsCacheService {
 	@Cacheable(value = "newStories", key = "'newStories'", unless = "#result == null")
 	public Long[] fetchTopStoryIds() {
 		try {
-			String url = BASE_URL + "/newstories.json";
+			String url = String.format("%s//%s", BASE_URL, SUB_URL);
 			return restTemplate.getForObject(url, Long[].class);
 		} catch (Exception e) {
 			log.error("Error fetching top story ids", e);
@@ -37,7 +38,7 @@ public class NewsCacheService {
 	public NewsResponseDto fetchStory(Long id) {
 		log.info("Calling API for story ID: {}", id);
 		try {
-			String url = BASE_URL + "/item/" + id + ".json";
+			String url = String.format("%s//%s//%d.json", BASE_URL, "item", id);
 			JsonNode response = restTemplate.getForObject(url, JsonNode.class);
 
 			if (response == null || response.has("deleted")) {

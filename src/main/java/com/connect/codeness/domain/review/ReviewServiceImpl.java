@@ -6,9 +6,11 @@ import com.connect.codeness.domain.paymentlist.PaymentListRepository;
 import com.connect.codeness.domain.review.dto.ReviewCreateRequestDto;
 import com.connect.codeness.domain.review.dto.ReviewFindResponseDto;
 import com.connect.codeness.global.dto.CommonResponseDto;
+import com.connect.codeness.global.enums.ReviewStatus;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Objects;
 import org.springframework.data.domain.Page;
@@ -21,88 +23,90 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class ReviewServiceImpl implements ReviewService {
 
-    private final ReviewRepository reviewRepository;
-    private final PaymentListRepository paymentListRepository;
+	private final ReviewRepository reviewRepository;
+	private final PaymentListRepository paymentListRepository;
 
-    public ReviewServiceImpl(ReviewRepository reviewRepository,
-        PaymentListRepository paymentListRepository) {
+	public ReviewServiceImpl(ReviewRepository reviewRepository,
+		PaymentListRepository paymentListRepository) {
 
-        this.reviewRepository = reviewRepository;
-        this.paymentListRepository = paymentListRepository;
+		this.reviewRepository = reviewRepository;
+		this.paymentListRepository = paymentListRepository;
+	}
 
-    }
+	@Transactional
+	@Override
+	public CommonResponseDto createReview(Long userId, Long paymentListId,
+		ReviewCreateRequestDto dto) {
+		//리뷰를 생성할 거래 내역 가져오기
+		PaymentList paymentList = paymentListRepository.findById(paymentListId).orElseThrow(
+			() -> new BusinessException(ExceptionType.NOT_FOUND_PAYMENTLIST)
+		);
 
-    @Transactional
-    @Override
-    public CommonResponseDto createReview(Long paymentListId, ReviewCreateRequestDto dto) {
-        PaymentList paymentList = paymentListRepository.findById(paymentListId).orElseThrow(
-            () -> new BusinessException(ExceptionType.NOT_FOUND_PAYMENTLIST)
-        );
+		//내가 거래한 내역이 아니라면 생성 x
+		if (!Objects.equals(paymentList.getUser().getId(), userId)) {
+			throw new BusinessException(ExceptionType.UNAUTHORIZED_CREATE_REQUEST);
+		}
 
-        //멘토링 날짜가 아직 아니라면
-        MentoringSchedule mentoringSchedule = paymentList.getPayment().getMentoringSchedule();
+		//멘토링 날짜가 아직 아니라면
+		MentoringSchedule mentoringSchedule = paymentList.getPayment().getMentoringSchedule();
 
-        LocalDate mentoringDate = mentoringSchedule.getMentoringDate();
+		LocalDate mentoringDate = mentoringSchedule.getMentoringDate();
+		LocalTime mentoringTime = mentoringSchedule.getMentoringTime();
 
-        LocalDate nowDate = LocalDate.now();
-        if(mentoringDate.isAfter(nowDate)){
-            throw new BusinessException(ExceptionType.TOO_EARLY_REVIEW);
-        }
+		LocalDateTime mentoringDateTime = LocalDateTime.of(mentoringDate, mentoringTime);
+		LocalDateTime nowDateTime = LocalDateTime.now();
 
-        //멘토링 시간이 아직이라면
-        LocalTime mentoringTime = mentoringSchedule.getMentoringTime();
+		if (mentoringDateTime.isAfter(nowDateTime)) {
+			throw new BusinessException(ExceptionType.TOO_EARLY_REVIEW);
+		}
 
-        LocalTime nowTime = LocalTime.now();
+		Review review = Review.builder()
+			.paymentList(paymentList)
+			.reviewContent(dto.getContent())
+			.starRating(dto.getStarRating())
+			.build();
 
-        if(mentoringTime.isAfter(nowTime)){
-            throw new BusinessException(ExceptionType.TOO_EARLY_REVIEW);
-        }
+		//후기 내용 작성 후 결제내역의 후기 작성 상태 COMPLETE
+		reviewRepository.save(review);
+		paymentList.updateReviewStatus(ReviewStatus.COMPLETE);
 
-        Review review = Review.builder()
-            .paymentList(paymentList)
-            .reviewContent(dto.getContent())
-            .starRating(dto.getStarRating())
-            .build();
+		return CommonResponseDto.builder().msg("리뷰 생성이 완료되었습니다.").build();
+	}
 
-        //후기 내용 작성 후 결제내역의 후기 작성 상태 COMPLETE
-        reviewRepository.save(review);
-        //paymentList.updateReviewStatus(ReviewStatus.COMPLETE);
+	@Override
+	public CommonResponseDto<Page<ReviewFindResponseDto>> findReviews(Long mentoringPostId,
+		int pageNumber, int pageSize) {
 
-        return CommonResponseDto.builder().msg("리뷰 생성이 완료되었습니다.").build();
-    }
+		Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("createdAt").descending());
 
-    @Override
-    public CommonResponseDto<Page<ReviewFindResponseDto>> findReviews(Long mentoringPostId, int pageNumber, int pageSize) {
+		Page<Review> reviews = reviewRepository.findByMentoringPostId(mentoringPostId, pageable);
 
-        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("createdAt").descending());
+		Page<ReviewFindResponseDto> responseDto = reviews.map(
+			review -> ReviewFindResponseDto.builder()
+				.reviewId(review.getId())
+				.content(review.getReviewContent())
+				.starRating(review.getStarRating())
+				.createdAt(review.getCreatedAt())
+				.build());
 
-        Page<Review> reviews = reviewRepository.findByMentoringPostId(mentoringPostId, pageable);
+		return CommonResponseDto.<Page<ReviewFindResponseDto>>builder()
+			.msg("리뷰가 조회되었습니다.")
+			.data(responseDto)
+			.build();
+	}
 
-        Page<ReviewFindResponseDto> responseDto = reviews.map(review -> ReviewFindResponseDto.builder()
-            .reviewId(review.getId())
-            .content(review.getReviewContent())
-            .starRating(review.getStarRating())
-            .createdAt(review.getCreatedAt())
-            .build());
+	@Override
+	public CommonResponseDto deleteReview(Long userId, Long reviewId) {
+		Review review = reviewRepository.findByIdOrElseThrow(reviewId);
 
-        return CommonResponseDto.<Page<ReviewFindResponseDto>>builder()
-            .msg("리뷰가 조회되었습니다.")
-            .data(responseDto)
-            .build();
-    }
+		//내가 작성한 리뷰가 아니면 삭제 못함!
+		if (!Objects.equals(review.getPaymentList().getUser().getId(), userId)) {
+			throw new BusinessException(ExceptionType.UNAUTHORIZED_DELETE_REQUEST);
+		}
 
-    @Override
-    public CommonResponseDto deleteReview(Long reviewId, Long userId) {
-        Review review = reviewRepository.findByIdOrElseThrow(reviewId);
+		reviewRepository.delete(review);
 
-        //내가 작성한 리뷰가 아니면 삭제 못함!
-        if(!Objects.equals(review.getPaymentList().getUser().getId(), userId)){
-            throw new BusinessException(ExceptionType.UNAUTHORIZED_DELETE_REQUEST);
-        }
-
-        reviewRepository.delete(review);
-
-        return CommonResponseDto.builder().msg("리뷰 삭제가 완료되었습니다.").build();
-    }
+		return CommonResponseDto.builder().msg("리뷰 삭제가 완료되었습니다.").build();
+	}
 }
 
