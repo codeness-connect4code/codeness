@@ -89,29 +89,19 @@ public class PostServiceImpl implements PostService {
 
 		ImageFile writerProfile = fileRepository.findByUserId(post.getUser().getId());
 
-		PostFindResponseDto postFindResult;
-
 		post.increaseView(post.getView());
 
+		PostFindResponseDto postFindResult= PostFindResponseDto.builder()
+			.postId(post.getId())
+			.title(post.getTitle())
+			.writer(post.getWriter())
+			.view(post.getView())
+			.content(post.getContent())
+			.postType(post.getPostType())
+			.build();
+
 		if (writerProfile != null) {
-			postFindResult = PostFindResponseDto.builder()
-				.postId(post.getId())
-				.title(post.getTitle())
-				.writer(post.getWriter())
-				.view(post.getView())
-				.content(post.getContent())
-				.writerProfileUrl(writerProfile.getFilePath())
-				.postType(post.getPostType())
-				.build();
-		} else {
-			postFindResult = PostFindResponseDto.builder()
-				.postId(post.getId())
-				.title(post.getTitle())
-				.writer(post.getWriter())
-				.view(post.getView())
-				.content(post.getContent())
-				.postType(post.getPostType())
-				.build();
+			postFindResult.inputWriterProfileUrl(writerProfile.getFilePath());
 		}
 
 		return CommonResponseDto.<PostFindResponseDto>builder()

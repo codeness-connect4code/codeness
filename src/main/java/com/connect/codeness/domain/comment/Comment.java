@@ -39,18 +39,26 @@ public class Comment extends BaseEntity {
 	@Size(max = 100)
 	private String content;
 
+	@Column
+	private String writerProfileUrl;
+
 	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)
-	private CommunityStatus status;
+	private CommunityStatus communityStatus;
+
+	public void inputWriterProfileUrl(String writerProfileUrl){
+		this.writerProfileUrl = writerProfileUrl;
+	}
 
 	public Comment() {
 	}
 
 	@Builder
-	public Comment(User user, Post post, String content, CommunityStatus status) {
+	public Comment(User user, Post post, String content, String writerProfileUrl, CommunityStatus communityStatus) {
 		this.user = user;
 		this.post = post;
 		this.content = content;
-		this.status = status;
+		this.writerProfileUrl = writerProfileUrl;
+		this.communityStatus = communityStatus;
 	}
 }
