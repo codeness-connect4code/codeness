@@ -1,4 +1,4 @@
-package com.connect.codeness.domain.paymentlist;
+package com.connect.codeness.domain.paymenthistory;
 
 
 import com.connect.codeness.domain.payment.Payment;
@@ -25,8 +25,8 @@ import lombok.Getter;
 
 @Getter
 @Entity
-@Table(name = "payment_list")
-public class PaymentList extends CreateTimeEntity {
+@Table(name = "payment_history")
+public class PaymentHistory extends CreateTimeEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -72,12 +72,12 @@ public class PaymentList extends CreateTimeEntity {
 	@Column(nullable = true)
 	private String bankName; //계좌 은행명
 
-	public PaymentList() {
+	public PaymentHistory() {
 
 	}
 
 	@Builder
-	public PaymentList(Payment payment, User user, String pgTid, BigDecimal paymentCost,
+	public PaymentHistory(Payment payment, User user, String pgTid, BigDecimal paymentCost,
 		String paymentCard, PaymentStatus paymentStatus, SettleStatus settleStatus,
 		LocalDateTime canceledAt, ReviewStatus reviewStatus, String account, String bankName) {
 		this.payment = payment;

@@ -32,14 +32,14 @@ public class ReviewController {
 		this.jwtUtil = jwtUtil;
 	}
 
-	@PostMapping("/payment-list/{paymentListId}/reviews")
+	@PostMapping("/payment-history/{paymentHistoryId}/reviews")
 	public ResponseEntity<CommonResponseDto> createReview(
-		@PathVariable Long paymentListId,
+		@PathVariable Long paymentHistoryId,
 		@RequestHeader(AUTHORIZATION) String token,
 		@Valid @RequestBody ReviewCreateRequestDto dto
 	) {
 		Long userId = jwtUtil.extractUserId(token);
-		CommonResponseDto commonResponseDto = reviewService.createReview(userId, paymentListId,
+		CommonResponseDto commonResponseDto = reviewService.createReview(userId, paymentHistoryId,
 			dto);
 
 		return new ResponseEntity<>(commonResponseDto, HttpStatus.CREATED);
