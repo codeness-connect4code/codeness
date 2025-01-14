@@ -101,24 +101,16 @@ public class PaymentList extends CreateTimeEntity {
 	}
 
 	/**
-	 * paymentList 결제 상태 수정
-	 * TODO : 사용 안하게 되면 지우기
-	 */
-	public void updateStatus(PaymentStatus paymentStatus) {
-		this.paymentStatus = PaymentStatus.COMPLETE;
-	}
-
-	/**
 	 * paymentList 결제 상태 수정 COMPLETE -> CANCEL
 	 */
 	public void updatePaymentStatus(PaymentStatus paymentStatus) {
-		this.paymentStatus = PaymentStatus.CANCEL;
+		this.paymentStatus = paymentStatus;
 	}
 
 	/**
 	 * paymentList 정산 상태 수정 UNPROCESSED -> PROCESSING
 	 */
 	public void updateSettleStatus(SettleStatus settleStatus) {
-		this.settleStatus = SettleStatus.PROCESSING;
+		this.settleStatus = settleStatus;
 	}
 }

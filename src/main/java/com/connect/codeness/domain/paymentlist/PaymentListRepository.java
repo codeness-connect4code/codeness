@@ -28,6 +28,9 @@ public interface PaymentListRepository extends JpaRepository<PaymentList, Long> 
 	@Query("SELECT p FROM PaymentList p WHERE p.id = :paymentListId AND p.payment.user.id = :userId")
 	Optional<PaymentList> findByIdAndUserId(Long paymentListId, Long userId);
 
+	/**
+	 * TODO : 사용 안하면 지우기
+	 */
 	Optional<PaymentList> findByUserId(Long userId);
 
 	List<PaymentList> findAllByUserIdAndSettleStatus(Long userId, SettleStatus settleStatus);
