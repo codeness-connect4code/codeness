@@ -24,46 +24,47 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class ReviewController {
 
-    private final ReviewService reviewService;
-    private final JwtUtil jwtUtil;
+	private final ReviewService reviewService;
+	private final JwtUtil jwtUtil;
 
-    public ReviewController(ReviewService reviewService, JwtUtil jwtUtil) {
-        this.reviewService = reviewService;
+	public ReviewController(ReviewService reviewService, JwtUtil jwtUtil) {
+		this.reviewService = reviewService;
 		this.jwtUtil = jwtUtil;
 	}
 
-    @PostMapping("/payment-list/{paymentListId}/reviews")
-    public ResponseEntity<CommonResponseDto> createReview(
-        @PathVariable Long paymentListId,
-        @RequestHeader(AUTHORIZATION) String token,
-        @Valid @RequestBody ReviewCreateRequestDto dto
-    ){
-        Long userId = jwtUtil.extractUserId(token);
-        CommonResponseDto commonResponseDto = reviewService.createReview(userId, paymentListId, dto);
+	@PostMapping("/payment-list/{paymentListId}/reviews")
+	public ResponseEntity<CommonResponseDto> createReview(
+		@PathVariable Long paymentListId,
+		@RequestHeader(AUTHORIZATION) String token,
+		@Valid @RequestBody ReviewCreateRequestDto dto
+	) {
+		Long userId = jwtUtil.extractUserId(token);
+		CommonResponseDto commonResponseDto = reviewService.createReview(userId, paymentListId,
+			dto);
 
-        return new ResponseEntity<>(commonResponseDto, HttpStatus.CREATED);
-    }
+		return new ResponseEntity<>(commonResponseDto, HttpStatus.CREATED);
+	}
 
-    @GetMapping("/mentoring-posts/{mentoringPostId}/reviews")
-    public ResponseEntity<CommonResponseDto<Page<ReviewFindResponseDto>>> findReviews(
-        @PathVariable Long mentoringPostId,
-        @RequestParam(defaultValue = PAGE_NUMBER) int pageNumber,
-        @RequestParam(defaultValue = PAGE_SIZE) int pageSize
-    ){
-        CommonResponseDto<Page<ReviewFindResponseDto>> commonResponseDto
-            = reviewService.findReviews(mentoringPostId, pageNumber,pageSize);
+	@GetMapping("/mentoring-posts/{mentoringPostId}/reviews")
+	public ResponseEntity<CommonResponseDto<Page<ReviewFindResponseDto>>> findReviews(
+		@PathVariable Long mentoringPostId,
+		@RequestParam(defaultValue = PAGE_NUMBER) int pageNumber,
+		@RequestParam(defaultValue = PAGE_SIZE) int pageSize
+	) {
+		CommonResponseDto<Page<ReviewFindResponseDto>> commonResponseDto
+			= reviewService.findReviews(mentoringPostId, pageNumber, pageSize);
 
-        return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
-    }
+		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
+	}
 
-    @DeleteMapping("/reviews/{reviewId}")
-    public ResponseEntity<CommonResponseDto> deleteReview(
-        @PathVariable Long reviewId,
-        @RequestHeader(AUTHORIZATION) String token
-    ){
-        Long userId = jwtUtil.extractUserId(token);
-        CommonResponseDto commonResponseDto = reviewService.deleteReview(userId,reviewId);
+	@DeleteMapping("/reviews/{reviewId}")
+	public ResponseEntity<CommonResponseDto> deleteReview(
+		@PathVariable Long reviewId,
+		@RequestHeader(AUTHORIZATION) String token
+	) {
+		Long userId = jwtUtil.extractUserId(token);
+		CommonResponseDto commonResponseDto = reviewService.deleteReview(userId, reviewId);
 
-        return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
-    }
+		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
+	}
 }

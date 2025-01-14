@@ -23,7 +23,7 @@ public class JwtFilter extends OncePerRequestFilter {
 	private UserDetailService userDetailService;
 
 	private static final List<String> POST_EXCLUDED_PATHS = List.of("/login", "/signup", "/chat-rooms");
-	private static final List<String> GET_EXCLUDED_PATHS = List.of("/posts", "/posts/.*","/chat-rooms");
+	private static final List<String> GET_EXCLUDED_PATHS = List.of("/posts", "/posts/.*","/chat-rooms","/news");
 	private static final List<String> DELETE_EXCLUDED_PATHS = List.of("/chat-rooms");
 
 	@Override

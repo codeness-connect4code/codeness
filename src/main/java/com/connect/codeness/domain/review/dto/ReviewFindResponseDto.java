@@ -8,11 +8,11 @@ import lombok.Getter;
 @Builder
 public class ReviewFindResponseDto {
 
-    private Long reviewId;
+	private Long reviewId;
 
-    private String content;
+	private String content;
 
-    private Integer starRating;
+	private Integer starRating;
 
-    private LocalDateTime createdAt;
+	private LocalDateTime createdAt;
 }
