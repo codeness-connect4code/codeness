@@ -39,5 +39,6 @@ out/
 ### env ###
 .env
 
+.DS_Store
 ### fire-base-key ###
 src/main/resources/firebase-codeness-key.json

@@ -33,7 +33,7 @@ public class User extends BaseEntity {
 	@Size(max = 30, message = "이 필드는 최대 {max}자까지 가능합니다.")
 	private String email;
 
-	@Column(nullable = false)
+	//구글 로그인 통합을 위해 Nullable 삭제
 	private String password;
 
 	@Enumerated(EnumType.STRING)
@@ -44,7 +44,6 @@ public class User extends BaseEntity {
 	@Size(max = 30, message = "이 필드는 최대 {max}자까지 가능합니다.")
 	private String name;
 
-	@Column(nullable = false)
 	@Size(max = 30, message = "이 필드는 최대 {max}자까지 가능합니다.")
 	private String userNickname;
 
@@ -77,14 +76,13 @@ public class User extends BaseEntity {
 	private String firebaseUserId;
 
 	@Enumerated(EnumType.STRING)
-	@Column(nullable = false)
 	private FieldType field;
 
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<ImageFile> imageFiles = new ArrayList<>();
 
 	@Builder
-	public User(String email, String password,String name, String userNickname, String phoneNumber, FieldType field, UserRole role) {
+	public User(String email, String password,String name, String userNickname, String phoneNumber, FieldType field, UserRole role, String provider, String providerId) {
 		this.email = email;
 		this.password = password;
 		this.name = name;
@@ -93,11 +91,13 @@ public class User extends BaseEntity {
 		this.field = field;
 		this.role = role;
 		this.userStatus = UserStatus.ACTIVE;
+		this.provider = provider;
+		this.providerId = providerId;
 	}
 
 	public User() {}
 
-	public void update(UserUpdateRequestDto dto) {
+	public void update(UserUpdateRequestDto dto, ImageFile imageFile) {
 		this.userNickname = dto.getNickname();
 		this.phoneNumber = dto.getPhoneNumber();
 		this.region = dto.getRegion();
@@ -105,17 +105,22 @@ public class User extends BaseEntity {
 		this.mbti = dto.getMbti();
 		this.site_link = dto.getSiteLink();
 		this.field = dto.getField();
+		updateImageFiles(imageFile);
 	}
 
-	public void setImageFiles(ImageFile imageFile) {
+	private String provider;
+
+	private String providerId;
+
+	public void updateImageFiles(ImageFile imageFile) {
 		this.imageFiles.add(imageFile);
 	}
 
-	public void setPassword(String password) {
+	public void updatePassword(String password) {
 		this.password = password;
 	}
 
-	public void setBank(String bankName, String account){
+	public void updateBank(String bankName, String account){
 		this.bankName = bankName;
 		this.account = account;
 	}
