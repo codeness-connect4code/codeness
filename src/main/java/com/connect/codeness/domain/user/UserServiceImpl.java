@@ -1,5 +1,12 @@
 package com.connect.codeness.domain.user;
 
+import com.connect.codeness.domain.file.FileRepository;
+import com.connect.codeness.domain.file.FileService;
+import com.connect.codeness.domain.file.FileServiceImpl;
+import com.connect.codeness.domain.file.ImageFile;
+import com.connect.codeness.domain.mentoringpost.MentoringPostRepository;
+import com.connect.codeness.domain.mentoringpost.dto.MentoringPostRecommendResponseDto;
+import com.connect.codeness.domain.mentoringpost.dto.MentoringPostResponseDto;
 import com.connect.codeness.domain.user.dto.LoginRequestDto;
 import com.connect.codeness.domain.user.dto.UserBankUpdateRequestDto;
 import com.connect.codeness.domain.user.dto.UserCreateRequestDto;
@@ -11,6 +18,11 @@ import com.connect.codeness.global.Jwt.JwtUtil;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
+import java.io.IOException;
+import java.util.List;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -18,6 +30,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -25,13 +38,21 @@ public class UserServiceImpl implements UserService {
 	private final PasswordEncoder passwordEncoder;
 	private final AuthenticationManager authenticationManager;
 	private final JwtUtil jwtUtil;
+	private final FileRepository fileRepository;
+	private final FileService fileService;
+	private final MentoringPostRepository mentoringPostRepository;
+	private User user;
 
 	public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder,
-		AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
+		AuthenticationManager authenticationManager, JwtUtil jwtUtil, FileRepository fileRepository,
+		FileServiceImpl fileService, MentoringPostRepository mentoringPostRepository) {
 		this.userRepository = userRepository;
 		this.passwordEncoder = passwordEncoder;
 		this.authenticationManager = authenticationManager;
 		this.jwtUtil = jwtUtil;
+		this.fileRepository = fileRepository;
+		this.fileService = fileService;
+		this.mentoringPostRepository = mentoringPostRepository;
 	}
 
 
@@ -41,7 +62,7 @@ public class UserServiceImpl implements UserService {
 		String encodedPassword = passwordEncoder.encode(dto.getPassword());
 
 		if(userRepository.existsByEmail(dto.getEmail())){
-			throw new BusinessException(ExceptionType.ALEADY_EXIST_EMAIL);
+			throw new BusinessException(ExceptionType.ALREADY_EXIST_EMAIL);
 		}
 
 		User user = new User().builder()
@@ -94,13 +115,14 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	@Transactional
-	public CommonResponseDto updateUser(Long userId, UserUpdateRequestDto dto) {
+	public CommonResponseDto updateUser(Long userId, UserUpdateRequestDto dto, ImageFile imageFile)
+		throws IOException {
 		User user = userRepository.findByIdOrElseThrow(userId);
-		user.update(dto);
+		user.update(dto, imageFile);
 		userRepository.save(user);
-
-		return CommonResponseDto.builder().msg("회원 정보 수정 완료").build();
+		return CommonResponseDto.builder().msg("유저 수정 완료").build();
 	}
+
 
 	@Override
 	@Transactional
@@ -110,7 +132,7 @@ public class UserServiceImpl implements UserService {
 		if(!passwordEncoder.matches(dto.getCurrentPassword(),user.getPassword())){
 			throw new BusinessException(ExceptionType.UNAUTHORIZED_PASSWORD);
 		}
-		user.setPassword(dto.getNewPassword());
+		user.updatePassword(dto.getNewPassword());
 		userRepository.save(user);
 		return CommonResponseDto.builder().msg("패스워드 수정 완료").build();
 	}
@@ -120,7 +142,7 @@ public class UserServiceImpl implements UserService {
 	public CommonResponseDto updateBankAccount(Long userId,
 		UserBankUpdateRequestDto dto) {
 		User user = userRepository.findByIdOrElseThrow(userId);
-		user.setBank(dto.getBankName(),dto.getBankAccount());
+		user.updateBank(dto.getBankName(),dto.getBankAccount());
 		userRepository.save(user);
 		return CommonResponseDto.builder().msg("계좌 입력 완료").build();
 	}
@@ -136,5 +158,20 @@ public class UserServiceImpl implements UserService {
 		userRepository.save(user);
 		return CommonResponseDto.builder().msg("회원 탈퇴 완료").build();
 	}
-}
 
+	@Override
+	public CommonResponseDto getMentoring(Long userId) {
+		User user = userRepository.findByIdOrElseThrow(userId);
+
+		Page<MentoringPostRecommendResponseDto> page =
+			mentoringPostRepository.findByFilter(user.getField(),
+				user.getRegion(), PageRequest.of(0, 3));
+
+		List<MentoringPostRecommendResponseDto> commendMentoringPost =
+			page.getContent();
+
+		return CommonResponseDto.builder()
+			.msg("멘토링 공고 추천에 성공했습니다.")
+			.data(commendMentoringPost).build();
+	}
+}

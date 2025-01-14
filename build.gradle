@@ -22,6 +22,7 @@ configurations {
 repositories {
     mavenCentral()
     maven { url 'https://jitpack.io' }//JitPack 저장소 - Iamport
+    google()
 }
 
 dependencies {
@@ -30,6 +31,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
     //mysql
     runtimeOnly 'com.mysql:mysql-connector-j'
     //junit
@@ -60,6 +62,15 @@ dependencies {
     implementation 'com.github.iamport:iamport-rest-client-java:0.2.23'
     //Thymeleaf
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    //Firebase
+    implementation 'com.google.firebase:firebase-admin:9.4.2'
+    // Spring Security OAuth2 Client
+    implementation 'org.springframework.security:spring-security-oauth2-client'
+    // googlee Login
+    implementation 'com.google.http-client:google-http-client:1.34.2'
+
+    implementation 'com.github.iamport:iamport-rest-client-java:0.2.14'
+
 }
 
 tasks.named('test') {

@@ -1,4 +1,4 @@
-package com.connect.codeness.global.Jwt;
+package com.connect.codeness.global.security;
 
 import com.connect.codeness.domain.user.User;
 import com.connect.codeness.domain.user.UserRepository;
@@ -11,11 +11,11 @@ import org.springframework.stereotype.Service;
 import java.util.Collections;
 
 @Service
-public class UserDetailService implements UserDetailsService {
+public class CustomUserDetailService implements UserDetailsService {
 
 	private final UserRepository userRepository;
 
-	public UserDetailService(UserRepository userRepository) {
+	public CustomUserDetailService(UserRepository userRepository) {
 		this.userRepository = userRepository;
 	}
 
