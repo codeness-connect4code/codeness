@@ -20,7 +20,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
 	@Query("""
 		    SELECT r FROM Review r
-		    JOIN FETCH r.paymentList pl
+		    JOIN FETCH r.paymentHistory pl
 		    JOIN FETCH pl.payment p
 		    WHERE p.mentoringSchedule.mentoringPost.id = :postId
 		""")

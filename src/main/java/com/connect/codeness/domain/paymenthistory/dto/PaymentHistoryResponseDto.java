@@ -1,12 +1,8 @@
-package com.connect.codeness.domain.paymentlist.dto;
+package com.connect.codeness.domain.paymenthistory.dto;
 
-import com.connect.codeness.domain.payment.Payment;
-import com.connect.codeness.domain.user.User;
 import com.connect.codeness.global.enums.PaymentStatus;
 import com.connect.codeness.global.enums.ReviewStatus;
 import com.connect.codeness.global.enums.SettleStatus;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import lombok.Builder;
@@ -14,7 +10,7 @@ import lombok.Getter;
 
 @Builder
 @Getter
-public class PaymentListResponseDto {
+public class PaymentHistoryResponseDto {
 
 	private Long id;//결제 내역 고유 식별자
 
