@@ -9,7 +9,10 @@ import lombok.Getter;
 public class ReviewFindResponseDto {
 
     private Long reviewId;
+
     private String content;
+
     private Integer starRating;
+
     private LocalDateTime createdAt;
 }

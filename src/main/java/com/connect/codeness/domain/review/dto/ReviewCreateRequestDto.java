@@ -11,6 +11,7 @@ import lombok.Getter;
 @Getter
 @Builder
 public class ReviewCreateRequestDto {
+
     @NotBlank
     @Size(max = 300, message = "리뷰 내용은 최대 300자입니다.")
     private final String content;
