@@ -3,6 +3,7 @@ package com.connect.codeness.domain.mentoringschedule;
 
 import com.connect.codeness.domain.mentoringpost.MentoringPost;
 import com.connect.codeness.global.entity.BaseEntity;
+import com.connect.codeness.global.entity.CreateTimeEntity;
 import com.connect.codeness.global.enums.BookedStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -21,7 +22,7 @@ import lombok.Getter;
 @Getter
 @Entity
 @Table(name = "mentoring_schedule")
-public class MentoringSchedule extends BaseEntity {
+public class MentoringSchedule extends CreateTimeEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id; //멘토링 스케쥴 고유 식별자
@@ -40,4 +41,11 @@ public class MentoringSchedule extends BaseEntity {
 	@Column(nullable = false)
 	private BookedStatus bookedStatus; //예약 여부
 
+	/**
+	 * 결제 환불시 스케쥴 상태 변경
+	 * - BOOKED -> EMPTY
+	 */
+	public void updateBookedStatus(BookedStatus bookedStatus) {
+		this.bookedStatus = bookedStatus;
+	}
 }
