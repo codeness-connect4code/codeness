@@ -27,7 +27,7 @@ Content-Type: application/json
 %}
 
 ### 리뷰 생성하기
-POST localhost:8080/payment-list/1/reviews
+POST localhost:8080/payment-history/1/reviews
 Content-Type: application/json
 Authorization: Bearer {{token}}
 

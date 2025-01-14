@@ -49,18 +49,18 @@ public class Post extends BaseEntity {
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
-	private CommunityStatus Status;
+	private CommunityStatus communityStatus;
 
 	@Builder
 	public Post(User user, String title, String content, String writer, Long view, PostType postType,
-		CommunityStatus status) {
+		CommunityStatus communityStatus) {
 		this.user = user;
 		this.title = title;
 		this.writer = writer;
 		this.content = content;
 		this.view = view;
 		this.postType = postType;
-		this.Status = status;
+		this.communityStatus = communityStatus;
 	}
 
 	public void increaseView(Long view) {
@@ -71,6 +71,11 @@ public class Post extends BaseEntity {
 		this.title = title;
 		this.content = content;
 	}
+
+	public void deletePost(){
+		this.communityStatus = CommunityStatus.DELETED;
+	}
+
 	public Post() {
 	}
 }

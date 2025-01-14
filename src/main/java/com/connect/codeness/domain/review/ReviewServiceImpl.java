@@ -1,8 +1,8 @@
 package com.connect.codeness.domain.review;
 
 import com.connect.codeness.domain.mentoringschedule.MentoringSchedule;
-import com.connect.codeness.domain.paymentlist.PaymentList;
-import com.connect.codeness.domain.paymentlist.PaymentListRepository;
+import com.connect.codeness.domain.paymenthistory.PaymentHistory;
+import com.connect.codeness.domain.paymenthistory.PaymentHistoryRepository;
 import com.connect.codeness.domain.review.dto.ReviewCreateRequestDto;
 import com.connect.codeness.domain.review.dto.ReviewFindResponseDto;
 import com.connect.codeness.global.dto.CommonResponseDto;
@@ -24,29 +24,29 @@ import org.springframework.transaction.annotation.Transactional;
 public class ReviewServiceImpl implements ReviewService {
 
 	private final ReviewRepository reviewRepository;
-	private final PaymentListRepository paymentListRepository;
+	private final PaymentHistoryRepository paymentHistoryRepository;
 
 	public ReviewServiceImpl(ReviewRepository reviewRepository,
-		PaymentListRepository paymentListRepository) {
+		PaymentHistoryRepository paymentHistoryRepository) {
 
 		this.reviewRepository = reviewRepository;
-		this.paymentListRepository = paymentListRepository;
+		this.paymentHistoryRepository = paymentHistoryRepository;
 	}
 
 	@Transactional
 	@Override
-	public CommonResponseDto createReview(Long userId, Long paymentListId,
+	public CommonResponseDto createReview(Long userId, Long paymentHistoryId,
 		ReviewCreateRequestDto dto) {
 		//리뷰를 생성할 거래 내역 가져오기
-		PaymentList paymentList = paymentListRepository.findByPaymentIdOrElseThrow(paymentListId);
+		PaymentHistory paymentHistory = paymentHistoryRepository.findByPaymentIdOrElseThrow(paymentHistoryId);
 
 		//내가 거래한 내역이 아니라면 생성 x
-		if (!Objects.equals(paymentList.getUser().getId(), userId)) {
+		if (!Objects.equals(paymentHistory.getUser().getId(), userId)) {
 			throw new BusinessException(ExceptionType.UNAUTHORIZED_CREATE_REQUEST);
 		}
 
 		//멘토링 날짜가 아직 아니라면
-		MentoringSchedule mentoringSchedule = paymentList.getPayment().getMentoringSchedule();
+		MentoringSchedule mentoringSchedule = paymentHistory.getPayment().getMentoringSchedule();
 
 		LocalDate mentoringDate = mentoringSchedule.getMentoringDate();
 		LocalTime mentoringTime = mentoringSchedule.getMentoringTime();
@@ -59,14 +59,14 @@ public class ReviewServiceImpl implements ReviewService {
 		}
 
 		Review review = Review.builder()
-			.paymentList(paymentList)
+			.paymentHistory(paymentHistory)
 			.reviewContent(dto.getContent())
 			.starRating(dto.getStarRating())
 			.build();
 
 		//후기 내용 작성 후 결제내역의 후기 작성 상태 COMPLETE
 		reviewRepository.save(review);
-		paymentList.updateReviewStatus(ReviewStatus.COMPLETE);
+		paymentHistory.updateReviewStatus(ReviewStatus.COMPLETE);
 
 		return CommonResponseDto.builder().msg("리뷰 생성이 완료되었습니다.").build();
 	}
@@ -98,7 +98,7 @@ public class ReviewServiceImpl implements ReviewService {
 		Review review = reviewRepository.findByIdOrElseThrow(reviewId);
 
 		//내가 작성한 리뷰가 아니면 삭제 못함!
-		if (!Objects.equals(review.getPaymentList().getUser().getId(), userId)) {
+		if (!Objects.equals(review.getPaymentHistory().getUser().getId(), userId)) {
 			throw new BusinessException(ExceptionType.UNAUTHORIZED_DELETE_REQUEST);
 		}
 
