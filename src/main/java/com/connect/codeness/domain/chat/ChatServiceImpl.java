@@ -53,8 +53,15 @@ public class ChatServiceImpl implements ChatService {
 	@Transactional
 	@Override
 	public CommonResponseDto createChatRoom(Long myId, ChatRoomCreateRequestDto dto) {
+		//내 정보와 상대방 정보 가져오기
+		User myInfo = userRepository.findByIdOrElseThrow(myId);
 
 		Long partnerId = dto.getPartnerId();
+		User partnerInfo = userRepository.findByIdOrElseThrow(partnerId);
+
+		//서로의 이미지 파일 가져오기
+		ImageFile myImageFile = findProfileImage(myInfo);
+		ImageFile partnerImageFile = findProfileImage(partnerInfo);
 
 		//데이터 소스를 가져온다.
 		DatabaseReference myReference = firebaseDatabase.getReference("chatRooms")
@@ -66,20 +73,12 @@ public class ChatServiceImpl implements ChatService {
 		//채팅방ID를 생성한다.
 		String chatRoomId = generateChatRoomId(myId, partnerId);
 
-		//내 이미지 가져오기
-		ImageFile myProfileUrl = userRepository.findByIdOrElseThrow(myId).getImageFiles().stream()
-			.filter(
-				imageFile -> imageFile.getFileCategory() == FileCategory.PROFILE
-			).findFirst().get();
-
-		//상대방 이미지 가져오기
-		ImageFile partnerProfileUrl = userRepository.findByIdOrElseThrow(partnerId).getImageFiles().stream()
-			.filter(
-				imageFile -> imageFile.getFileCategory() == FileCategory.PROFILE
-			).findFirst().get();
+		//파일 경로 추출
+		String myProfileUrl = (myImageFile == null) ? null : myImageFile.getFilePath();
+		String partnerProfileUrl = (partnerImageFile == null) ? null : partnerImageFile.getFilePath();
 
 
-		//내 채팅방 구조
+		//채팅방 구조
 		Map<String, Object> myChatRoomData = new HashMap<>();
 		Map<String, Object> partnerChatRoomData = new HashMap<>();
 
@@ -87,14 +86,18 @@ public class ChatServiceImpl implements ChatService {
 			.partnerId(partnerId)
 			.partnerProfileUrl(partnerProfileUrl)
 			.unreadCount(0)
-			.isActive(true).build());
+			.isActive(true)
+			.partnerNick(partnerInfo.getUserNickname())
+			.build());
 
 
 		partnerChatRoomData.put(chatRoomId, ChatRoomDto.builder()
 			.partnerId(myId)
-			.partnerProfileUrl("https://example.com/my_profile.jpg")
+			.partnerProfileUrl(myProfileUrl)
 			.unreadCount(0)
-			.isActive(true).build());
+			.isActive(true)
+			.partnerNick(myInfo.getUserNickname())
+			.build());
 
 
 		myReference.setValueAsync(myChatRoomData);
@@ -164,6 +167,7 @@ public class ChatServiceImpl implements ChatService {
 								roomSnapshot.child("lastMessageTime").getValue(String.class))
 							.unreadCount(roomSnapshot.child("unreadCount").getValue(Integer.class))
 							.isActive(roomSnapshot.child("active").getValue(Boolean.class))
+							.partnerNick(roomSnapshot.child("partnerNick").getValue(String.class))
 							.build();
 						myChatRooms.add(myChatRoom);
 					}
@@ -328,6 +332,15 @@ public class ChatServiceImpl implements ChatService {
 
 	private String  generateChatRoomId(Long userId, Long partnerId){
 		return String.format("%d_%d",userId,partnerId);
+	}
+
+	//내 이미지 가져오기 -> 없으면 null 있으면 값 반환
+	private ImageFile findProfileImage(User user) {
+		return user.getImageFiles()
+			.stream()
+			.filter(image -> image.getFileCategory() == FileCategory.PROFILE)
+			.findFirst()
+			.orElse(null);
 	}
 }
 

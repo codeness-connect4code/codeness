@@ -1,5 +1,11 @@
 ### 채팅방 생성
 POST localhost:8080/chat-rooms
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "partnerId" : 2
+}
 
 ### 채팅 보내기
 # 채팅을 상대방에게 보낸다.
@@ -18,10 +24,11 @@ POST localhost:8080/chat-rooms
 
 POST localhost:8080/chat-rooms/chat
 Content-Type: application/json
+Authorization: Bearer {{token}}
 
 {
   "firebaseChatRoomId": "1_2",
-  "message": "please"
+  "message": "please123"
 }
 
 
@@ -36,12 +43,12 @@ Content-Type: application/json
 # 필드 -> unReadCount(내가 안읽은 메시지 개수)
 
 GET localhost:8080/chat-rooms
-
+Authorization: Bearer {{token}}
 
 ### 채팅방 상세 조회
 GET localhost:8080/chat-rooms/1_2
-
+Authorization: Bearer {{token}}
 
 ### 채팅방 삭제
 DELETE localhost:8080/chat-rooms/1_2
-
+Authorization: Bearer {{token}}

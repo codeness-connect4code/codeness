@@ -12,6 +12,9 @@ public class ChatRoomDto {
 	//상대방 ID
 	private Long partnerId;
 
+	//상대방 닉네임
+	private String partnerNick;
+
 	//상대방 프로필 이미지 주소
 	private String partnerProfileUrl;
 
@@ -22,5 +25,7 @@ public class ChatRoomDto {
 	private int unreadCount;
 
 	private boolean isActive;
+
+
 
 }
