@@ -1,7 +1,8 @@
 package com.connect.codeness.domain.paymenthistory;
 
 
-import com.connect.codeness.domain.admin.dto.AdminSettlementGetResponseDto;
+import com.connect.codeness.domain.admin.dto.AdminSettlementListResponseDto;
+import com.connect.codeness.domain.admin.dto.AdminSettlementResponseDto;
 import com.connect.codeness.global.enums.SettleStatus;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
@@ -11,7 +12,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -42,14 +42,13 @@ public interface PaymentHistoryRepository extends JpaRepository<PaymentHistory, 
 	List<PaymentHistory> findAllByUserIdAndSettleStatus(Long userId, SettleStatus settleStatus);
 
 	@Query(
-		"SELECT new com.connect.codeness.domain.admin.dto.AdminSettlementGetResponseDto(p) " +
+		"SELECT new com.connect.codeness.domain.admin.dto.AdminSettlementListResponseDto(p) " +
 			"FROM PaymentHistory p " +
 			"GROUP BY p.user.id, p.user.name " +
 			"ORDER BY p.user.name ASC"
 	)
-	Page<AdminSettlementGetResponseDto> findMentorGroupList(Pageable pageable);
+	Page<AdminSettlementListResponseDto> findMentorGroupList(Pageable pageable);
 
-
-
+	Page<AdminSettlementResponseDto> findByUserId(Long mentorId, Pageable pageable);
 }
 

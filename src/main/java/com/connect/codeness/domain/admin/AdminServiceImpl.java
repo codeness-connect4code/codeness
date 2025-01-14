@@ -1,6 +1,7 @@
 package com.connect.codeness.domain.admin;
 
-import com.connect.codeness.domain.admin.dto.AdminSettlementGetResponseDto;
+import com.connect.codeness.domain.admin.dto.AdminSettlementListResponseDto;
+import com.connect.codeness.domain.admin.dto.AdminSettlementResponseDto;
 import com.connect.codeness.domain.admin.dto.AdminUpdateMentorRequestDto;
 import com.connect.codeness.domain.mentorrequest.MentorRequest;
 import com.connect.codeness.domain.mentorrequest.MentorRequestRepository;
@@ -16,9 +17,7 @@ import com.connect.codeness.global.enums.SettleStatus;
 import com.connect.codeness.global.enums.UserRole;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
-import java.util.Set;
-import org.apache.coyote.BadRequestException;
-import org.aspectj.weaver.Lint;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -41,7 +40,7 @@ public class AdminServiceImpl implements AdminService {
 	}
 
 	@Override
-	public CommonResponseDto<Page<UserResponseDto>> getMentors(int pageNumber, int pageSize) {
+	public CommonResponseDto<Page<UserResponseDto>> getMentorList(int pageNumber, int pageSize) {
 		Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("createdAt").descending());
 		Page<UserResponseDto> userResponseDto = userRepository.findByRole(UserRole.MENTOR, pageable);
 		return CommonResponseDto.<Page<UserResponseDto>>builder()
@@ -62,7 +61,7 @@ public class AdminServiceImpl implements AdminService {
 	}
 
 	@Override
-	public CommonResponseDto<Page<MentorRequestResponseDto>> getMentorRequests(int pageNumber, int pageSize) {
+	public CommonResponseDto<Page<MentorRequestResponseDto>> getMentorRequestList(int pageNumber, int pageSize) {
 		Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("createdAt").descending());
 		Page<MentorRequestResponseDto> mentorRequestResponseDto
 			= mentorRequestRepository.findByIsAccepted(MentorRequestStatus.WAITING, pageable);
@@ -120,15 +119,26 @@ public class AdminServiceImpl implements AdminService {
 	}
 
 	@Override
-	public CommonResponseDto<Page<AdminSettlementGetResponseDto>> getSettlements(
+	public CommonResponseDto<Page<AdminSettlementListResponseDto>> getSettlementList(
 		int pageNumber, int pageSize) {
 		Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("createdAt").descending());
-		Page<AdminSettlementGetResponseDto> adminSettlementGetResponseDto =
+		Page<AdminSettlementListResponseDto> adminSettlementGetResponseDto =
 			paymentHistoryRepository.findMentorGroupList(pageable);
 
-		return CommonResponseDto.<Page<AdminSettlementGetResponseDto>>builder()
+		return CommonResponseDto.<Page<AdminSettlementListResponseDto>>builder()
 			.msg("멘토 정산 내역이 조회되었습니다.")
 			.data(adminSettlementGetResponseDto).build();
+	}
+
+	@Override
+	public CommonResponseDto getSettlement(Long mentorId, int pageNumber, int pageSize) {
+		Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("createdAt").descending());
+		Page<AdminSettlementResponseDto> adminSettlementResponseDto =
+			paymentHistoryRepository.findByUserId(mentorId,pageable);
+
+		return CommonResponseDto.<Page<AdminSettlementResponseDto>>builder()
+			.msg("멘토의 정산 리스트가 조회되었습니다.")
+			.data(adminSettlementResponseDto).build();
 	}
 }
 

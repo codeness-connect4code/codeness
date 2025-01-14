@@ -3,7 +3,7 @@ package com.connect.codeness.domain.admin;
 import static com.connect.codeness.global.constants.Constants.PAGE_NUMBER;
 import static com.connect.codeness.global.constants.Constants.PAGE_SIZE;
 
-import com.connect.codeness.domain.admin.dto.AdminSettlementGetResponseDto;
+import com.connect.codeness.domain.admin.dto.AdminSettlementListResponseDto;
 import com.connect.codeness.domain.admin.dto.AdminUpdateMentorRequestDto;
 import com.connect.codeness.domain.mentorrequest.dto.MentorRequestResponseDto;
 import com.connect.codeness.domain.user.UserRepository;
@@ -48,7 +48,7 @@ public class AdminController {
 		@RequestParam(defaultValue = PAGE_SIZE) int pageSize
 	){
 		CommonResponseDto<Page<UserResponseDto>> responseDto =
-			adminService.getMentors(pageNumber, pageSize);
+			adminService.getMentorList(pageNumber, pageSize);
 
 		return new ResponseEntity<>(responseDto, HttpStatus.OK);
 	}
@@ -66,7 +66,7 @@ public class AdminController {
 		@RequestParam(defaultValue = PAGE_NUMBER) int pageNumber,
 		@RequestParam(defaultValue = PAGE_SIZE) int pageSize
 	){
-		CommonResponseDto<Page<MentorRequestResponseDto>> commonResponseDto = adminService.getMentorRequests(pageNumber, pageSize);
+		CommonResponseDto<Page<MentorRequestResponseDto>> commonResponseDto = adminService.getMentorRequestList(pageNumber, pageSize);
 		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
 	}
 
@@ -93,10 +93,18 @@ public class AdminController {
 		@RequestParam(defaultValue = PAGE_NUMBER) int pageNumber,
 		@RequestParam(defaultValue = PAGE_SIZE) int pageSize
 	){
-		CommonResponseDto<Page<AdminSettlementGetResponseDto>> commonResponseDto = adminService.getSettlements(pageNumber,pageSize);
+		CommonResponseDto<Page<AdminSettlementListResponseDto>> commonResponseDto = adminService.getSettlementList(pageNumber,pageSize);
 		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
 	}
 
-
+	@GetMapping("/mentors/settlements/{mentorId}")
+	public ResponseEntity<CommonResponseDto> getSettlement(
+		@RequestParam(defaultValue = PAGE_NUMBER) int pageNumber,
+		@RequestParam(defaultValue = PAGE_SIZE) int pageSize,
+		@PathVariable Long mentorId
+	){
+		CommonResponseDto commonResponseDto = adminService.getSettlement(mentorId,pageNumber,pageSize);
+		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
+	}
 
 }
