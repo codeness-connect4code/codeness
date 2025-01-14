@@ -45,7 +45,7 @@ public class PostServiceImpl implements PostService {
 			.writer(user.getUserNickname())
 			.view(0L)
 			.postType(dto.getPostType())
-			.status(CommunityStatus.DISPLAYED)
+			.communityStatus(CommunityStatus.DISPLAYED)
 			.build();
 
 		// 객체 저장
@@ -136,6 +136,25 @@ public class PostServiceImpl implements PostService {
 
 		return CommonResponseDto.builder()
 			.msg("게시글 수정이 완료되었습니다.")
+			.build();
+	}
+
+	// 게시글 삭제
+	@Override
+	@Transactional
+	public CommonResponseDto deletePost(Long userId, Long postId) {
+
+		User user = userRepository.findByIdOrElseThrow(userId);
+		Post post = postRepository.findByIdOrElseThrow(postId);
+
+		if (!Objects.equals(user, post.getUser())) {
+			throw new BusinessException(ExceptionType.FORBIDDEN_PERMISSION);
+		}
+
+		post.deletePost();
+
+		return CommonResponseDto.builder()
+			.msg("게시글 삭제가 완료되었습니다.")
 			.build();
 	}
 }

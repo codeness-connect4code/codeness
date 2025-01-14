@@ -9,7 +9,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -20,7 +19,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 			() -> new BusinessException(ExceptionType.NOT_FOUND_POST)
 		);
 
-		if (post.getStatus() == CommunityStatus.DELETED) {
+		if (post.getCommunityStatus() != CommunityStatus.DISPLAYED) {
 			throw new BusinessException(ExceptionType.NOT_FOUND_POST);
 		}
 		return post;
@@ -28,7 +27,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
 	@Query("SELECT p FROM Post p WHERE (:type IS NULL OR p.postType = :type) " +
 		"AND (:keyword IS NULL OR p.title LIKE %:keyword%) " +
-		"AND (:writer IS NULL OR p.writer = :writer)")
+		"AND (:writer IS NULL OR p.writer = :writer) " +
+		"AND p.communityStatus != 'DELETED'")
 	Page<Post> findByTypeAndKeyword(@Param("type") PostType type,
 		@Param("keyword") String keyword,
 		@Param("writer") String writer,
