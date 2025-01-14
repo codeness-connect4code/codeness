@@ -3,11 +3,12 @@ package com.connect.codeness.domain.admin;
 import static com.connect.codeness.global.constants.Constants.PAGE_NUMBER;
 import static com.connect.codeness.global.constants.Constants.PAGE_SIZE;
 
+import com.connect.codeness.domain.admin.dto.AdminSettlementGetResponseDto;
 import com.connect.codeness.domain.admin.dto.AdminUpdateMentorRequestDto;
 import com.connect.codeness.domain.mentorrequest.dto.MentorRequestResponseDto;
 import com.connect.codeness.domain.user.UserRepository;
 import com.connect.codeness.domain.user.dto.UserResponseDto;
-import com.connect.codeness.global.Jwt.JwtUtil;
+import com.connect.codeness.global.jwt.JwtUtil;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -33,6 +34,12 @@ public class AdminController {
 		this.adminService = adminService;
 		this.jwtUtil = jwtUtil;
 		this.userRepository = userRepository;
+	}
+
+	@PatchMapping("/mentors/{mentorId}/settlements")
+	public ResponseEntity<CommonResponseDto> updateSettlement(@PathVariable Long mentorId){
+		CommonResponseDto commonResponseDto = adminService.updateSettlement(mentorId);
+		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
 	}
 
 	@GetMapping("/mentors")
@@ -80,5 +87,16 @@ public class AdminController {
 		CommonResponseDto commonResponseDto = adminService.updateMentor(mentorRequestId, adminUpdateMentorRequestDto);
 		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
 	}
+
+	@GetMapping("/mentors/settlements")
+	public ResponseEntity<CommonResponseDto> getSettlements(
+		@RequestParam(defaultValue = PAGE_NUMBER) int pageNumber,
+		@RequestParam(defaultValue = PAGE_SIZE) int pageSize
+	){
+		CommonResponseDto<Page<AdminSettlementGetResponseDto>> commonResponseDto = adminService.getSettlements(pageNumber,pageSize);
+		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
+	}
+
+
 
 }

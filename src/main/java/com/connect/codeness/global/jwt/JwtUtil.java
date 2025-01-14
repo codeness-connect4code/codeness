@@ -1,4 +1,4 @@
-package com.connect.codeness.global.Jwt;
+package com.connect.codeness.global.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

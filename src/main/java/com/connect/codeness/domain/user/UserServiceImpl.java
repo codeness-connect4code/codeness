@@ -13,7 +13,7 @@ import com.connect.codeness.domain.user.dto.UserDeleteResponseDto;
 import com.connect.codeness.domain.user.dto.UserPasswordUpdateRequestDto;
 import com.connect.codeness.domain.user.dto.UserResponseDto;
 import com.connect.codeness.domain.user.dto.UserUpdateRequestDto;
-import com.connect.codeness.global.Jwt.JwtUtil;
+import com.connect.codeness.global.jwt.JwtUtil;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;

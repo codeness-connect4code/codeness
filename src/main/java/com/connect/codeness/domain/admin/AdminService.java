@@ -1,6 +1,7 @@
 package com.connect.codeness.domain.admin;
 
 
+import com.connect.codeness.domain.admin.dto.AdminSettlementGetResponseDto;
 import com.connect.codeness.domain.admin.dto.AdminUpdateMentorRequestDto;
 import com.connect.codeness.domain.mentorrequest.dto.MentorRequestResponseDto;
 import com.connect.codeness.domain.user.dto.UserResponseDto;
@@ -13,5 +14,7 @@ public interface AdminService {
 	CommonResponseDto<Page<MentorRequestResponseDto>> getMentorRequests(int pageNumber, int pageSize);
 	CommonResponseDto<MentorRequestResponseDto> getMentorRequest(Long mentoringRequestId);
 	CommonResponseDto updateMentor(Long mentorId, AdminUpdateMentorRequestDto adminUpdateMentorRequestDto);
+	CommonResponseDto updateSettlement(Long mentorId);
+	CommonResponseDto<Page<AdminSettlementGetResponseDto>> getSettlements(int pageNumber, int pageSize);
 }
 

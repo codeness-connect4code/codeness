@@ -8,7 +8,7 @@ import com.connect.codeness.domain.post.dto.PostCreateRequestDto;
 import com.connect.codeness.domain.post.dto.PostFindAllResponseDto;
 import com.connect.codeness.domain.post.dto.PostFindResponseDto;
 import com.connect.codeness.domain.post.dto.PostUpdateRequestDto;
-import com.connect.codeness.global.Jwt.JwtUtil;
+import com.connect.codeness.global.jwt.JwtUtil;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.enums.PostType;
 import jakarta.validation.Valid;

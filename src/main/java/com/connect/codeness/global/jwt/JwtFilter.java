@@ -1,4 +1,4 @@
-package com.connect.codeness.global.Jwt;
+package com.connect.codeness.global.jwt;
 
 import com.connect.codeness.global.security.CustomUserDetailService;
 import jakarta.servlet.FilterChain;
