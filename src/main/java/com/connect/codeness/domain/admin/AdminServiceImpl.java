@@ -1,9 +1,13 @@
 package com.connect.codeness.domain.admin;
 
+import com.connect.codeness.domain.mentorrequest.MentorRequest;
+import com.connect.codeness.domain.mentorrequest.MentorRequestRepository;
+import com.connect.codeness.domain.mentorrequest.dto.MentorRequestResponseDto;
 import com.connect.codeness.domain.user.User;
 import com.connect.codeness.domain.user.UserRepository;
 import com.connect.codeness.domain.user.dto.UserResponseDto;
 import com.connect.codeness.global.dto.CommonResponseDto;
+import com.connect.codeness.global.enums.MentorRequestStatus;
 import com.connect.codeness.global.enums.UserRole;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
@@ -18,9 +22,11 @@ import org.springframework.stereotype.Service;
 public class AdminServiceImpl implements AdminService {
 
 	private final UserRepository userRepository;
+	private final MentorRequestRepository mentorRequestRepository;
 
-	public AdminServiceImpl(UserRepository userRepository) {
+	public AdminServiceImpl(UserRepository userRepository, MentorRequestRepository mentorRequestRepository) {
 		this.userRepository = userRepository;
+		this.mentorRequestRepository = mentorRequestRepository;
 	}
 
 	@Override
@@ -42,6 +48,18 @@ public class AdminServiceImpl implements AdminService {
 		return CommonResponseDto.builder()
 			.msg("멘토 상세 조회가 되었습니다.")
 			.data(new UserResponseDto(user)).build();
+	}
+
+	@Override
+	public CommonResponseDto<Page<MentorRequestResponseDto>> getMentorRequest(int pageNumber, int pageSize) {
+		Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("createdAt").descending());
+		Page<MentorRequestResponseDto> mentorRequestResponseDto
+			= mentorRequestRepository.findByIsAccepted(MentorRequestStatus.WAITING, pageable);
+
+		return CommonResponseDto.<Page<MentorRequestResponseDto>>builder()
+			.msg("멘토 신청 리스트가 조회되었습니다.")
+			.data(mentorRequestResponseDto)
+			.build();
 	}
 }
 

@@ -4,6 +4,7 @@ import static com.connect.codeness.global.constants.Constants.AUTHORIZATION;
 import static com.connect.codeness.global.constants.Constants.PAGE_NUMBER;
 import static com.connect.codeness.global.constants.Constants.PAGE_SIZE;
 
+import com.connect.codeness.domain.mentorrequest.dto.MentorRequestResponseDto;
 import com.connect.codeness.domain.paymentlist.PaymentList;
 import com.connect.codeness.domain.paymentlist.PaymentListService;
 import com.connect.codeness.domain.user.UserRepository;
@@ -56,6 +57,15 @@ public class AdminController {
 		@PathVariable Long mentorId
 	){
 		CommonResponseDto commonResponseDto = adminService.getMentor(mentorId);
+		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
+	}
+
+	@GetMapping("/mentors/mentor-requests")
+	public ResponseEntity<CommonResponseDto> getMentorRequests(
+		@RequestParam(defaultValue = PAGE_NUMBER) int pageNumber,
+		@RequestParam(defaultValue = PAGE_SIZE) int pageSize
+	){
+		CommonResponseDto<Page<MentorRequestResponseDto>> commonResponseDto = adminService.getMentorRequest(pageNumber, pageSize);
 		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
 	}
 

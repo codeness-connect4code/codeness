@@ -5,7 +5,7 @@ import static com.connect.codeness.global.constants.Constants.AUTHORIZATION;
 import com.connect.codeness.domain.file.FileRepository;
 import com.connect.codeness.domain.file.FileService;
 import com.connect.codeness.domain.file.ImageFile;
-import com.connect.codeness.domain.mentorrequest.dto.MentorRequestCreateResponseDto;
+import com.connect.codeness.domain.mentorrequest.dto.MentorRequestCreateRequestDto;
 import com.connect.codeness.global.Jwt.JwtUtil;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.enums.FileCategory;
@@ -39,7 +39,7 @@ public class MentorRequestController {
 	@PostMapping("/mentors")
 	public ResponseEntity<CommonResponseDto> createMentorRequest(
 		@RequestHeader(AUTHORIZATION) String authorizationHeader,
-		@Valid @ModelAttribute MentorRequestCreateResponseDto mentorRequestCreateResponseDto
+		@Valid @ModelAttribute MentorRequestCreateRequestDto mentorRequestCreateRequestDto
 	) throws IOException {
 		String token = authorizationHeader.substring("Bearer ".length());
 		Long tokenId = jwtUtil.extractUserId(token);
@@ -52,11 +52,11 @@ public class MentorRequestController {
 
 		CommonResponseDto fileDto =
 			fileService.createFile(
-				mentorRequestCreateResponseDto.getMultipartFile(),tokenId,FileCategory.EMPLOYEE_CARD
+				mentorRequestCreateRequestDto.getMultipartFile(),tokenId,FileCategory.EMPLOYEE_CARD
 			);
 		ImageFile imageFile = fileRepository.findByUserIdAndFileCategoryOrElseThrow(tokenId,FileCategory.EMPLOYEE_CARD);
 		CommonResponseDto response = mentorRequestService.createMentorRequest(
-			tokenId, mentorRequestCreateResponseDto, imageFile);
+			tokenId, mentorRequestCreateRequestDto, imageFile);
 
 		return new ResponseEntity<>(response, HttpStatus.CREATED);
 	}
