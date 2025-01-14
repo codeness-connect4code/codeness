@@ -15,7 +15,7 @@ public interface MentoringPostRepository extends JpaRepository<MentoringPost, Lo
 	@Query(
 		value = "SELECT new com.connect.codeness.domain.mentoringpost.dto.MentoringPostRecommendResponseDto(m, " +
 			"COALESCE((SELECT CAST(AVG(r.starRating) AS DOUBLE) FROM Review r " +
-			"JOIN r.paymentList pl " +
+			"JOIN r.paymentHistory pl " +
 			"JOIN pl.payment p " +
 			"JOIN p.mentoringSchedule ms " +
 			"WHERE ms.mentoringPost.id = m.id), 0.0)) " +

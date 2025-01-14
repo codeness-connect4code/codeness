@@ -8,7 +8,7 @@ import org.springframework.data.domain.Page;
 
 public interface ReviewService {
 
-	CommonResponseDto createReview(Long userId, Long paymentListId, ReviewCreateRequestDto dto);
+	CommonResponseDto createReview(Long userId, Long paymentHistoryId, ReviewCreateRequestDto dto);
 
 	CommonResponseDto<Page<ReviewFindResponseDto>> findReviews(Long mentoringPostId, int pageNumber,
 		int pageSize);

@@ -1,8 +1,8 @@
-package com.connect.codeness.domain.paymentlist;
+package com.connect.codeness.domain.paymenthistory;
 
 
 import static com.connect.codeness.global.constants.Constants.AUTHORIZATION;
-import com.connect.codeness.domain.paymentlist.dto.PaymentListResponseDto;
+import com.connect.codeness.domain.paymenthistory.dto.PaymentHistoryResponseDto;
 import com.connect.codeness.global.Jwt.JwtUtil;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import java.util.List;
@@ -15,18 +15,18 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class PaymentListController {
+public class PaymentHistoryController {
 
 	private final JwtUtil jwtUtil;
-	private final PaymentListService paymentListService;
+	private final PaymentHistoryService paymentHistoryService;
 
-	public PaymentListController(JwtUtil jwtUtil, PaymentListService paymentListService) {
+	public PaymentHistoryController(JwtUtil jwtUtil, PaymentHistoryService paymentHistoryService) {
 		this.jwtUtil = jwtUtil;
-		this.paymentListService = paymentListService;
+		this.paymentHistoryService = paymentHistoryService;
 	}
 
 	/**
-	 * TODO : PaymentList -> PaymentHistory 이름 변경
+	 * TODO : PaymentHistory -> PaymentHistory 이름 변경
 	 * - 로그인한 유저의 결제 내역 전체 & 단건 조회
 	 * - 특정 유저의 결제 내역 단건 조회 -> 어드민
 	 * - 전체 유저 결제 내역 조회 -> 어드민
@@ -37,11 +37,11 @@ public class PaymentListController {
 	 * 결제내역 전체 조회 API
 	 * - 멘티 & 멘토
 	 */
-	@GetMapping("/mentoring/payment-list")
-	public ResponseEntity<CommonResponseDto<List<PaymentListResponseDto>>> getAllPaymentHistory(@RequestHeader(AUTHORIZATION) String token) {
+	@GetMapping("/mentoring/payment-history")
+	public ResponseEntity<CommonResponseDto<List<PaymentHistoryResponseDto>>> getAllPaymentHistory(@RequestHeader(AUTHORIZATION) String token) {
 		Long userId = jwtUtil.extractUserId(token);
 
-		CommonResponseDto<List<PaymentListResponseDto>> responseDto = paymentListService.getAllPaymentHistory(userId);
+		CommonResponseDto<List<PaymentHistoryResponseDto>> responseDto = paymentHistoryService.getAllPaymentHistory(userId);
 		return new ResponseEntity<>(responseDto, HttpStatus.OK);
 	}
 
@@ -49,11 +49,11 @@ public class PaymentListController {
 	 * 결제내역 단건 조회 API
 	 * - 멘티
 	 */
-	@GetMapping("/mentoring/payment-list/{paymentListId}")
-	public ResponseEntity<CommonResponseDto> getPaymentHistory(@RequestHeader(AUTHORIZATION) String token, @PathVariable Long paymentListId) {
+	@GetMapping("/mentoring/payment-history/{paymentHistoryId}")
+	public ResponseEntity<CommonResponseDto> getPaymentHistory(@RequestHeader(AUTHORIZATION) String token, @PathVariable Long paymentHistoryId) {
 		Long userId = jwtUtil.extractUserId(token);
 
-		CommonResponseDto<PaymentListResponseDto> responseDto = paymentListService.getPaymentHistory(userId, paymentListId);
+		CommonResponseDto<PaymentHistoryResponseDto> responseDto = paymentHistoryService.getPaymentHistory(userId, paymentHistoryId);
 		return new ResponseEntity<>(responseDto, HttpStatus.OK);
 	}
 
@@ -62,11 +62,11 @@ public class PaymentListController {
 	 * - 멘토
 	 * - 정산상태 변경
 	 */
-	@PatchMapping("/mentors/mentoring/payment-list/settles")
+	@PatchMapping("/mentors/mentoring/payment-history/settles")
 	public ResponseEntity<CommonResponseDto> requestSettlement(@RequestHeader(AUTHORIZATION) String token){
 		Long userId = jwtUtil.extractUserId(token);
 
-		CommonResponseDto responseDto = paymentListService.requestSettlement(userId);
+		CommonResponseDto responseDto = paymentHistoryService.requestSettlement(userId);
 		return new ResponseEntity<>(responseDto, HttpStatus.OK);
 	}
 	
