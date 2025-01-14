@@ -8,6 +8,6 @@ public class PaymentViewController {
 
 	@GetMapping("/payment")
 	public String paymentPage() {
-		return "payment";
+		return "paymentTest";
 	}
 }
