@@ -3,6 +3,7 @@ package com.connect.codeness.domain.payment;
 
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -18,4 +19,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 	default Payment findByMentoringScheduleIdOrElseThrow(Long mentoringScheduleId) {
 		return findById(mentoringScheduleId).orElseThrow(() -> new BusinessException(ExceptionType.NOT_FOUND_PAYMENT));
 	};
+
+	List<Payment> findAllByUserId(Long userId);
+
 }

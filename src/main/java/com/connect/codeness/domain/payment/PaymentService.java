@@ -26,7 +26,7 @@ public interface PaymentService {
 	CommonResponseDto verifyPayment(Long paymentId, PaymentRequestDto requestDto);
 
 	/**
-	 * 결제 환불 API
+	 * 결제 환불 메서드
 	 */
 	CommonResponseDto refundPayment(Long paymentId, PaymentRefundRequestDto requestDto);
 }
