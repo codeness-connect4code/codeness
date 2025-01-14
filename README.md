@@ -42,7 +42,7 @@
 - **Library** : Lombok, Bcrypt, Junit, QueryDSL
 - **Build Tool** : Gradle, Docker
 - **Database** : MySQL version '8.0.40'
-- **Infra** : AWS EC2, Amazon S3, AWS RD (MySQL '8.0.40')
+- **Infra** : AWS EC2, Amazon S3, AWS RDS (MySQL '8.0.40')
 - **Tool** : Miro, ERD Cloud, Slack, Github & git, Postman
 
 ## 🪧 커밋 컨벤션

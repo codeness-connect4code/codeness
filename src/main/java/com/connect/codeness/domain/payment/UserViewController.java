@@ -4,10 +4,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
-public class PaymentViewController {
+public class UserViewController {
 
-	@GetMapping("/payment")
-	public String paymentPage() {
-		return "paymentTest";
+	@GetMapping("/login-page")
+	public String loginPage() {
+		return "loginPage";
 	}
 }
