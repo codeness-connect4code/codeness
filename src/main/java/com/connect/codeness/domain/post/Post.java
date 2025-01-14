@@ -67,6 +67,10 @@ public class Post extends BaseEntity {
 		this.view = view+ 1L;
 	}
 
+	public void updatePost(String title, String content){
+		this.title = title;
+		this.content = content;
+	}
 	public Post() {
 	}
 }

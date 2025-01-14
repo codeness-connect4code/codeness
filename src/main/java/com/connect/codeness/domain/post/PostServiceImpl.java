@@ -5,12 +5,16 @@ import com.connect.codeness.domain.file.ImageFile;
 import com.connect.codeness.domain.post.dto.PostCreateRequestDto;
 import com.connect.codeness.domain.post.dto.PostFindAllResponseDto;
 import com.connect.codeness.domain.post.dto.PostFindResponseDto;
+import com.connect.codeness.domain.post.dto.PostUpdateRequestDto;
 import com.connect.codeness.domain.user.User;
 import com.connect.codeness.domain.user.UserRepository;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.enums.CommunityStatus;
 import com.connect.codeness.global.enums.PostType;
+import com.connect.codeness.global.exception.BusinessException;
+import com.connect.codeness.global.exception.ExceptionType;
 import jakarta.transaction.Transactional;
+import java.util.Objects;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Pageable;
@@ -113,6 +117,25 @@ public class PostServiceImpl implements PostService {
 		return CommonResponseDto.<PostFindResponseDto>builder()
 			.msg("게시글 상세 조회가 완료되었습니다.")
 			.data(postFindResult)
+			.build();
+	}
+
+	// 게시글 수정
+	@Override
+	@Transactional
+	public CommonResponseDto updatePost(Long userId, Long postId, PostUpdateRequestDto dto) {
+
+		User user = userRepository.findByIdOrElseThrow(userId);
+		Post post = postRepository.findByIdOrElseThrow(postId);
+
+		if (!Objects.equals(user, post.getUser())) {
+			throw new BusinessException(ExceptionType.FORBIDDEN_PERMISSION);
+		}
+
+		post.updatePost(dto.getTitle(), dto.getContent());
+
+		return CommonResponseDto.builder()
+			.msg("게시글 수정이 완료되었습니다.")
 			.build();
 	}
 }
