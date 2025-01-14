@@ -37,7 +37,7 @@ public class ChatController {
 	public ResponseEntity<CommonResponseDto> createChatRoom(
 		@RequestHeader(AUTHORIZATION) String token,
 		@RequestBody ChatRoomCreateRequestDto dto
-	){
+	) {
 		Long userId = jwtUtil.extractUserId(token);
 		CommonResponseDto responseDto = chatService.createChatRoom(userId, dto);
 
@@ -89,7 +89,7 @@ public class ChatController {
 	public ResponseEntity<CommonResponseDto> deleteChatRoom(
 		@RequestHeader(AUTHORIZATION) String token,
 		@PathVariable String chatRoomId
-	){
+	) {
 
 		Long userId = jwtUtil.extractUserId(token);
 
