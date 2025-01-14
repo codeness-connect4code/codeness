@@ -7,5 +7,6 @@ import org.springframework.data.domain.Page;
 
 public interface AdminService {
 	CommonResponseDto<Page<UserResponseDto>> getMentors(int pageNumber, int pageSize);
+	CommonResponseDto getMentor(Long mentorId);
 }
 

@@ -1,9 +1,13 @@
 package com.connect.codeness.domain.admin;
 
+import com.connect.codeness.domain.user.User;
 import com.connect.codeness.domain.user.UserRepository;
 import com.connect.codeness.domain.user.dto.UserResponseDto;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.enums.UserRole;
+import com.connect.codeness.global.exception.BusinessException;
+import com.connect.codeness.global.exception.ExceptionType;
+import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -27,6 +31,17 @@ public class AdminServiceImpl implements AdminService {
 			.msg("전체 멘토 리스트 조회 되었습니다.")
 			.data(userResponseDto)
 			.build();
+	}
+
+	@Override
+	public CommonResponseDto getMentor(Long mentorId) {
+		User user = userRepository.findByIdOrElseThrow(mentorId);
+		if (user.getRole() != UserRole.MENTOR) {
+			throw new BusinessException(ExceptionType.BAD_REQUEST);
+		}
+		return CommonResponseDto.builder()
+			.msg("멘토 상세 조회가 되었습니다.")
+			.data(new UserResponseDto(user)).build();
 	}
 }
 

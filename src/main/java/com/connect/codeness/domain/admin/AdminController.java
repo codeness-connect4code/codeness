@@ -4,6 +4,9 @@ import static com.connect.codeness.global.constants.Constants.AUTHORIZATION;
 import static com.connect.codeness.global.constants.Constants.PAGE_NUMBER;
 import static com.connect.codeness.global.constants.Constants.PAGE_SIZE;
 
+import com.connect.codeness.domain.paymentlist.PaymentList;
+import com.connect.codeness.domain.paymentlist.PaymentListService;
+import com.connect.codeness.domain.user.UserRepository;
 import com.connect.codeness.domain.user.dto.UserResponseDto;
 import com.connect.codeness.global.Jwt.JwtUtil;
 import com.connect.codeness.global.dto.CommonResponseDto;
@@ -14,6 +17,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,10 +31,13 @@ public class AdminController {
 
 	private final AdminService adminService;
 	private final JwtUtil jwtUtil;
+	private final UserRepository userRepository;
 
-	public AdminController(AdminService adminService, JwtUtil jwtUtil) {
+	public AdminController(AdminService adminService, JwtUtil jwtUtil,
+		UserRepository userRepository) {
 		this.adminService = adminService;
 		this.jwtUtil = jwtUtil;
+		this.userRepository = userRepository;
 	}
 
 	@GetMapping("/mentors")
@@ -41,6 +49,14 @@ public class AdminController {
 			adminService.getMentors(pageNumber, pageSize);
 
 		return new ResponseEntity<>(responseDto, HttpStatus.OK);
+	}
+
+	@GetMapping("/mentors/{mentorId}")
+	public ResponseEntity<CommonResponseDto> getMentor(
+		@PathVariable Long mentorId
+	){
+		CommonResponseDto commonResponseDto = adminService.getMentor(mentorId);
+		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
 	}
 
 }
