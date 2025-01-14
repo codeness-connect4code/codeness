@@ -48,4 +48,23 @@ public class MentoringSchedule extends CreateTimeEntity {
 	public void updateBookedStatus(BookedStatus bookedStatus) {
 		this.bookedStatus = bookedStatus;
 	}
+
+	/**
+	 * 멘토링 공고 생성 - 스케쥴 생성
+	 */
+	public void createMentoringPost(MentoringPost mentoringPost) {
+		this.mentoringPost = mentoringPost;
+	}
+
+	public void createMentoringDate(LocalDate date) {
+		this.mentoringDate = date;
+	}
+
+	public void createMentoringTime(LocalTime hour) {
+		this.mentoringTime = hour;
+	}
+
+	public void createBookedStatus(BookedStatus bookedStatus) {
+		this.bookedStatus = bookedStatus;
+	}
 }
