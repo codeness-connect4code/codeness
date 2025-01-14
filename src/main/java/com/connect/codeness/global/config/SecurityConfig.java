@@ -49,7 +49,9 @@ public class SecurityConfig {
 					"/oauth2/**",
 					"/login/oauth2/code/**",
 					"/favicon.ico",
-					"/error"
+					"/error",
+					"/posts/**",
+					"/news"
 				).permitAll()
 				.requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
 				.anyRequest().authenticated()
