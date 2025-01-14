@@ -6,6 +6,7 @@ import static com.connect.codeness.global.constants.Constants.PAGE_SIZE;
 import com.connect.codeness.domain.post.dto.PostCreateRequestDto;
 import com.connect.codeness.domain.post.dto.PostFindAllResponseDto;
 import com.connect.codeness.domain.post.dto.PostFindResponseDto;
+import com.connect.codeness.domain.post.dto.PostUpdateRequestDto;
 import com.connect.codeness.global.Jwt.JwtUtil;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.enums.PostType;
@@ -17,6 +18,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -39,7 +41,8 @@ public class PostController {
 
 	// 게시글 생성
 	@PostMapping
-	public ResponseEntity<CommonResponseDto> createPost(@Valid @RequestBody PostCreateRequestDto dto,
+	public ResponseEntity<CommonResponseDto> createPost(
+		@Valid @RequestBody PostCreateRequestDto dto,
 		@RequestHeader("Authorization") String token){
 
 		Long userId = jwtUtil.extractUserId(token);
@@ -72,5 +75,19 @@ public class PostController {
 		CommonResponseDto<PostFindResponseDto> post = postService.findPost(postId);
 
 		return new ResponseEntity<>(post, HttpStatus.OK);
+	}
+
+	// 게시글 수정
+	@PatchMapping("/{postId}")
+	public ResponseEntity<CommonResponseDto> updatePost(
+		@Valid @RequestBody PostUpdateRequestDto dto,
+		@PathVariable Long postId,
+		@RequestHeader("Authorization") String token) {
+
+		Long userId = jwtUtil.extractUserId(token);
+
+		CommonResponseDto responseDto = postService.updatePost(userId, postId, dto);
+
+		return new ResponseEntity<>(responseDto, HttpStatus.OK);
 	}
 }
