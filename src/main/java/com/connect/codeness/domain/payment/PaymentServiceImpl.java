@@ -48,6 +48,10 @@ public class PaymentServiceImpl implements PaymentService {
 	}
 
 	/**
+	 * TODO : PaymentList -> PaymentHistory 이름 변경
+	 */
+
+	/**
 	 * 결제 생성 서비스 메서드
 	 * - 멘토링 스케쥴 신청
 	 * - TODO : 채팅방 생성 로직 추가
@@ -60,6 +64,7 @@ public class PaymentServiceImpl implements PaymentService {
 			throw new BusinessException(ExceptionType.DUPLICATE_VALUE);
 		}
 
+		//유저 조회
 		User user = userRepository.findByIdOrElseThrow(userId);
 		//멘토링 스케쥴 조회
 		MentoringSchedule mentoringSchedule = mentoringScheduleRepository.findByIdOrElseThrow(requestDto.getMentoringScheduleId());
@@ -158,10 +163,13 @@ public class PaymentServiceImpl implements PaymentService {
 		//Payment에 ImpUid, PgTid 업데이트
 		payment.updateImpUidAndPgTid(requestDto.getImpUid(), requestDto.getPgTid());
 
+		//멘토링 공고 올린 멘토 조회
+		User mentor = mentoringScheduleRepository.findMentorById(payment.getMentoringSchedule().getId());
+
 		//결제 내역 생성 & 저장
 		PaymentList paymentList = PaymentList.builder()
 			.payment(payment)
-			.user(payment.getUser())
+			.user(mentor)
 			.pgTid(requestDto.getPgTid())
 			.paymentCost(payment.getPaymentCost())
 			.paymentCard(payment.getPaymentCard())
@@ -185,7 +193,7 @@ public class PaymentServiceImpl implements PaymentService {
 	/**
 	 * 결제 환불 서비스 메서드
 	 * - 결제 완료 후 환불 진행 : 결제 내역 테이블에서 조회 및 진행
-	 * - TODO : 채팅방 삭제 로직 추가
+	 * - TODO : 채팅방 삭제 로직 추가, payment & paymentList 취소 날짜 업데이트
 	 */
 	@Transactional
 	@Override

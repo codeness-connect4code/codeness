@@ -5,6 +5,7 @@ import com.connect.codeness.domain.payment.dto.PaymentDeleteRequestDto;
 import com.connect.codeness.domain.payment.dto.PaymentRefundRequestDto;
 import com.connect.codeness.domain.payment.dto.PaymentRequestDto;
 import com.connect.codeness.domain.paymentlist.PaymentListService;
+import com.connect.codeness.global.Jwt.JwtUtil;
 import com.connect.codeness.global.constants.Constants;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import jakarta.validation.Valid;
@@ -23,19 +24,22 @@ import org.springframework.web.bind.annotation.RestController;
 public class PaymentController {
 
 	private final PaymentService paymentService;
+	private final JwtUtil jwtUtil;
 
-	public PaymentController(PaymentService paymentService, PaymentListService paymentListService) {
+	public PaymentController(PaymentService paymentService, PaymentListService paymentListService, JwtUtil jwtUtil) {
 		this.paymentService = paymentService;
+		this.jwtUtil = jwtUtil;
 	}
 
 	/**
 	 * 결제 생성 API
 	 * - 멘토링 스케쥴 신청
-	 * -TODO : 로그인 구현 완료 후 로그인 한 userId 받아오기
 	 */
 	@PostMapping("/payments")
-	public ResponseEntity<CommonResponseDto> createPayment(@RequestHeader(Constants.AUTHORIZATION) @Valid @RequestBody PaymentRequestDto requestDto){
-		CommonResponseDto responseDto = paymentService.createPayment(1L, requestDto);
+	public ResponseEntity<CommonResponseDto> createPayment(@RequestHeader(Constants.AUTHORIZATION) String token, @Valid @RequestBody PaymentRequestDto requestDto){
+		Long userId = jwtUtil.extractUserId(token);
+
+		CommonResponseDto responseDto = paymentService.createPayment(userId, requestDto);
 
 		return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
 	}

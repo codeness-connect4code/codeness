@@ -27,7 +27,7 @@ public class MentoringPostController {
 	public ResponseEntity<CommonResponseDto> createMentoringPost(
 		@Valid @RequestBody MentoringPostCreateRequestDto requestDto) {
 
-		CommonResponseDto responseDto = mentoringPostService.createMentoringPost(1L, requestDto);
+		CommonResponseDto responseDto = mentoringPostService.createMentoringPost(2L, requestDto);
 
 		return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
 	}
