@@ -1,5 +1,6 @@
 package com.connect.codeness.domain.post;
 
+import static com.connect.codeness.global.constants.Constants.AUTHORIZATION;
 import static com.connect.codeness.global.constants.Constants.PAGE_NUMBER;
 import static com.connect.codeness.global.constants.Constants.PAGE_SIZE;
 
@@ -82,7 +83,7 @@ public class PostController {
 	public ResponseEntity<CommonResponseDto> updatePost(
 		@Valid @RequestBody PostUpdateRequestDto dto,
 		@PathVariable Long postId,
-		@RequestHeader("Authorization") String token) {
+		@RequestHeader(AUTHORIZATION) String token) {
 
 		Long userId = jwtUtil.extractUserId(token);
 
