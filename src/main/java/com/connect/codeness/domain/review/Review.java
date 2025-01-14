@@ -41,7 +41,8 @@ public class Review extends BaseEntity {
 	@Column(nullable = false, length = 300)
 	private String reviewContent;
 
-	public Review(){ }
+	public Review() {
+	}
 
 	@Builder
 	public Review(PaymentList paymentList, Integer starRating,

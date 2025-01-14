@@ -30,10 +30,6 @@ public interface PaymentListRepository extends JpaRepository<PaymentList, Long> 
 
 	Optional<PaymentList> findByUserId(Long userId);
 
-//	default PaymentList findByUserIdOrElseThrow(Long userId){
-//		return findByUserId(userId).orElseThrow(() -> new BusinessException(ExceptionType.NOT_FOUND_PAYMENTLIST));
-//	}
-
 	List<PaymentList> findAllByUserIdAndSettleStatus(Long userId, SettleStatus settleStatus);
 
 }

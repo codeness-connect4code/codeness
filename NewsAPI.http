@@ -1,4 +1,5 @@
-### GET request to example server
+### 뉴스 조회하기(10개씩)
+
 GET localhost:8080/news
 
 ###
