@@ -6,5 +6,6 @@ import lombok.Getter;
 @Getter
 @Builder
 public class ChatRoomCreateRequestDto {
+
 	private final Long partnerId;
 }

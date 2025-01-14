@@ -60,6 +60,7 @@ public enum ExceptionType {
 	// 500 INTERNAL_SERVER_ERROR
 	LOAD_FAIL_CHATROOMLIST(HttpStatus.INTERNAL_SERVER_ERROR, "채팅방 정보를 가져오기에 실패했습니다."),
 	LOAD_FAIL_CHATLIST(HttpStatus.INTERNAL_SERVER_ERROR, "채팅 정보를 가져오기에 실패했습니다."),
+	TIME_OUT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "타임 아웃 또는 인터럽트가 발생했습니다." )
 	;
 
 	private final HttpStatus httpStatus;

@@ -12,7 +12,7 @@ public interface ChatRoomHistoryRepository extends JpaRepository<ChatRoomHistory
 
 	Optional<ChatRoomHistory> findByChatRoomIdAndUserId(String chatRoomId, Long userId);
 
-	default void findByChatRoomAndUserOrElseThrow(String chatRoomId, Long userId){
+	default void findByChatRoomAndUserOrElseThrow(String chatRoomId, Long userId) {
 		findByChatRoomIdAndUserId(chatRoomId, userId).orElseThrow(
 			() -> new BusinessException(ExceptionType.UNAUTHORIZED_DELETE_REQUEST)
 		);
