@@ -18,5 +18,6 @@ public interface UserService {
 	CommonResponseDto updatePassword(Long userId, UserPasswordUpdateRequestDto userPasswordUpdateRequestDto);
 	CommonResponseDto updateBankAccount(Long userId, UserBankUpdateRequestDto userBankUpdateRequestDto);
 	CommonResponseDto deleteUser(Long userId, UserDeleteResponseDto userDeleteResponseDto);
+	CommonResponseDto getMentoring(Long userId);
 }
 

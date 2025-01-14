@@ -12,6 +12,7 @@ import com.connect.codeness.domain.user.dto.UserDeleteResponseDto;
 import com.connect.codeness.domain.user.dto.UserPasswordUpdateRequestDto;
 import com.connect.codeness.domain.user.dto.UserUpdateRequestDto;
 import com.connect.codeness.global.Jwt.JwtUtil;
+import com.connect.codeness.global.constants.Constants;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.enums.FileCategory;
 import com.connect.codeness.global.exception.BusinessException;
@@ -99,7 +100,6 @@ public class UserController {
 		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
 	}
 
-	//todo : 이미지 업로드 추가
 	/**
 	 *
 	 * @param authorizationHeader
@@ -180,6 +180,17 @@ public class UserController {
 		CommonResponseDto commonResponseDto = userService.deleteUser(userId,userDeleteResponseDto);
 		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
 	}
+
+	 @GetMapping("/users/mentoring")
+	public ResponseEntity<CommonResponseDto> getRecommendMentor(
+		@RequestHeader(Constants.AUTHORIZATION) String authorizationHeader
+	 ){
+		String token = authorizationHeader.substring("Bearer ".length());
+		Long tokenId = jwtUtil.extractUserId(token);
+
+		CommonResponseDto commonResponseDto = userService.getMentoring(tokenId);
+		return new ResponseEntity<>(commonResponseDto,HttpStatus.OK);
+	 }
 
 
 }

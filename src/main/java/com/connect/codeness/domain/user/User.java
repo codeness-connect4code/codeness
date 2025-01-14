@@ -105,22 +105,22 @@ public class User extends BaseEntity {
 		this.mbti = dto.getMbti();
 		this.site_link = dto.getSiteLink();
 		this.field = dto.getField();
-		setImageFiles(imageFile);
+		updateImageFiles(imageFile);
 	}
 
 	private String provider;
 
 	private String providerId;
 
-	public void setImageFiles(ImageFile imageFile) {
+	public void updateImageFiles(ImageFile imageFile) {
 		this.imageFiles.add(imageFile);
 	}
 
-	public void setPassword(String password) {
+	public void updatePassword(String password) {
 		this.password = password;
 	}
 
-	public void setBank(String bankName, String account){
+	public void updateBank(String bankName, String account){
 		this.bankName = bankName;
 		this.account = account;
 	}
