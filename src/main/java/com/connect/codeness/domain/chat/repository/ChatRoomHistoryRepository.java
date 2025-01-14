@@ -17,4 +17,6 @@ public interface ChatRoomHistoryRepository extends JpaRepository<ChatRoomHistory
 			() -> new BusinessException(ExceptionType.UNAUTHORIZED_DELETE_REQUEST)
 		);
 	}
+
+	Boolean existsByChatRoomId(String chatRoomId);
 }

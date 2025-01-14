@@ -20,7 +20,7 @@ public enum ExceptionType {
 	REFUND_FAILED(HttpStatus.BAD_REQUEST, "환불 요청이 실패했습니다."),
 	ALREADY_BOOKED(HttpStatus.BAD_REQUEST, "이미 예약된 멘토링 스케쥴 입니다." ),
 	MENTORING_SCHEDULE_EXPIRED(HttpStatus.BAD_REQUEST, "멘토링 스케쥴 시간이 만료되었습니다." ),
-
+	ALREADY_EXIST_CHATROOM(HttpStatus.BAD_REQUEST, "이미 생성된 채팅방입니다."),
 	// 401 Unauthorized
 	UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증이 필요합니다."),
 	UNAUTHORIZED_PASSWORD(HttpStatus.UNAUTHORIZED, "패스워드가 틀렸습니다."),

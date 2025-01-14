@@ -53,67 +53,58 @@ public class ChatServiceImpl implements ChatService {
 	@Transactional
 	@Override
 	public CommonResponseDto createChatRoom(Long myId, ChatRoomCreateRequestDto dto) {
-		//내 정보와 상대방 정보 가져오기
-		User myInfo = userRepository.findByIdOrElseThrow(myId);
 
+		//채팅방ID를 생성한다.(유저 ID가 각각 1,2 이면 -> 1_2)
 		Long partnerId = dto.getPartnerId();
+		String chatRoomId = generateChatRoomId(myId, partnerId);
+
+		//생성된 채팅방 ID가 이미 존재하는지 확인
+		if(chatRoomHistoryRepository.existsByChatRoomId(chatRoomId)){
+			throw new BusinessException(ExceptionType.ALREADY_EXIST_CHATROOM);
+		}
+
+		//유저 정보 가져오기(나, 상대방)
+		User myInfo = userRepository.findByIdOrElseThrow(myId);
 		User partnerInfo = userRepository.findByIdOrElseThrow(partnerId);
 
-		//서로의 이미지 파일 가져오기
+		//프로필 파일 가져오기(내 사진, 상대방 사진)
 		ImageFile myImageFile = findProfileImage(myInfo);
 		ImageFile partnerImageFile = findProfileImage(partnerInfo);
 
-		//데이터 소스를 가져온다.
-		DatabaseReference myReference = firebaseDatabase.getReference("chatRooms")
-			.child(String.valueOf(myId));
-
-		DatabaseReference partnerReference = firebaseDatabase.getReference("chatRooms")
-			.child(String.valueOf(partnerId));
-
-		//채팅방ID를 생성한다.
-		String chatRoomId = generateChatRoomId(myId, partnerId);
-
-		//파일 경로 추출
+		//파일 경로 추출(프로필 주소)
 		String myProfileUrl = (myImageFile == null) ? null : myImageFile.getFilePath();
 		String partnerProfileUrl = (partnerImageFile == null) ? null : partnerImageFile.getFilePath();
 
-
-		//채팅방 구조
-		Map<String, Object> myChatRoomData = new HashMap<>();
-		Map<String, Object> partnerChatRoomData = new HashMap<>();
-
-		myChatRoomData.put(chatRoomId, ChatRoomDto.builder()
-			.partnerId(partnerId)
-			.partnerProfileUrl(partnerProfileUrl)
-			.unreadCount(0)
-			.isActive(true)
-			.partnerNick(partnerInfo.getUserNickname())
-			.build());
-
-
-		partnerChatRoomData.put(chatRoomId, ChatRoomDto.builder()
-			.partnerId(myId)
-			.partnerProfileUrl(myProfileUrl)
-			.unreadCount(0)
-			.isActive(true)
-			.partnerNick(myInfo.getUserNickname())
-			.build());
-
-
-		myReference.setValueAsync(myChatRoomData);
-		partnerReference.setValueAsync(partnerChatRoomData);
-
-		//채팅방 이력에 저장
-		User user = userRepository.findByIdOrElseThrow(myId);
-		ChatRoomHistory chatRoomHistory = ChatRoomHistory.builder()
-			.user(user)
-			.chatRoomId(chatRoomId)
+		//채팅방에 넣을 데이터(내 채팅방 데이터, 상대방 채팅방 데이터)
+		ChatRoomDto myData = ChatRoomDto.builder()
+			.partnerId(partnerId).partnerProfileUrl(partnerProfileUrl)
+			.unreadCount(0).isActive(true).partnerNick(partnerInfo.getUserNickname())
 			.build();
 
-		chatRoomHistoryRepository.save(chatRoomHistory);
+		ChatRoomDto partnerData = ChatRoomDto.builder()
+			.partnerId(myId).partnerProfileUrl(myProfileUrl)
+			.unreadCount(0).isActive(true).partnerNick(myInfo.getUserNickname())
+			.build();
 
+		//파이어베이스의 참조 노드 설정
+		DatabaseReference Ref = firebaseDatabase.getReference("chatRooms");
+
+		//내 채팅방, 상대 채팅방 정보 파이어베이스에 저장 ex) 내ID가 1이면 1-> 1_2 -> 채팅방 정보
+		Ref.child(String.valueOf(myId)).child(chatRoomId).setValueAsync(myData);
+		Ref.child(String.valueOf(partnerId)).child(chatRoomId).setValueAsync(partnerData);
+
+
+		//채팅방 이력에 저장(나, 상대방)
+		ChatRoomHistory myChatRoomHistory = createChatRoomHistory(myInfo, chatRoomId);
+		ChatRoomHistory partnerChatRoomHistory = createChatRoomHistory(partnerInfo, chatRoomId);
+
+		chatRoomHistoryRepository.save(myChatRoomHistory);
+		chatRoomHistoryRepository.save(partnerChatRoomHistory);
+
+		//응답 반환
 		return CommonResponseDto.builder().msg("채팅방 생성 완료").build();
 	}
+
 
 	//채팅 전송
 	@Override
@@ -330,6 +321,7 @@ public class ChatServiceImpl implements ChatService {
 		myRoomRef.updateChildrenAsync(myUpdates);
 	}
 
+	//채팅방 ID 생성
 	private String  generateChatRoomId(Long userId, Long partnerId){
 		return String.format("%d_%d",userId,partnerId);
 	}
@@ -341,6 +333,14 @@ public class ChatServiceImpl implements ChatService {
 			.filter(image -> image.getFileCategory() == FileCategory.PROFILE)
 			.findFirst()
 			.orElse(null);
+	}
+
+	//ChatRoomHistory 객체 생성
+	private ChatRoomHistory createChatRoomHistory(User myInfo, String chatRoomId) {
+		return ChatRoomHistory.builder()
+			.user(myInfo)
+			.chatRoomId(chatRoomId)
+			.build();
 	}
 }
 

@@ -38,9 +38,7 @@ public class ReviewServiceImpl implements ReviewService {
 	public CommonResponseDto createReview(Long userId, Long paymentListId,
 		ReviewCreateRequestDto dto) {
 		//리뷰를 생성할 거래 내역 가져오기
-		PaymentList paymentList = paymentListRepository.findById(paymentListId).orElseThrow(
-			() -> new BusinessException(ExceptionType.NOT_FOUND_PAYMENTLIST)
-		);
+		PaymentList paymentList = paymentListRepository.findByPaymentIdOrElseThrow(paymentListId);
 
 		//내가 거래한 내역이 아니라면 생성 x
 		if (!Objects.equals(paymentList.getUser().getId(), userId)) {
