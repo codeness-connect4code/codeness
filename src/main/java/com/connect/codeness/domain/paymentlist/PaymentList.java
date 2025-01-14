@@ -3,7 +3,6 @@ package com.connect.codeness.domain.paymentlist;
 
 import com.connect.codeness.domain.payment.Payment;
 import com.connect.codeness.domain.user.User;
-import com.connect.codeness.global.entity.BaseEntity;
 import com.connect.codeness.global.entity.CreateTimeEntity;
 import com.connect.codeness.global.enums.PaymentStatus;
 import com.connect.codeness.global.enums.ReviewStatus;
@@ -97,23 +96,21 @@ public class PaymentList extends CreateTimeEntity {
 	/**
 	 * Review 상태 업데이트 메서드
 	 */
-	public void updateReviewStatus(ReviewStatus status){
+	public void updateReviewStatus(ReviewStatus status) {
 		this.reviewStatus = status;
 	}
 
 	/**
-	 * paymentList 결제 상태 수정
-	 * TODO : 사용 안하게 되면 지우기 
+	 * paymentList 결제 상태 수정 COMPLETE -> CANCEL
 	 */
-	public void updateStatus(PaymentStatus paymentStatus){
-		this.paymentStatus = PaymentStatus.COMPLETE;
+	public void updatePaymentStatus(PaymentStatus paymentStatus) {
+		this.paymentStatus = paymentStatus;
 	}
 
 	/**
-	 * paymentList 결제 상태 수정
-	 * COMPLETE -> CANCEL
+	 * paymentList 정산 상태 수정 UNPROCESSED -> PROCESSING
 	 */
-	public void updatePaymentStatus(PaymentStatus paymentStatus) {
-		this.paymentStatus = PaymentStatus.CANCEL;
+	public void updateSettleStatus(SettleStatus settleStatus) {
+		this.settleStatus = settleStatus;
 	}
 }
