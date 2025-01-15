@@ -4,7 +4,7 @@ package com.connect.codeness.domain.comment;
 import com.connect.codeness.domain.post.Post;
 import com.connect.codeness.domain.user.User;
 import com.connect.codeness.global.entity.BaseEntity;
-import com.connect.codeness.global.enums.CommunityStatus;
+import com.connect.codeness.global.enums.CommentStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -39,18 +39,26 @@ public class Comment extends BaseEntity {
 	@Size(max = 100)
 	private String content;
 
+	@Column
+	private String writerProfileUrl;
+
 	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)
-	private CommunityStatus status;
+	private CommentStatus commentStatus;
+
+	public void inputWriterProfileUrl(String writerProfileUrl){
+		this.writerProfileUrl = writerProfileUrl;
+	}
 
 	public Comment() {
 	}
 
 	@Builder
-	public Comment(User user, Post post, String content, CommunityStatus status) {
+	public Comment(User user, Post post, String content, String writerProfileUrl, CommentStatus commentStatus) {
 		this.user = user;
 		this.post = post;
 		this.content = content;
-		this.status = status;
+		this.writerProfileUrl = writerProfileUrl;
+		this.commentStatus = commentStatus;
 	}
 }

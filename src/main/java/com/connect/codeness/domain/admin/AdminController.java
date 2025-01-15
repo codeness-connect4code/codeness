@@ -10,6 +10,7 @@ import com.connect.codeness.domain.user.UserRepository;
 import com.connect.codeness.domain.user.dto.UserResponseDto;
 import com.connect.codeness.global.jwt.JwtUtil;
 import com.connect.codeness.global.dto.CommonResponseDto;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -122,16 +123,11 @@ public class AdminController {
 
 	/**
 	 * 멘토 정산 내역 조회 API
-	 * @param pageNumber
-	 * @param pageSize
 	 * @return
 	 */
 	@GetMapping("/mentors/settlements")
-	public ResponseEntity<CommonResponseDto> getSettlements(
-		@RequestParam(defaultValue = PAGE_NUMBER) int pageNumber,
-		@RequestParam(defaultValue = PAGE_SIZE) int pageSize
-	){
-		CommonResponseDto<Page<AdminSettlementListResponseDto>> commonResponseDto = adminService.getSettlementList(pageNumber,pageSize);
+	public ResponseEntity<CommonResponseDto> getSettlements(){
+		CommonResponseDto<List<AdminSettlementListResponseDto>> commonResponseDto = adminService.getSettlementList();
 		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
 	}
 

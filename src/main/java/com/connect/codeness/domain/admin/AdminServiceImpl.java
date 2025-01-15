@@ -120,13 +120,11 @@ public class AdminServiceImpl implements AdminService {
 	}
 
 	@Override
-	public CommonResponseDto<Page<AdminSettlementListResponseDto>> getSettlementList(
-		int pageNumber, int pageSize) {
-		Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("createdAt").descending());
-		Page<AdminSettlementListResponseDto> adminSettlementGetResponseDto =
-			paymentHistoryRepository.findBySettleStatusMentorGroupList(SettleStatus.PROCESSING,pageable);
+	public CommonResponseDto<List<AdminSettlementListResponseDto>> getSettlementList() {
+		List<AdminSettlementListResponseDto> adminSettlementGetResponseDto =
+			paymentHistoryRepository.findBySettleStatusMentorGroupList(SettleStatus.PROCESSING);
 
-		return CommonResponseDto.<Page<AdminSettlementListResponseDto>>builder()
+		return CommonResponseDto.<List<AdminSettlementListResponseDto>>builder()
 			.msg("멘토 정산 내역이 조회되었습니다.")
 			.data(adminSettlementGetResponseDto).build();
 	}
