@@ -79,4 +79,8 @@ public class MentorRequest extends CreateTimeEntity {
 
 	public MentorRequest() {}
 
+	public void updateStatus(MentorRequestStatus mentorReqestStatus){
+		this.isAccepted = mentorReqestStatus;
+	}
+
 }
