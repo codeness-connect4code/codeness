@@ -45,9 +45,10 @@ public interface PaymentHistoryRepository extends JpaRepository<PaymentHistory, 
 		"SELECT new com.connect.codeness.domain.admin.dto.AdminSettlementListResponseDto("
 			+ "p.user.id, p.user.name, COUNT(p), SUM(p.paymentCost)) " +
 			"FROM PaymentHistory p " +
+			"WHERE p.settleStatus = :settleStatus "+
 			"GROUP BY p.user.id, p.user.name"
 	)
-	Page<AdminSettlementListResponseDto> findMentorGroupList(Pageable pageable);
+	Page<AdminSettlementListResponseDto> findBySettleStatusMentorGroupList(SettleStatus settleStatus, Pageable pageable);
 
 
 	@Query(

@@ -124,7 +124,7 @@ public class AdminServiceImpl implements AdminService {
 		int pageNumber, int pageSize) {
 		Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("createdAt").descending());
 		Page<AdminSettlementListResponseDto> adminSettlementGetResponseDto =
-			paymentHistoryRepository.findMentorGroupList(pageable);
+			paymentHistoryRepository.findBySettleStatusMentorGroupList(SettleStatus.PROCESSING,pageable);
 
 		return CommonResponseDto.<Page<AdminSettlementListResponseDto>>builder()
 			.msg("멘토 정산 내역이 조회되었습니다.")
