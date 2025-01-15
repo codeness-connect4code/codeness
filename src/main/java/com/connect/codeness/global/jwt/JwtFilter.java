@@ -23,9 +23,9 @@ public class JwtFilter extends OncePerRequestFilter {
 	@Autowired
 	private CustomUserDetailService userDetailService;
 
+	private static final List<String> EXCLUDED_PATHS = List.of("/payment", "/mentoring", "/login-page", "/users", "/loginPage.html", "/payment.html");//TODO : 결제 테스트 - 나중에 지우기
 	private static final List<String> POST_EXCLUDED_PATHS = List.of("/login", "/signup");
 	private static final List<String> GET_EXCLUDED_PATHS = List.of("/posts", "/posts/.*","/news");
-	private static final List<String> DELETE_EXCLUDED_PATHS = List.of("");
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
@@ -34,23 +34,25 @@ public class JwtFilter extends OncePerRequestFilter {
 		String requestPath = request.getRequestURI();
 		String method = request.getMethod();
 
+		/**
+		 * TODO : 결제 테스트를 위한 코드 - 나중에 지우기
+		 */
+		if (EXCLUDED_PATHS.stream().anyMatch(requestPath::matches)) {
+			chain.doFilter(request, response);
+			return;
+		}
+
 		// GET 메서드에 대한 화이트리스트 확인
-		if ("GET".equalsIgnoreCase(method) && GET_EXCLUDED_PATHS.stream().anyMatch(requestPath::startsWith)) {
+		if ("GET".equalsIgnoreCase(method) && GET_EXCLUDED_PATHS.stream().anyMatch(requestPath::matches)) {
 			chain.doFilter(request, response);
 			return;
 		}
 
 		// POST 메서드에 대한 화이트리스트 확인
-		if ("POST".equalsIgnoreCase(method) && POST_EXCLUDED_PATHS.stream().anyMatch(requestPath::startsWith)) {
+		if ("POST".equalsIgnoreCase(method) && POST_EXCLUDED_PATHS.stream().anyMatch(requestPath::matches)) {
 			chain.doFilter(request, response);
 			return;
 		}
-
-		// DELETE 메서드에 대한 화이트리스트 확인
-//		if ("DELETE".equalsIgnoreCase(method) && DELETE_EXCLUDED_PATHS.stream().anyMatch(requestPath::startsWith)) {
-//			chain.doFilter(request, response);
-//			return;
-//		}
 
 		String authorizationHeader = request.getHeader("Authorization");
 

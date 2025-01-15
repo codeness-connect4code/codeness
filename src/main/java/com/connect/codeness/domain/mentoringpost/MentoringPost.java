@@ -1,8 +1,10 @@
 package com.connect.codeness.domain.mentoringpost;
 
+import com.connect.codeness.domain.mentoringschedule.MentoringSchedule;
 import com.connect.codeness.domain.user.User;
 import com.connect.codeness.global.entity.CreateTimeEntity;
 import com.connect.codeness.global.enums.FieldType;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -11,12 +13,15 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -32,6 +37,9 @@ public class MentoringPost extends CreateTimeEntity {
 	@OneToOne
 	@JoinColumn(name = "mentor_id")
 	private User user;//사용자 고유 식별자 (외래키)
+
+	@OneToMany(mappedBy = "mentoringPost", orphanRemoval = true, cascade = CascadeType.REMOVE)
+	private List<MentoringSchedule> mentoringSchedule = new ArrayList<>();//멘토링 공고 삭제시, 멘토링 스케쥴도 삭제
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
