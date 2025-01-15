@@ -35,13 +35,13 @@ public class JwtFilter extends OncePerRequestFilter {
 		String method = request.getMethod();
 
 		// GET 메서드에 대한 화이트리스트 확인
-		if ("GET".equalsIgnoreCase(method) && GET_EXCLUDED_PATHS.stream().anyMatch(requestPath::startsWith)) {
+		if ("GET".equalsIgnoreCase(method) && GET_EXCLUDED_PATHS.stream().anyMatch(requestPath::matches)) {
 			chain.doFilter(request, response);
 			return;
 		}
 
 		// POST 메서드에 대한 화이트리스트 확인
-		if ("POST".equalsIgnoreCase(method) && POST_EXCLUDED_PATHS.stream().anyMatch(requestPath::startsWith)) {
+		if ("POST".equalsIgnoreCase(method) && POST_EXCLUDED_PATHS.stream().anyMatch(requestPath::matches)) {
 			chain.doFilter(request, response);
 			return;
 		}
