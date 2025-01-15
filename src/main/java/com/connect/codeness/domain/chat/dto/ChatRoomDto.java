@@ -3,8 +3,8 @@ package com.connect.codeness.domain.chat.dto;
 import lombok.Builder;
 import lombok.Getter;
 
-@Builder
 @Getter
+@Builder
 public class ChatRoomDto {
 
 	private String chatRoomId;
@@ -20,12 +20,10 @@ public class ChatRoomDto {
 
 	private String lastMessage;
 
-	private final String lastMessageTime;
+	private String lastMessageTime;
 
-	private int unreadCount;
+	private Integer unreadCount;
 
-	private boolean isActive;
-
-
+	private Boolean isActive;
 
 }
