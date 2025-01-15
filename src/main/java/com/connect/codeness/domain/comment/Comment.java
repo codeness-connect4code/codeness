@@ -57,6 +57,10 @@ public class Comment extends BaseEntity {
 	public Comment() {
 	}
 
+	public void deleteComment() {
+		this.commentStatus = CommentStatus.DELETED;
+	}
+
 	@Builder
 	public Comment(User user, Post post, String content, String writerProfileUrl, CommentStatus commentStatus) {
 		this.user = user;
