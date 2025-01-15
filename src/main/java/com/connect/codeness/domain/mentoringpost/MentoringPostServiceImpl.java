@@ -12,6 +12,7 @@ import com.connect.codeness.global.enums.UserRole;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -93,9 +94,20 @@ public class MentoringPostServiceImpl implements MentoringPostService {
 
 		return startDate.datesUntil(endDate.plusDays(1)) // 날짜 범위 스트림 생성
 			.flatMap(date -> {
-				long hourCount = ChronoUnit.HOURS.between(startTime, endTime.plusHours(1)); // 시간 범위 계산
+				boolean crossesMidnight = endTime.isBefore(startTime);//시간 하루 넘기는지 확인
+				long hourCount = crossesMidnight
+					? ChronoUnit.HOURS.between(startTime, LocalTime.MAX) + 1 + ChronoUnit.HOURS.between(LocalTime.MIN, endTime.plusHours(1))
+					: ChronoUnit.HOURS.between(startTime, endTime.plusHours(1));
+
 				return LongStream.range(0, hourCount)
 					.mapToObj(hour -> {
+						LocalDateTime dateTime = date.atTime(startTime).plusHours(hour);
+
+						//날짜 넘어가는 경우
+						if(dateTime.toLocalTime().isBefore(startTime)){
+							dateTime = dateTime.plusDays(1);
+						}
+
 						MentoringSchedule schedule = new MentoringSchedule();
 						schedule.createMentoringSchedule(mentoringPost, date, startTime.plusHours(hour), BookedStatus.EMPTY);
 						return schedule;
