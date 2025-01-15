@@ -4,7 +4,6 @@ import static com.connect.codeness.global.constants.Constants.PAGE_NUMBER;
 import static com.connect.codeness.global.constants.Constants.PAGE_SIZE;
 
 import com.connect.codeness.domain.news.dto.NewsResponseDto;
-import com.connect.codeness.domain.news.service.NewsService;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;

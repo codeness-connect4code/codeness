@@ -38,6 +38,7 @@ public interface MentoringPostRepository extends JpaRepository<MentoringPost, Lo
 		return findByIdAndUserId(mentoringPostId, userId).orElseThrow(() -> new BusinessException(ExceptionType.NOT_FOUND_MENTORING_POST));
 	}
 
+	Optional<MentoringPost> findById(Long mentoringPostId);
 
 	default MentoringPost findByIdOrElseThrow(Long mentoringPostId){
 		return findById(mentoringPostId).orElseThrow(() -> new BusinessException(ExceptionType.NOT_FOUND_MENTORING_POST));

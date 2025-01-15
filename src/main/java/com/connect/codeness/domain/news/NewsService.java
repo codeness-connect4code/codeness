@@ -1,4 +1,4 @@
-package com.connect.codeness.domain.news.service;
+package com.connect.codeness.domain.news;
 
 
 import com.connect.codeness.domain.news.dto.NewsResponseDto;

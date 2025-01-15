@@ -38,13 +38,11 @@ public class ReviewServiceImpl implements ReviewService {
 	public CommonResponseDto createReview(Long userId, Long paymentHistoryId,
 		ReviewCreateRequestDto dto) {
 		//리뷰를 생성할 거래 내역 가져오기
-		PaymentHistory paymentHistory = paymentHistoryRepository.findById(paymentHistoryId).orElseThrow(
-			() -> new BusinessException(ExceptionType.NOT_FOUND_PAYMENTLIST)
-		);
+		PaymentHistory paymentHistory = paymentHistoryRepository.findByPaymentIdOrElseThrow(paymentHistoryId);
 
 		//내가 거래한 내역이 아니라면 생성 x
 		if (!Objects.equals(paymentHistory.getUser().getId(), userId)) {
-			throw new BusinessException(ExceptionType.UNAUTHORIZED_CREATE_REQUEST);
+			throw new BusinessException(ExceptionType.UNAUTHORIZED_POST_REQUEST);
 		}
 
 		//멘토링 날짜가 아직 아니라면

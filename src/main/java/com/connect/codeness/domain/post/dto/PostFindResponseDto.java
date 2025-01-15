@@ -1,6 +1,7 @@
 package com.connect.codeness.domain.post.dto;
 
 import com.connect.codeness.global.enums.PostType;
+import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -21,4 +22,10 @@ public class PostFindResponseDto {
 	private Long view;
 
 	private PostType postType;
+
+	private LocalDateTime modifiedAt;
+
+	public void inputWriterProfileUrl(String writerProfileUrl){
+		this.writerProfileUrl = writerProfileUrl;
+	}
 }

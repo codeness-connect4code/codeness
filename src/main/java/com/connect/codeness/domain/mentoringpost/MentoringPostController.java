@@ -3,13 +3,11 @@ package com.connect.codeness.domain.mentoringpost;
 import static com.connect.codeness.global.constants.Constants.PAGE_NUMBER;
 import static com.connect.codeness.global.constants.Constants.PAGE_SIZE;
 import static com.connect.codeness.global.constants.Constants.AUTHORIZATION;
-
 import com.connect.codeness.domain.mentoringpost.dto.MentoringPostCreateRequestDto;
+import com.connect.codeness.global.jwt.JwtUtil;
 import com.connect.codeness.domain.mentoringpost.dto.MentoringPostResponseDto;
-import com.connect.codeness.global.Jwt.JwtUtil;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import jakarta.validation.Valid;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -53,8 +51,7 @@ public class MentoringPostController {
 	 * - 자신이 생성한 공고만 삭제 가능
 	 */
 	@DeleteMapping("/{mentoringPostId}")
-	public ResponseEntity<CommonResponseDto> deleteMentoringPost(@RequestHeader(AUTHORIZATION) String token,
-		@PathVariable Long mentoringPostId) {
+	public ResponseEntity<CommonResponseDto> deleteMentoringPost(@RequestHeader(AUTHORIZATION) String token, @PathVariable Long mentoringPostId){
 		Long userId = jwtUtil.extractUserId(token);
 		CommonResponseDto responseDto = mentoringPostService.deleteMentoringPost(userId, mentoringPostId);
 

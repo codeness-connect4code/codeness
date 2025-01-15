@@ -1,5 +1,4 @@
-package com.connect.codeness.domain.chat.entity;
-
+package com.connect.codeness.domain.chat;
 
 import com.connect.codeness.domain.user.User;
 import com.connect.codeness.global.entity.CreateTimeEntity;

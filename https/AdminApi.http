@@ -1,0 +1,22 @@
+### 회원가입
+POST localhost:8080/signup
+Content-Type: application/json
+
+{
+  "email" : "1aaaaaaaa@naver.com",
+  "password" : "asdf1234!@",
+  "name" : "이름",
+  "nickname" : "열일하는 개발자",
+  "phoneNumber" : "010 - 1234 - 6328",
+  "field" : "BACKEND",
+  "userRole" : "ADMIN"
+}
+
+### 로그인
+POST localhost:8080/login
+Content-Type: application/json
+
+{
+  "email" : "1aaaaaaaa@naver.com",
+  "password" : "asdf1234!@"
+}

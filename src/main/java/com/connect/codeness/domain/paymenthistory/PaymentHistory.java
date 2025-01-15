@@ -60,6 +60,9 @@ public class PaymentHistory extends CreateTimeEntity {
 	private SettleStatus settleStatus; //정산 상태
 
 	@Column(nullable = true)
+	private LocalDateTime settlementRequestAt; //정산 요청일
+
+	@Column(nullable = true)
 	private LocalDateTime canceledAt; //결제 취소일
 
 	@Enumerated(EnumType.STRING)
@@ -113,4 +116,5 @@ public class PaymentHistory extends CreateTimeEntity {
 	public void updateSettleStatus(SettleStatus settleStatus) {
 		this.settleStatus = settleStatus;
 	}
+
 }
