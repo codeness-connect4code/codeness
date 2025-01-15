@@ -71,7 +71,7 @@ public class MentoringPostController {
 		@RequestParam(required = false) String field,
 		@RequestParam(required = false) String Nickname) {
 
-		CommonResponseDto responseDto = mentoringPostService.searchMentoringPosts();
+		CommonResponseDto responseDto = mentoringPostService.searchMentoringPosts(pageNumber,pageSize, title, field, Nickname);
 
 		return new ResponseEntity<>(responseDto, HttpStatus.OK);
 	}

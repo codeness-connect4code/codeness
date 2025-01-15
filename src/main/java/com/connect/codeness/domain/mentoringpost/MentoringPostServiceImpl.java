@@ -127,9 +127,9 @@ public class MentoringPostServiceImpl implements MentoringPostService {
 	 * 멘토링 공고 전체 조회 메서드
 	 */
 	@Override
-	public CommonResponseDto searchMentoringPosts() {
+	public CommonResponseDto searchMentoringPosts(int pageNumber, int pageSize, String title, String field, String nickname) {
 
-		return null;
+		return CommonResponseDto.<MentoringPostResponseDto>builder().msg("멘토링 공고가 전체 조회되었습니다").build();
 	}
 
 	/**

@@ -19,7 +19,7 @@ public interface MentoringPostService {
 	/**
 	 * 멘토링 공고 전체 조회 메서드
 	 */
-	CommonResponseDto searchMentoringPosts();
+	CommonResponseDto searchMentoringPosts(int pageNumber, int pageSize, String title, String field, String nickname);
 
 	/**
 	 * 멘토링 공고 상세 조회 메서드
