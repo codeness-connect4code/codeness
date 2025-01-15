@@ -15,6 +15,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 import org.springframework.stereotype.Service;
@@ -96,10 +97,7 @@ public class MentoringPostServiceImpl implements MentoringPostService {
 				return LongStream.range(0, hourCount)
 					.mapToObj(hour -> {
 						MentoringSchedule schedule = new MentoringSchedule();
-						schedule.createMentoringPost(mentoringPost);
-						schedule.createMentoringDate(date);
-						schedule.createMentoringTime(startTime.plusHours(hour));
-						schedule.createBookedStatus(BookedStatus.EMPTY);
+						schedule.createMentoringSchedule(mentoringPost, date, startTime.plusHours(hour), BookedStatus.EMPTY);
 						return schedule;
 					});
 			}).collect(Collectors.toList());
@@ -110,11 +108,15 @@ public class MentoringPostServiceImpl implements MentoringPostService {
 	 */
 	@Override
 	public CommonResponseDto deleteMentoringPost(Long userId, Long mentoringPostId) {
-		//유저 조회
-		User user = userRepository.findByIdOrElseThrow(userId);
 
 		//멘토링 공고 조회
-		MentoringPost mentoringPost = mentoringPostRepository.findByIdAndUserIdOrElseThrow(mentoringPostId, user.getId());
+		MentoringPost mentoringPost = mentoringPostRepository.findById(mentoringPostId)
+			.orElseThrow(() -> new BusinessException(ExceptionType.NOT_FOUND_MENTORING_POST));
+
+		//멘토링 공고 작성한 유저랑 로그인한 유저랑 비교
+		if (!Objects.equals(userId, mentoringPost.getUser().getId())) {
+			throw new BusinessException(ExceptionType.FORBIDDEN_PERMISSION);
+		}
 
 		//멘토링 공고 삭제
 		mentoringPostRepository.deleteById(mentoringPost.getId());

@@ -32,12 +32,6 @@ public interface MentoringPostRepository extends JpaRepository<MentoringPost, Lo
 		Pageable pageable
 	);
 
-	Optional<MentoringPost> findByIdAndUserId(Long mentoringPostId, Long userId);
-
-	default MentoringPost findByIdAndUserIdOrElseThrow(Long mentoringPostId, Long userId){
-		return findByIdAndUserId(mentoringPostId, userId).orElseThrow(() -> new BusinessException(ExceptionType.NOT_FOUND_MENTORING_POST));
-	}
-
-
+	Optional<MentoringPost> findById(Long mentoringPostId);
 
 }
