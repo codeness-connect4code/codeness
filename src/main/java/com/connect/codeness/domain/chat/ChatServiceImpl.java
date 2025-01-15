@@ -138,7 +138,7 @@ public class ChatServiceImpl implements ChatService {
 	@Override
 	public CommonResponseDto<List<ChatRoomDto>> getChatRooms(long userId) {
 		//내가 조회할 권한이 없으면 예외 처리
-		checkAuthorizationOrElseThrow(userId,ExceptionType.UNAUTHORIZED_GET_REQUEST);
+		checkAuthorizationOrElseThrow(userId, ExceptionType.UNAUTHORIZED_GET_REQUEST);
 
 		//참조 노드 설정
 		DatabaseReference roomReference = firebaseDatabase.getReference(String.format("chatRooms/%s", userId));
@@ -202,7 +202,7 @@ public class ChatServiceImpl implements ChatService {
 	@Override
 	public CommonResponseDto<List<ChatMessageDto>> getChats(Long userId, String chatRoomId) {
 		//내가 조회할 권한이 없으면 예외 처리
-		checkAuthorizationOrElseThrow(userId,chatRoomId, ExceptionType.UNAUTHORIZED_GET_REQUEST);
+		checkAuthorizationOrElseThrow(userId, chatRoomId, ExceptionType.UNAUTHORIZED_GET_REQUEST);
 
 		//참조 노드 설정
 		DatabaseReference chatReference = firebaseDatabase.getReference(String.format("chatMessages/%s", chatRoomId));
@@ -258,7 +258,7 @@ public class ChatServiceImpl implements ChatService {
 	public CommonResponseDto deleteChatRoom(Long userId, String chatRoomId) {
 		//내가 삭제할 권한이 없으면 예외 처리
 		//TODO: 삭제는 나중에 서비스 단에서만 제공하기 때문에 굳이 예외처리를 안해줘도 되긴 함.
-		checkAuthorizationOrElseThrow(userId,chatRoomId,ExceptionType.UNAUTHORIZED_DELETE_REQUEST);
+		checkAuthorizationOrElseThrow(userId, chatRoomId, ExceptionType.UNAUTHORIZED_DELETE_REQUEST);
 
 		//예를 들어, 1번 유저와 2번 유저가 있을 때
 		//1번 유저의 1_2와 2번 유저의 1_2의 isActive 상태를 둘다 false로 바꿔야함.
@@ -276,7 +276,6 @@ public class ChatServiceImpl implements ChatService {
 
 		return CommonResponseDto.builder().msg("채팅방이 삭제되었습니다.").build();
 	}
-
 
 
 	//채팅을 보냈을 때 마지막 메시지 & 메시지 시간 & 상대방 안 읽은 메시지 수 + 1
@@ -361,17 +360,17 @@ public class ChatServiceImpl implements ChatService {
 	}
 
 	//권한 체크(채팅 전송, 채팅방 상세 조회, 채팅방 삭제)
-	private void checkAuthorizationOrElseThrow(Long userId, String chatRoomId, ExceptionType exType){
+	private void checkAuthorizationOrElseThrow(Long userId, String chatRoomId, ExceptionType exType) {
 
-		if(!chatRoomHistoryRepository.existsByChatRoomIdAndUserId(chatRoomId, userId)){
+		if (!chatRoomHistoryRepository.existsByChatRoomIdAndUserId(chatRoomId, userId)) {
 			throw new BusinessException(exType);
 		}
 	}
 
 	//권한 체크(채팅방 목록 조회)
-	private void checkAuthorizationOrElseThrow(Long userId, ExceptionType exType){
+	private void checkAuthorizationOrElseThrow(Long userId, ExceptionType exType) {
 
-		if(!chatRoomHistoryRepository.existsByUserId(userId)){
+		if (!chatRoomHistoryRepository.existsByUserId(userId)) {
 			throw new BusinessException(exType);
 		}
 	}

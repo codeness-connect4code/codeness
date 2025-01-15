@@ -7,8 +7,8 @@ import static com.connect.codeness.global.constants.Constants.PAGE_SIZE;
 
 import com.connect.codeness.domain.comment.dto.CommentCreateRequestDto;
 import com.connect.codeness.domain.comment.dto.CommentFindAllResponseDto;
-import com.connect.codeness.global.Jwt.JwtUtil;
 import com.connect.codeness.global.dto.CommonResponseDto;
+import com.connect.codeness.global.jwt.JwtUtil;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
