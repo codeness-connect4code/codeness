@@ -36,7 +36,7 @@ public class ChatController {
 	@PostMapping
 	public ResponseEntity<CommonResponseDto> createChatRoom(
 		@RequestHeader(AUTHORIZATION) String token,
-		@RequestBody ChatRoomCreateRequestDto dto
+		@RequestBody ChatMessageDto.ChatRoomCreateRequestDto dto
 	) {
 		Long userId = jwtUtil.extractUserId(token);
 		CommonResponseDto responseDto = chatService.createChatRoom(userId, dto);

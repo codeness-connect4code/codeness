@@ -11,4 +11,10 @@ public class ChatMessageDto {
 	private String content;
 	private String timestamp;
 
+	@Getter
+	@Builder
+	public static class ChatRoomCreateRequestDto {
+
+		private final Long partnerId;
+	}
 }
