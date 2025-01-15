@@ -6,7 +6,6 @@ import com.connect.codeness.domain.file.FileServiceImpl;
 import com.connect.codeness.domain.file.ImageFile;
 import com.connect.codeness.domain.mentoringpost.MentoringPostRepository;
 import com.connect.codeness.domain.mentoringpost.dto.MentoringPostRecommendResponseDto;
-import com.connect.codeness.domain.mentoringpost.dto.MentoringPostResponseDto;
 import com.connect.codeness.domain.user.dto.LoginRequestDto;
 import com.connect.codeness.domain.user.dto.UserBankUpdateRequestDto;
 import com.connect.codeness.domain.user.dto.UserCreateRequestDto;
@@ -14,7 +13,7 @@ import com.connect.codeness.domain.user.dto.UserDeleteResponseDto;
 import com.connect.codeness.domain.user.dto.UserPasswordUpdateRequestDto;
 import com.connect.codeness.domain.user.dto.UserResponseDto;
 import com.connect.codeness.domain.user.dto.UserUpdateRequestDto;
-import com.connect.codeness.global.Jwt.JwtUtil;
+import com.connect.codeness.global.jwt.JwtUtil;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
@@ -99,14 +98,14 @@ public class UserServiceImpl implements UserService {
 
 		UserResponseDto userResponseDto = UserResponseDto.builder()
 			.name(user.getName())
-			.nickname(user.getUserNickname())
+			.userNickname(user.getUserNickname())
 			.email(user.getEmail())
 			.phoneNumber(user.getPhoneNumber())
 			.region(user.getRegion())
 			.field(user.getField())
 			.career(user.getCareer())
 			.mbti(user.getMbti())
-			.siteLink(user.getSite_link()).build();
+			.siteLink(user.getSiteLink()).build();
 
 		return CommonResponseDto.builder()
 			.msg("마이프로필 조회 성공")

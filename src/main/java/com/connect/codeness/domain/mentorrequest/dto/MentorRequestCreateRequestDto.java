@@ -10,7 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @Builder
-public class MentorRequestCreateResponseDto {
+public class MentorRequestCreateRequestDto {
 
 //	 private MultipartFile employCard;
 

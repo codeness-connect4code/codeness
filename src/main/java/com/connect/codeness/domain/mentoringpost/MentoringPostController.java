@@ -2,7 +2,7 @@ package com.connect.codeness.domain.mentoringpost;
 
 import static com.connect.codeness.global.constants.Constants.AUTHORIZATION;
 import com.connect.codeness.domain.mentoringpost.dto.MentoringPostCreateRequestDto;
-import com.connect.codeness.global.Jwt.JwtUtil;
+import com.connect.codeness.global.jwt.JwtUtil;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;

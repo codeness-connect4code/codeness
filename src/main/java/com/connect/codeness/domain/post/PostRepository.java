@@ -1,6 +1,6 @@
 package com.connect.codeness.domain.post;
 
-import com.connect.codeness.global.enums.CommunityStatus;
+import com.connect.codeness.global.enums.PostStatus;
 import com.connect.codeness.global.enums.PostType;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
@@ -19,7 +19,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 			() -> new BusinessException(ExceptionType.NOT_FOUND_POST)
 		);
 
-		if (post.getCommunityStatus() != CommunityStatus.DISPLAYED) {
+		if (post.getPostStatus() != PostStatus.DISPLAYED) {
 			throw new BusinessException(ExceptionType.NOT_FOUND_POST);
 		}
 		return post;
@@ -28,7 +28,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 	@Query("SELECT p FROM Post p WHERE (:type IS NULL OR p.postType = :type) " +
 		"AND (:keyword IS NULL OR p.title LIKE %:keyword%) " +
 		"AND (:writer IS NULL OR p.writer = :writer) " +
-		"AND p.communityStatus != 'DELETED'")
+		"AND p.postStatus != 'DELETED'")
 	Page<Post> findByTypeAndKeyword(@Param("type") PostType type,
 		@Param("keyword") String keyword,
 		@Param("writer") String writer,

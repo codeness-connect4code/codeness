@@ -4,9 +4,10 @@ import static com.connect.codeness.global.constants.Constants.AUTHORIZATION;
 
 import com.connect.codeness.domain.chat.dto.ChatCreateRequestDto;
 import com.connect.codeness.domain.chat.dto.ChatMessageDto;
+import com.connect.codeness.domain.chat.dto.ChatRoomCreateRequestDto;
 import com.connect.codeness.domain.chat.dto.ChatRoomDto;
-import com.connect.codeness.global.Jwt.JwtUtil;
 import com.connect.codeness.global.dto.CommonResponseDto;
+import com.connect.codeness.global.jwt.JwtUtil;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
