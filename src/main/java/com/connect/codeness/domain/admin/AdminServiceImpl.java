@@ -105,7 +105,7 @@ public class AdminServiceImpl implements AdminService {
 	@Override
 	@Transactional
 	public CommonResponseDto updateSettlements(Long mentorId) {
-		List<PaymentHistory> paymentHistoryList = paymentHistoryRepository.findAllByUserId(mentorId);
+		List<PaymentHistory> paymentHistoryList = paymentHistoryRepository.findAllByUserIdAndSettleStatus(mentorId,SettleStatus.PROCESSING);
 
 		if (paymentHistoryList.isEmpty()) {
 			throw new BusinessException(ExceptionType.NOT_FOUND);
