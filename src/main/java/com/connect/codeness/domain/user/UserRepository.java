@@ -22,7 +22,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
 	default User findByIdOrElseThrow(Long id) {
 		User user = findById(id).orElseThrow(
-			() -> new BusinessException(ExceptionType.USER_ALREADY_DELETED)
+			() -> new BusinessException(ExceptionType.NOT_FOUND_USER)
 		);
 
 		if (user.getUserStatus() == UserStatus.LEAVE){
@@ -33,7 +33,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
 	default User findByEmailOrElseThrow(String email) {
 		User user = findByEmail(email).orElseThrow(
-			() -> new BusinessException(ExceptionType.USER_ALREADY_DELETED)
+			() -> new BusinessException(ExceptionType.NOT_FOUND_USER)
 		);
 
 		if (user.getUserStatus() == UserStatus.LEAVE){
