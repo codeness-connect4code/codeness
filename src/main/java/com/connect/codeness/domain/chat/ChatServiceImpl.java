@@ -2,6 +2,7 @@ package com.connect.codeness.domain.chat;
 
 import com.connect.codeness.domain.chat.dto.ChatCreateRequestDto;
 import com.connect.codeness.domain.chat.dto.ChatMessageDto;
+import com.connect.codeness.domain.chat.dto.ChatRoomCreateRequestDto;
 import com.connect.codeness.domain.chat.dto.ChatRoomDto;
 import com.connect.codeness.domain.file.ImageFile;
 import com.connect.codeness.domain.user.User;
@@ -49,7 +50,7 @@ public class ChatServiceImpl implements ChatService {
 	//채팅방 생성
 	@Transactional
 	@Override
-	public CommonResponseDto createChatRoom(Long myId, ChatMessageDto.ChatRoomCreateRequestDto dto) {
+	public CommonResponseDto createChatRoom(Long myId, ChatRoomCreateRequestDto dto) {
 
 		//채팅방ID를 생성한다.(유저 ID가 각각 1,2 이면 -> 1_2)
 		Long partnerId = dto.getPartnerId();

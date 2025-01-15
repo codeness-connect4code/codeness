@@ -5,11 +5,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class ChatMessageDto {
+public class ChatRoomCreateRequestDto {
 
-	private Long senderId;
-	private String content;
-	private String timestamp;
-
-
+	private final Long partnerId;
 }

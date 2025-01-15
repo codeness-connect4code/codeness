@@ -3,6 +3,7 @@ package com.connect.codeness.domain.chat;
 
 import com.connect.codeness.domain.chat.dto.ChatCreateRequestDto;
 import com.connect.codeness.domain.chat.dto.ChatMessageDto;
+import com.connect.codeness.domain.chat.dto.ChatRoomCreateRequestDto;
 import com.connect.codeness.domain.chat.dto.ChatRoomDto;
 import com.connect.codeness.domain.user.User;
 import com.connect.codeness.global.dto.CommonResponseDto;
@@ -29,7 +30,7 @@ public interface ChatService {
 
 	CommonResponseDto<List<ChatMessageDto>> getChats(Long userId, String chatRoomId);
 
-	CommonResponseDto createChatRoom(Long userId, ChatMessageDto.ChatRoomCreateRequestDto dto);
+	CommonResponseDto createChatRoom(Long userId, ChatRoomCreateRequestDto dto);
 
 	CommonResponseDto deleteChatRoom(Long userId, String chatRoomId);
 

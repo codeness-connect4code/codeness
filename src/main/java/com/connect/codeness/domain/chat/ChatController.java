@@ -4,6 +4,7 @@ import static com.connect.codeness.global.constants.Constants.AUTHORIZATION;
 
 import com.connect.codeness.domain.chat.dto.ChatCreateRequestDto;
 import com.connect.codeness.domain.chat.dto.ChatMessageDto;
+import com.connect.codeness.domain.chat.dto.ChatRoomCreateRequestDto;
 import com.connect.codeness.domain.chat.dto.ChatRoomDto;
 import com.connect.codeness.global.jwt.JwtUtil;
 import com.connect.codeness.global.dto.CommonResponseDto;
@@ -36,7 +37,7 @@ public class ChatController {
 	@PostMapping
 	public ResponseEntity<CommonResponseDto> createChatRoom(
 		@RequestHeader(AUTHORIZATION) String token,
-		@RequestBody ChatMessageDto.ChatRoomCreateRequestDto dto
+		@RequestBody ChatRoomCreateRequestDto dto
 	) {
 		Long userId = jwtUtil.extractUserId(token);
 		CommonResponseDto responseDto = chatService.createChatRoom(userId, dto);
