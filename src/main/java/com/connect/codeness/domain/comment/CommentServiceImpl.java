@@ -99,5 +99,24 @@ public class CommentServiceImpl implements CommentService {
 			.msg("댓글 수정이 완료되었습니다.")
 			.build();
 	}
+
+	@Override
+	@Transactional
+	public CommonResponseDto deleteComment(Long commentId, Long userId){
+
+		User user = userRepository.findByIdOrElseThrow(userId);
+
+		Comment comment = commentRepository.findByIdOrElseThrow(commentId);
+
+		if (!Objects.equals(user, comment.getUser())) {
+			throw new BusinessException(ExceptionType.FORBIDDEN_PERMISSION);
+		}
+
+		comment.deleteComment();
+
+		return CommonResponseDto.builder()
+			.msg("댓글 삭제가 완료되었습니다.")
+			.build();
+	}
 }
 
