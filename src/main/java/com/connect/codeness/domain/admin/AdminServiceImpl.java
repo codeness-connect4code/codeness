@@ -1,9 +1,145 @@
 package com.connect.codeness.domain.admin;
 
+import com.connect.codeness.domain.admin.dto.AdminSettlementListResponseDto;
+import com.connect.codeness.domain.admin.dto.AdminSettlementResponseDto;
+import com.connect.codeness.domain.admin.dto.AdminUpdateMentorRequestDto;
+import com.connect.codeness.domain.mentorrequest.MentorRequest;
+import com.connect.codeness.domain.mentorrequest.MentorRequestRepository;
+import com.connect.codeness.domain.mentorrequest.dto.MentorRequestResponseDto;
+import com.connect.codeness.domain.paymenthistory.PaymentHistory;
+import com.connect.codeness.domain.paymenthistory.PaymentHistoryRepository;
+import com.connect.codeness.domain.user.User;
+import com.connect.codeness.domain.user.UserRepository;
+import com.connect.codeness.domain.user.dto.UserResponseDto;
+import com.connect.codeness.global.dto.CommonResponseDto;
+import com.connect.codeness.global.enums.MentorRequestStatus;
+import com.connect.codeness.global.enums.SettleStatus;
+import com.connect.codeness.global.enums.UserRole;
+import com.connect.codeness.global.exception.BusinessException;
+import com.connect.codeness.global.exception.ExceptionType;
+import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AdminServiceImpl implements AdminService {
 
+	private final UserRepository userRepository;
+	private final MentorRequestRepository mentorRequestRepository;
+	private final PaymentHistoryRepository paymentHistoryRepository;
+
+	public AdminServiceImpl(UserRepository userRepository, MentorRequestRepository mentorRequestRepository,
+		PaymentHistoryRepository paymentHistoryRepository) {
+		this.userRepository = userRepository;
+		this.mentorRequestRepository = mentorRequestRepository;
+		this.paymentHistoryRepository = paymentHistoryRepository;
+	}
+
+	/* -----------------멘토 신청 관련 로직------------------ */
+
+	@Override
+	public CommonResponseDto<Page<UserResponseDto>> getMentorList(int pageNumber, int pageSize) {
+		Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("createdAt").descending());
+		Page<UserResponseDto> userResponseDto = userRepository.findByRole(UserRole.MENTOR, pageable);
+		return CommonResponseDto.<Page<UserResponseDto>>builder()
+			.msg("전체 멘토 리스트 조회 되었습니다.")
+			.data(userResponseDto)
+			.build();
+	}
+
+	@Override
+	public CommonResponseDto getMentor(Long mentorId) {
+		User user = userRepository.findByIdOrElseThrow(mentorId);
+		if (user.getRole() != UserRole.MENTOR) {
+			throw new BusinessException(ExceptionType.NOT_MENTOR);
+		}
+		return CommonResponseDto.builder()
+			.msg("멘토 상세 조회가 되었습니다.")
+			.data(new UserResponseDto(user)).build();
+	}
+
+	@Override
+	public CommonResponseDto<Page<MentorRequestResponseDto>> getMentorRequestList(int pageNumber, int pageSize) {
+		Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("createdAt").descending());
+		Page<MentorRequestResponseDto> mentorRequestResponseDto
+			= mentorRequestRepository.findByIsAccepted(MentorRequestStatus.WAITING, pageable);
+
+		return CommonResponseDto.<Page<MentorRequestResponseDto>>builder()
+			.msg("멘토 신청 리스트가 조회되었습니다.")
+			.data(mentorRequestResponseDto)
+			.build();
+	}
+
+	@Override
+	public CommonResponseDto<MentorRequestResponseDto> getMentorRequest(Long mentoringRequestId) {
+		MentorRequest mentorRequest = mentorRequestRepository.findByIdOrElseThrow(mentoringRequestId);
+
+		return CommonResponseDto.<MentorRequestResponseDto>builder()
+			.msg("멘토 신청 상세가 조회 되었습니다.")
+			.data(new MentorRequestResponseDto(mentorRequest)).build();
+	}
+
+	@Override
+	@Transactional
+	public CommonResponseDto updateMentor(Long mentorRequestId,
+		AdminUpdateMentorRequestDto dto) {
+		MentorRequest mentorRequest = mentorRequestRepository.findByIdOrElseThrow(mentorRequestId);
+		if (
+			mentorRequest.getIsAccepted().equals(MentorRequestStatus.REJECTED)
+				|| mentorRequest.getIsAccepted().equals(MentorRequestStatus.ACCEPTED)
+		) {
+			throw new BusinessException(ExceptionType.ALREADY_CLOSED_MENTOR_REQUEST);
+		}
+		mentorRequest.updateStatus(dto.getIsAccepted());
+		mentorRequestRepository.save(mentorRequest);
+		return CommonResponseDto.builder()
+			.msg("멘토 신청 상태 변경이 완료되었습니다.").build();
+	}
+
+	/* -----------------멘토 정산 처리 관련 로직------------------ */
+
+	@Override
+	@Transactional
+	public CommonResponseDto updateSettlements(Long mentorId) {
+		List<PaymentHistory> paymentHistoryList = paymentHistoryRepository.findAllByUserIdAndSettleStatus(mentorId,SettleStatus.PROCESSING);
+
+		if (paymentHistoryList.isEmpty()) {
+			throw new BusinessException(ExceptionType.NOT_FOUND);
+		}
+		for (PaymentHistory p : paymentHistoryList){
+			p.updateSettleStatus(SettleStatus.COMPLETE);
+		}
+
+		paymentHistoryRepository.saveAll(paymentHistoryList);
+		return CommonResponseDto.builder()
+			.msg("정산 처리가 완료되었습니다.").build();
+	}
+
+	@Override
+	public CommonResponseDto<Page<AdminSettlementListResponseDto>> getSettlementList(
+		int pageNumber, int pageSize) {
+		Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("createdAt").descending());
+		Page<AdminSettlementListResponseDto> adminSettlementGetResponseDto =
+			paymentHistoryRepository.findBySettleStatusMentorGroupList(SettleStatus.PROCESSING,pageable);
+
+		return CommonResponseDto.<Page<AdminSettlementListResponseDto>>builder()
+			.msg("멘토 정산 내역이 조회되었습니다.")
+			.data(adminSettlementGetResponseDto).build();
+	}
+
+	@Override
+	public CommonResponseDto getSettlement(Long mentorId, int pageNumber, int pageSize) {
+		Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("createdAt").descending());
+		Page<AdminSettlementResponseDto> adminSettlementResponseDto =
+			paymentHistoryRepository.findByUserIdAndSettleStatus(mentorId,SettleStatus.PROCESSING,pageable);
+
+		return CommonResponseDto.<Page<AdminSettlementResponseDto>>builder()
+			.msg("멘토의 정산 리스트가 조회되었습니다.")
+			.data(adminSettlementResponseDto).build();
+	}
 }
 
