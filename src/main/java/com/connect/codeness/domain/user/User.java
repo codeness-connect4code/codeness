@@ -63,7 +63,7 @@ public class User extends BaseEntity {
 	private String mbti;
 
 	@Size(max = 100, message = "이 필드는 최대 {max}자까지 가능합니다.")
-	private String site_link;
+	private String siteLink;
 
 	//사용자 계좌
 	@Size(max = 30, message = "이 필드는 최대 {max}자까지 가능합니다.")
@@ -103,7 +103,7 @@ public class User extends BaseEntity {
 		this.region = dto.getRegion();
 		this.career = dto.getCareer();
 		this.mbti = dto.getMbti();
-		this.site_link = dto.getSiteLink();
+		this.siteLink = dto.getSiteLink();
 		this.field = dto.getField();
 		updateImageFiles(imageFile);
 	}

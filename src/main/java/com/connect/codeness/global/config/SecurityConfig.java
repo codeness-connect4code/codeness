@@ -1,8 +1,7 @@
 package com.connect.codeness.global.config;
 
-import com.connect.codeness.global.Jwt.JwtFilter;
+import com.connect.codeness.global.jwt.JwtFilter;
 import com.connect.codeness.global.handler.OAuth2SuccessHandler;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

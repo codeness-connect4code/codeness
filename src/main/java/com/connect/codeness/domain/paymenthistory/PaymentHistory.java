@@ -113,4 +113,5 @@ public class PaymentHistory extends CreateTimeEntity {
 	public void updateSettleStatus(SettleStatus settleStatus) {
 		this.settleStatus = settleStatus;
 	}
+
 }
