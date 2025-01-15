@@ -25,7 +25,9 @@ public enum ExceptionType {
 	UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증이 필요합니다."),
 	UNAUTHORIZED_PASSWORD(HttpStatus.UNAUTHORIZED, "패스워드가 틀렸습니다."),
 	UNAUTHORIZED_DELETE_REQUEST(HttpStatus.UNAUTHORIZED, "권한이 없는 삭제 요청입니다."),
-	UNAUTHORIZED_CREATE_REQUEST(HttpStatus.UNAUTHORIZED, "권한이 없는 생성 요청입니다."),
+	UNAUTHORIZED_POST_REQUEST(HttpStatus.UNAUTHORIZED, "권한이 없는 생성 요청입니다."),
+	UNAUTHORIZED_UPDATE_REQUEST(HttpStatus.UNAUTHORIZED, "권한이 없는 수정 요청입니다."),
+	UNAUTHORIZED_GET_REQUEST(HttpStatus.UNAUTHORIZED, "권한이 없는 조회 요청입니다."),
 	INVALID_TOKEN(HttpStatus.UNAUTHORIZED,"유효하지 않은 토큰입니다."),
 
 	// 403 Forbidden
@@ -60,7 +62,7 @@ public enum ExceptionType {
 	// 500 INTERNAL_SERVER_ERROR
 	LOAD_FAIL_CHATROOMLIST(HttpStatus.INTERNAL_SERVER_ERROR, "채팅방 정보를 가져오기에 실패했습니다."),
 	LOAD_FAIL_CHATLIST(HttpStatus.INTERNAL_SERVER_ERROR, "채팅 정보를 가져오기에 실패했습니다."),
-	TIME_OUT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "타임 아웃 또는 인터럽트가 발생했습니다." )
+	TIME_OUT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "타임 아웃 또는 인터럽트가 발생했습니다." ),
 	;
 
 	private final HttpStatus httpStatus;
