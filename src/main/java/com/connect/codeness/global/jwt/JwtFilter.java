@@ -23,8 +23,8 @@ public class JwtFilter extends OncePerRequestFilter {
 	@Autowired
 	private CustomUserDetailService userDetailService;
 
-	private static final List<String> POST_EXCLUDED_PATHS = List.of("/login", "/signup");
-	private static final List<String> GET_EXCLUDED_PATHS = List.of("/posts", "/posts/.*","/news");
+	private static final List<String> POST_EXCLUDED_PATHS = List.of("/login", "/signup","/logout");
+	private static final List<String> GET_EXCLUDED_PATHS = List.of("/posts", "/posts/.*","/news","/mentoring/\\d+/reviews");
 	private static final List<String> DELETE_EXCLUDED_PATHS = List.of("");
 
 	@Override
@@ -35,7 +35,7 @@ public class JwtFilter extends OncePerRequestFilter {
 		String method = request.getMethod();
 
 		// GET 메서드에 대한 화이트리스트 확인
-		if ("GET".equalsIgnoreCase(method) && GET_EXCLUDED_PATHS.stream().anyMatch(requestPath::startsWith)) {
+		if ("GET".equalsIgnoreCase(method) && GET_EXCLUDED_PATHS.stream().anyMatch(requestPath::matches)) {
 			chain.doFilter(request, response);
 			return;
 		}
