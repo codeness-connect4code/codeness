@@ -9,7 +9,7 @@ import com.connect.codeness.domain.post.dto.PostUpdateRequestDto;
 import com.connect.codeness.domain.user.User;
 import com.connect.codeness.domain.user.UserRepository;
 import com.connect.codeness.global.dto.CommonResponseDto;
-import com.connect.codeness.global.enums.CommunityStatus;
+import com.connect.codeness.global.enums.PostStatus;
 import com.connect.codeness.global.enums.PostType;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
@@ -45,7 +45,7 @@ public class PostServiceImpl implements PostService {
 			.writer(user.getUserNickname())
 			.view(0L)
 			.postType(dto.getPostType())
-			.communityStatus(CommunityStatus.DISPLAYED)
+			.postStatus(PostStatus.DISPLAYED)
 			.build();
 
 		// 객체 저장

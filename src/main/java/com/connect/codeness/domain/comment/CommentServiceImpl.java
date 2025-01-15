@@ -9,7 +9,7 @@ import com.connect.codeness.domain.post.PostRepository;
 import com.connect.codeness.domain.user.User;
 import com.connect.codeness.domain.user.UserRepository;
 import com.connect.codeness.global.dto.CommonResponseDto;
-import com.connect.codeness.global.enums.CommunityStatus;
+import com.connect.codeness.global.enums.CommentStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -44,7 +44,7 @@ public class CommentServiceImpl implements CommentService {
 			.post(post)
 			.user(user)
 			.content(dto.getContent())
-			.communityStatus(CommunityStatus.DISPLAYED)
+			.commentStatus(CommentStatus.DISPLAYED)
 			.build();
 
 		if (writerProfile!=null){
