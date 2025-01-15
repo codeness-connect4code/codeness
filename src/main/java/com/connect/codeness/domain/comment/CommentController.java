@@ -16,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -73,6 +74,18 @@ public class CommentController {
 		Long userId = jwtUtil.extractUserId(token);
 
 		CommonResponseDto responseDto = commentService.updateComment(commentId, userId, dto);
+
+		return new ResponseEntity<>(responseDto, HttpStatus.OK);
+	}
+
+	@DeleteMapping("comments/{commentId}")
+	public ResponseEntity deleteComment(
+		@PathVariable("commentId") Long commentId,
+		@RequestHeader(AUTHORIZATION) String token) {
+
+		Long userId = jwtUtil.extractUserId(token);
+
+		CommonResponseDto responseDto = commentService.deleteComment(commentId, userId);
 
 		return new ResponseEntity<>(responseDto, HttpStatus.OK);
 	}
