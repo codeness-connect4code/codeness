@@ -7,8 +7,8 @@ import static com.connect.codeness.global.constants.Constants.PAGE_SIZE;
 
 import com.connect.codeness.domain.comment.dto.CommentCreateRequestDto;
 import com.connect.codeness.domain.comment.dto.CommentFindAllResponseDto;
-import com.connect.codeness.global.jwt.JwtUtil;
 import com.connect.codeness.global.dto.CommonResponseDto;
+import com.connect.codeness.global.jwt.JwtUtil;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("posts/{postId}/comments")
+@RequestMapping
 public class CommentController {
 
 	private final CommentService commentService;
@@ -38,7 +38,7 @@ public class CommentController {
 		this.jwtUtil = jwtUtil;
 	}
 
-	@PostMapping
+	@PostMapping("posts/{postId}/comments")
 	public ResponseEntity<CommonResponseDto> createComment(
 		@PathVariable("postId") Long postId,
 		@Valid @RequestBody CommentCreateRequestDto dto,
@@ -51,7 +51,7 @@ public class CommentController {
 		return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
 	}
 
-	@GetMapping
+	@GetMapping("posts/{postId}/comments")
 	public ResponseEntity findAllComment(
 		@PathVariable("postId") Long postId,
 		@RequestParam(required = false, defaultValue = PAGE_NUMBER) int pageNumber,
