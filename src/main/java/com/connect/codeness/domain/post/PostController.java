@@ -65,18 +65,18 @@ public class PostController {
 
 		Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("createdAt").descending());
 
-		CommonResponseDto<Page<PostFindAllResponseDto>> posts = postService.findAllPost(postType, keyword, writer, pageable);
+		CommonResponseDto<Page<PostFindAllResponseDto>> responseDto = postService.findAllPost(postType, keyword, writer, pageable);
 
-		return new ResponseEntity<>(posts, HttpStatus.OK);
+		return new ResponseEntity<>(responseDto, HttpStatus.OK);
 	}
 
 	// 게시글 상세 조회
 	@GetMapping("/{postId}")
 	public ResponseEntity<CommonResponseDto> getPost(@PathVariable Long postId) {
 
-		CommonResponseDto<PostFindResponseDto> post = postService.findPost(postId);
+		CommonResponseDto<PostFindResponseDto> responseDto = postService.findPost(postId);
 
-		return new ResponseEntity<>(post, HttpStatus.OK);
+		return new ResponseEntity<>(responseDto, HttpStatus.OK);
 	}
 
 	// 게시글 수정

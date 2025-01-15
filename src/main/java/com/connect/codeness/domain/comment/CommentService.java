@@ -12,5 +12,8 @@ public interface CommentService {
 	CommonResponseDto createComment(Long postId, Long userId, CommentCreateRequestDto commentCreateRequestDto);
 
 	CommonResponseDto<Page<CommentFindAllResponseDto>> findAllComment(Long postId, Pageable pageable);
+
+	CommonResponseDto updateComment(Long commentId, Long userId, CommentCreateRequestDto commentCreateRequestDto);
+
 }
 
