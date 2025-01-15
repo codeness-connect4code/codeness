@@ -21,4 +21,8 @@ public class PostFindResponseDto {
 	private Long view;
 
 	private PostType postType;
+
+	public void inputWriterProfileUrl(String writerProfileUrl){
+		this.writerProfileUrl = writerProfileUrl;
+	}
 }
