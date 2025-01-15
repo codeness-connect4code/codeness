@@ -36,21 +36,21 @@ public class SecurityConfig {
 			.csrf(AbstractHttpConfigurer::disable)
 			.authorizeHttpRequests(auth -> auth
 				.requestMatchers(
-					"/signup",
-					"/login",
-					"/api/**",
-					"/login-page",
-					"/users/**",
-					"/payment",
-					"/mentoring/**",
-					"/loginPage.html",
-					"/payment.html",
-					"/oauth2/**",
-					"/login/oauth2/code/**",
-					"/favicon.ico",
-					"/error",
-					"/posts/**",
-					"/news"
+							"/signup",
+							"/login",
+							"/api/**",
+							"/login-page",
+							"/users/**",
+							"/payment",
+							"/mentoring/**",
+							"/loginPage.html",
+							"/payment.html",
+							"/oauth2/**",
+							"/login/oauth2/code/**",
+							"/favicon.ico",
+							"/error",
+							"/posts/**",
+							"/news"
 				).permitAll()
 				.requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
 				.anyRequest().authenticated()
