@@ -5,6 +5,7 @@ import com.connect.codeness.domain.paymenthistory.PaymentHistory;
 import com.connect.codeness.domain.paymenthistory.PaymentHistoryRepository;
 import com.connect.codeness.domain.review.dto.ReviewCreateRequestDto;
 import com.connect.codeness.domain.review.dto.ReviewFindResponseDto;
+import com.connect.codeness.domain.user.User;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.enums.ReviewStatus;
 import com.connect.codeness.global.exception.BusinessException;
@@ -41,7 +42,9 @@ public class ReviewServiceImpl implements ReviewService {
 		PaymentHistory paymentHistory = paymentHistoryRepository.findByPaymentIdOrElseThrow(paymentHistoryId);
 
 		//내가 거래한 내역이 아니라면 생성 x
-		if (!Objects.equals(paymentHistory.getUser().getId(), userId)) {
+		User user = paymentHistory.getUser();
+
+		if (!Objects.equals(user.getId(), userId)) {
 			throw new BusinessException(ExceptionType.UNAUTHORIZED_POST_REQUEST);
 		}
 
@@ -60,6 +63,7 @@ public class ReviewServiceImpl implements ReviewService {
 
 		Review review = Review.builder()
 			.paymentHistory(paymentHistory)
+			.user(user)
 			.reviewContent(dto.getContent())
 			.starRating(dto.getStarRating())
 			.build();
@@ -82,6 +86,7 @@ public class ReviewServiceImpl implements ReviewService {
 		Page<ReviewFindResponseDto> responseDto = reviews.map(
 			review -> ReviewFindResponseDto.builder()
 				.reviewId(review.getId())
+				.userId(review.getUser().getId())
 				.content(review.getReviewContent())
 				.starRating(review.getStarRating())
 				.createdAt(review.getCreatedAt())
@@ -98,7 +103,7 @@ public class ReviewServiceImpl implements ReviewService {
 		Review review = reviewRepository.findByIdOrElseThrow(reviewId);
 
 		//내가 작성한 리뷰가 아니면 삭제 못함!
-		if (!Objects.equals(review.getPaymentHistory().getUser().getId(), userId)) {
+		if (!Objects.equals(review.getUser().getId(), userId)) {
 			throw new BusinessException(ExceptionType.UNAUTHORIZED_DELETE_REQUEST);
 		}
 
