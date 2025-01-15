@@ -5,8 +5,14 @@ import com.connect.codeness.global.exception.ExceptionType;
 import java.util.Arrays;
 
 public enum FieldType {
-	BACKEND,
-	FRONTEND;
+	BACKEND("백엔드"),
+	FRONTEND("프론트엔드");
+
+	private final String fieldTypeText;
+
+	FieldType(String fieldTypeText) {
+		this.fieldTypeText = fieldTypeText;
+	}
 
 	/**
 	 * 유저가 입력한 FieldType enum으로 변환하는 메서드
