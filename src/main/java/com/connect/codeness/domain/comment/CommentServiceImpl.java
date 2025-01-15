@@ -10,6 +10,9 @@ import com.connect.codeness.domain.user.User;
 import com.connect.codeness.domain.user.UserRepository;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.enums.CommentStatus;
+import com.connect.codeness.global.exception.BusinessException;
+import com.connect.codeness.global.exception.ExceptionType;
+import java.util.Objects;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -51,7 +54,6 @@ public class CommentServiceImpl implements CommentService {
 			comment.inputWriterProfileUrl(writerProfile.getFilePath());
 		}
 
-
 		commentRepository.save(comment);
 
 		return CommonResponseDto.builder()
@@ -62,7 +64,7 @@ public class CommentServiceImpl implements CommentService {
 	@Override
 	public CommonResponseDto<Page<CommentFindAllResponseDto>> findAllComment(Long postId, Pageable pageable){
 
-		Page<Comment> comments = commentRepository.findByPostId(postId, pageable);
+		Page<Comment> comments = commentRepository.findCommentsByPostId(postId, pageable);
 
 		Page<CommentFindAllResponseDto> commentList = comments.map(comment -> CommentFindAllResponseDto.builder()
 			.postId(postId)
@@ -70,6 +72,7 @@ public class CommentServiceImpl implements CommentService {
 			.content(comment.getContent())
 			.writer(comment.getUser().getUserNickname())
 			.writerProfileUrl(comment.getWriterProfileUrl())
+			.createdAt(comment.getCreatedAt())
 			.build());
 
 		return CommonResponseDto.<Page<CommentFindAllResponseDto>>builder()
@@ -78,5 +81,42 @@ public class CommentServiceImpl implements CommentService {
 			.build();
 	}
 
+	@Override
+	@Transactional
+	public CommonResponseDto updateComment(Long commentId, Long userId, CommentCreateRequestDto dto){
+
+		User user = userRepository.findByIdOrElseThrow(userId);
+
+		Comment comment = commentRepository.findByIdOrElseThrow(commentId);
+
+		if (!Objects.equals(user, comment.getUser())) {
+			throw new BusinessException(ExceptionType.FORBIDDEN_PERMISSION);
+		}
+
+		comment.updateComment(dto.getContent());
+
+		return CommonResponseDto.builder()
+			.msg("댓글 수정이 완료되었습니다.")
+			.build();
+	}
+
+	@Override
+	@Transactional
+	public CommonResponseDto deleteComment(Long commentId, Long userId){
+
+		User user = userRepository.findByIdOrElseThrow(userId);
+
+		Comment comment = commentRepository.findByIdOrElseThrow(commentId);
+
+		if (!Objects.equals(user, comment.getUser())) {
+			throw new BusinessException(ExceptionType.FORBIDDEN_PERMISSION);
+		}
+
+		comment.deleteComment();
+
+		return CommonResponseDto.builder()
+			.msg("댓글 삭제가 완료되었습니다.")
+			.build();
+	}
 }
 

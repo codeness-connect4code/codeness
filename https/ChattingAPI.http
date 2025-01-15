@@ -28,7 +28,7 @@ Authorization: Bearer {{token}}
 
 {
   "firebaseChatRoomId": "1_2",
-  "message": "pizza"
+  "message": "chicken"
 }
 
 

@@ -11,6 +11,7 @@ import com.connect.codeness.domain.user.UserRepository;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.enums.PostStatus;
 import com.connect.codeness.global.enums.PostType;
+import com.connect.codeness.global.enums.UserRole;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
 import jakarta.transaction.Transactional;
@@ -37,6 +38,10 @@ public class PostServiceImpl implements PostService {
 	public CommonResponseDto createPost(Long userId, PostCreateRequestDto dto){
 
 		User user = userRepository.findByIdOrElseThrow(userId);
+
+		if (dto.getPostType()==PostType.NOTICE&&user.getRole()!= UserRole.ADMIN){
+			throw new BusinessException(ExceptionType.FORBIDDEN_ADMIN_ACCESS);
+		}
 
 		Post post = new Post().builder()
 			.user(user)
@@ -98,6 +103,7 @@ public class PostServiceImpl implements PostService {
 			.view(post.getView())
 			.content(post.getContent())
 			.postType(post.getPostType())
+			.modifiedAt(post.getModifiedAt())
 			.build();
 
 		if (writerProfile != null) {

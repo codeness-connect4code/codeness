@@ -40,10 +40,12 @@ public enum ExceptionType {
 	NOT_YOUR_COMMENT(HttpStatus.FORBIDDEN, "해당 댓글의 작성자가 아닙니다."),
 	FORBIDDEN_PAYMENT_ACCESS(HttpStatus.FORBIDDEN, "다른 사용자의 결제 내역을 조회할 수 없습니다."),
 	FORBIDDEN_SETTLEMENT_ACCESS(HttpStatus.FORBIDDEN, "정산 신청을 할 수 있는 권한이 없습니다."),
+	FORBIDDEN_ADMIN_ACCESS(HttpStatus.FORBIDDEN,"관리자 권한이 필요합니다."),
 
 	// 404 NOT_FOUND
 	NOT_FOUND(HttpStatus.NOT_FOUND, "리소스를 찾을 수 없습니다."),
 	NOT_FOUND_POST(HttpStatus.NOT_FOUND, "게시글을 찾을 수 없습니다."),
+	NOT_FOUND_COMMENT(HttpStatus.NOT_FOUND, "댓글을 찾을 수 없습니다."),
 	NOT_FOUND_PAYMENTLIST(HttpStatus.NOT_FOUND, "거래 내역을 찾을 수 없습니다."),
 	NOT_FOUND_NEWS(HttpStatus.NOT_FOUND,"뉴스를 찾을 수 없습니다."),
 	NOT_FOUND_USER(HttpStatus.NOT_FOUND,"유저를 찾을 수 없습니다."),

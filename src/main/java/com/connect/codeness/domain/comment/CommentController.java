@@ -16,7 +16,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,7 +28,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("posts/{postId}/comments")
+@RequestMapping
 public class CommentController {
 
 	private final CommentService commentService;
@@ -37,7 +39,7 @@ public class CommentController {
 		this.jwtUtil = jwtUtil;
 	}
 
-	@PostMapping
+	@PostMapping("posts/{postId}/comments")
 	public ResponseEntity<CommonResponseDto> createComment(
 		@PathVariable("postId") Long postId,
 		@Valid @RequestBody CommentCreateRequestDto dto,
@@ -50,7 +52,7 @@ public class CommentController {
 		return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
 	}
 
-	@GetMapping
+	@GetMapping("posts/{postId}/comments")
 	public ResponseEntity findAllComment(
 		@PathVariable("postId") Long postId,
 		@RequestParam(required = false, defaultValue = PAGE_NUMBER) int pageNumber,
@@ -61,5 +63,30 @@ public class CommentController {
 		CommonResponseDto<Page<CommentFindAllResponseDto>> comments = commentService.findAllComment(postId, pageable);
 
 		return new ResponseEntity<>(comments, HttpStatus.OK);
+	}
+
+	@PatchMapping("comments/{commentId}")
+	public ResponseEntity updateComment(
+		@PathVariable("commentId") Long commentId,
+		@Valid @RequestBody CommentCreateRequestDto dto,
+		@RequestHeader(AUTHORIZATION) String token) {
+
+		Long userId = jwtUtil.extractUserId(token);
+
+		CommonResponseDto responseDto = commentService.updateComment(commentId, userId, dto);
+
+		return new ResponseEntity<>(responseDto, HttpStatus.OK);
+	}
+
+	@DeleteMapping("comments/{commentId}")
+	public ResponseEntity deleteComment(
+		@PathVariable("commentId") Long commentId,
+		@RequestHeader(AUTHORIZATION) String token) {
+
+		Long userId = jwtUtil.extractUserId(token);
+
+		CommonResponseDto responseDto = commentService.deleteComment(commentId, userId);
+
+		return new ResponseEntity<>(responseDto, HttpStatus.OK);
 	}
 }
