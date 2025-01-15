@@ -163,7 +163,6 @@ public class ChatServiceImpl implements ChatService {
 							.lastMessageTime(
 								roomSnapshot.child("lastMessageTime").getValue(String.class))
 							.unreadCount(roomSnapshot.child("unreadCount").getValue(Integer.class))
-							.isActive(roomSnapshot.child("active").getValue(Boolean.class))
 							.partnerNick(roomSnapshot.child("partnerNick").getValue(String.class))
 							.build();
 						myChatRooms.add(myChatRoom);
