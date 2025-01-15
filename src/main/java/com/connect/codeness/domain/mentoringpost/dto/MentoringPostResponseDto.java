@@ -8,19 +8,21 @@ import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import lombok.Builder;
 import lombok.Getter;
 
 /**
  * TODO : 임시로 만들어 둔 dto, 필요 없을 시 삭제 예정
  */
 @Getter
+@Builder
 public class MentoringPostResponseDto {
 
 	@NotBlank
 	private Long id;//멘토링 공고 고유 식별자
 
 	@NotBlank
-	private User user;//사용자 고유 식별자 (외래키)
+	private String userNickname;//사용자 고유 식별자 (외래키)
 
 	@NotNull
 	private FieldType field; //분야

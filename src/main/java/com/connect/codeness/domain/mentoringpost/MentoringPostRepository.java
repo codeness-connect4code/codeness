@@ -39,5 +39,7 @@ public interface MentoringPostRepository extends JpaRepository<MentoringPost, Lo
 	}
 
 
-
+	default MentoringPost findByIdOrElseThrow(Long mentoringPostId){
+		return findById(mentoringPostId).orElseThrow(() -> new BusinessException(ExceptionType.NOT_FOUND_MENTORING_POST));
+	}
 }

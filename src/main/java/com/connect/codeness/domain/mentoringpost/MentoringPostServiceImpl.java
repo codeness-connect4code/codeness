@@ -1,6 +1,7 @@
 package com.connect.codeness.domain.mentoringpost;
 
 import com.connect.codeness.domain.mentoringpost.dto.MentoringPostCreateRequestDto;
+import com.connect.codeness.domain.mentoringpost.dto.MentoringPostResponseDto;
 import com.connect.codeness.domain.mentoringschedule.MentoringSchedule;
 import com.connect.codeness.domain.mentoringschedule.MentoringScheduleRepository;
 import com.connect.codeness.domain.user.User;
@@ -120,6 +121,38 @@ public class MentoringPostServiceImpl implements MentoringPostService {
 		mentoringPostRepository.deleteById(mentoringPost.getId());
 
 		return CommonResponseDto.builder().msg("멘토링 공고가 삭제되었습니다.").build();
+	}
+
+	/**
+	 * 멘토링 공고 전체 조회 메서드
+	 */
+	@Override
+	public CommonResponseDto searchMentoringPosts() {
+
+		return null;
+	}
+
+	/**
+	 * 멘토링 공고 상세 조회 메서드
+	 * - 모든 유저 가능
+	 * -TODO : 고민 dto 따로 안만들어도 되나
+	 */
+	@Override
+	public CommonResponseDto<MentoringPostResponseDto> getMentoringPostDetail(Long mentoringPostId) {
+		MentoringPost mentoringPost = mentoringPostRepository.findByIdOrElseThrow(mentoringPostId);
+		
+		MentoringPostResponseDto mentoringPostResponseDto = MentoringPostResponseDto.builder()
+			.id(mentoringPost.getId())
+			.userNickname(mentoringPost.getUser().getUserNickname())
+			.field(mentoringPost.getField())
+			.title(mentoringPost.getTitle())
+			.company(mentoringPost.getCompany())
+			.career(mentoringPost.getCareer())
+			.region(mentoringPost.getRegion())
+			.price(mentoringPost.getPrice())
+			.description(mentoringPost.getDescription())
+			.build();
+		return CommonResponseDto.<MentoringPostResponseDto>builder().msg("멘토링 공고 상세 조회되었습니다.").data(mentoringPostResponseDto).build();
 	}
 
 
