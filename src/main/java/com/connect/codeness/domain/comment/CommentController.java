@@ -7,7 +7,7 @@ import static com.connect.codeness.global.constants.Constants.PAGE_SIZE;
 
 import com.connect.codeness.domain.comment.dto.CommentCreateRequestDto;
 import com.connect.codeness.domain.comment.dto.CommentFindAllResponseDto;
-import com.connect.codeness.global.Jwt.JwtUtil;
+import com.connect.codeness.global.jwt.JwtUtil;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -17,6 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -61,5 +62,18 @@ public class CommentController {
 		CommonResponseDto<Page<CommentFindAllResponseDto>> comments = commentService.findAllComment(postId, pageable);
 
 		return new ResponseEntity<>(comments, HttpStatus.OK);
+	}
+
+	@PatchMapping("comments/{commentId}")
+	public ResponseEntity updateComment(
+		@PathVariable("commentId") Long commentId,
+		@Valid @RequestBody CommentCreateRequestDto dto,
+		@RequestHeader(AUTHORIZATION) String token) {
+
+		Long userId = jwtUtil.extractUserId(token);
+
+		CommonResponseDto responseDto = commentService.updateComment(commentId, userId, dto);
+
+		return new ResponseEntity<>(responseDto, HttpStatus.OK);
 	}
 }

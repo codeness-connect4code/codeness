@@ -50,6 +50,10 @@ public class Comment extends BaseEntity {
 		this.writerProfileUrl = writerProfileUrl;
 	}
 
+	public void updateComment(String content){
+		this.content = content;
+	}
+
 	public Comment() {
 	}
 

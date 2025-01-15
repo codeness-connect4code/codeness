@@ -1,5 +1,6 @@
 package com.connect.codeness.domain.comment.dto;
 
+import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -16,4 +17,6 @@ public class CommentFindAllResponseDto {
 	private String writer;
 
 	private String writerProfileUrl;
+
+	private LocalDateTime createdAt;
 }
