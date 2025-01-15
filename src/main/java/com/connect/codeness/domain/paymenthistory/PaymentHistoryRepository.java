@@ -42,13 +42,22 @@ public interface PaymentHistoryRepository extends JpaRepository<PaymentHistory, 
 	List<PaymentHistory> findAllByUserIdAndSettleStatus(Long userId, SettleStatus settleStatus);
 
 	@Query(
-		"SELECT new com.connect.codeness.domain.admin.dto.AdminSettlementListResponseDto(p) " +
+		"SELECT new com.connect.codeness.domain.admin.dto.AdminSettlementListResponseDto("
+			+ "p.user.id, p.user.name, COUNT(p), SUM(p.paymentCost)) " +
 			"FROM PaymentHistory p " +
-			"GROUP BY p.user.id, p.user.name " +
-			"ORDER BY p.user.name ASC"
+			"GROUP BY p.user.id, p.user.name"
 	)
 	Page<AdminSettlementListResponseDto> findMentorGroupList(Pageable pageable);
 
-	Page<AdminSettlementResponseDto> findByUserId(Long mentorId, Pageable pageable);
+
+	@Query(
+		"SELECT new com.connect.codeness.domain.admin.dto.AdminSettlementResponseDto(p) " +
+			"FROM PaymentHistory p " +
+			"WHERE p.paymentStatus = :settleStatus " +
+			"AND p.id = :userId"
+	)
+	Page<AdminSettlementResponseDto> findByUserIdAndSettleStatus(Long userId, SettleStatus settleStatus, Pageable pageable);
+
+	List<PaymentHistory>findAllByUserId(Long mentorId);
 }
 

@@ -39,6 +39,8 @@ public class AdminServiceImpl implements AdminService {
 		this.paymentHistoryRepository = paymentHistoryRepository;
 	}
 
+	/* -----------------멘토 신청 관련 로직------------------ */
+
 	@Override
 	public CommonResponseDto<Page<UserResponseDto>> getMentorList(int pageNumber, int pageSize) {
 		Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("createdAt").descending());
@@ -53,7 +55,7 @@ public class AdminServiceImpl implements AdminService {
 	public CommonResponseDto getMentor(Long mentorId) {
 		User user = userRepository.findByIdOrElseThrow(mentorId);
 		if (user.getRole() != UserRole.MENTOR) {
-			throw new BusinessException(ExceptionType.BAD_REQUEST);
+			throw new BusinessException(ExceptionType.NOT_MENTOR);
 		}
 		return CommonResponseDto.builder()
 			.msg("멘토 상세 조회가 되었습니다.")
@@ -74,8 +76,7 @@ public class AdminServiceImpl implements AdminService {
 
 	@Override
 	public CommonResponseDto<MentorRequestResponseDto> getMentorRequest(Long mentoringRequestId) {
-		MentorRequest mentorRequest = mentorRequestRepository.findById(mentoringRequestId)
-			.orElseThrow(() -> new BusinessException(ExceptionType.NOT_FOUND));
+		MentorRequest mentorRequest = mentorRequestRepository.findByIdOrElseThrow(mentoringRequestId);
 
 		return CommonResponseDto.<MentorRequestResponseDto>builder()
 			.msg("멘토 신청 상세가 조회 되었습니다.")
@@ -86,13 +87,12 @@ public class AdminServiceImpl implements AdminService {
 	@Transactional
 	public CommonResponseDto updateMentor(Long mentorRequestId,
 		AdminUpdateMentorRequestDto dto) {
-		MentorRequest mentorRequest = mentorRequestRepository.findById(mentorRequestId).orElseThrow(
-			() -> new BusinessException(ExceptionType.NOT_FOUND)
-		);
+		MentorRequest mentorRequest = mentorRequestRepository.findByIdOrElseThrow(mentorRequestId);
 		if (
-			mentorRequest.getIsAccepted().equals(MentorRequestStatus.REJECTED)|| mentorRequest.getIsAccepted().equals(MentorRequestStatus.ACCEPTED)
+			mentorRequest.getIsAccepted().equals(MentorRequestStatus.REJECTED)
+				|| mentorRequest.getIsAccepted().equals(MentorRequestStatus.ACCEPTED)
 		) {
-			throw new BusinessException(ExceptionType.BAD_REQUEST);
+			throw new BusinessException(ExceptionType.ALREADY_CLOSED_MENTOR_REQUEST);
 		}
 		mentorRequest.updateStatus(dto.getIsAccepted());
 		mentorRequestRepository.save(mentorRequest);
@@ -100,20 +100,21 @@ public class AdminServiceImpl implements AdminService {
 			.msg("멘토 신청 상태 변경이 완료되었습니다.").build();
 	}
 
+	/* -----------------멘토 정산 처리 관련 로직------------------ */
+
 	@Override
 	@Transactional
-	public CommonResponseDto updateSettlement(Long mentorId) {
-		PaymentHistory paymentHistory = paymentHistoryRepository.findByUserId(mentorId).orElseThrow(
-			()-> new BusinessException(ExceptionType.NOT_FOUND)
-		);
+	public CommonResponseDto updateSettlements(Long mentorId) {
+		List<PaymentHistory> paymentHistoryList = paymentHistoryRepository.findAllByUserId(mentorId);
 
-		if (paymentHistory.getSettleStatus().equals(SettleStatus.UNPROCESSED) || paymentHistory.getPaymentStatus().equals(SettleStatus.COMPLETE)){
-			throw new BusinessException(ExceptionType.BAD_REQUEST);
+		if (paymentHistoryList.isEmpty()) {
+			throw new BusinessException(ExceptionType.NOT_FOUND);
+		}
+		for (PaymentHistory p : paymentHistoryList){
+			p.updateSettleStatus(SettleStatus.COMPLETE);
 		}
 
-		paymentHistory.updateSettleStatus(SettleStatus.COMPLETE);
-		paymentHistoryRepository.save(paymentHistory);
-
+		paymentHistoryRepository.saveAll(paymentHistoryList);
 		return CommonResponseDto.builder()
 			.msg("정산 처리가 완료되었습니다.").build();
 	}
@@ -134,7 +135,7 @@ public class AdminServiceImpl implements AdminService {
 	public CommonResponseDto getSettlement(Long mentorId, int pageNumber, int pageSize) {
 		Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("createdAt").descending());
 		Page<AdminSettlementResponseDto> adminSettlementResponseDto =
-			paymentHistoryRepository.findByUserId(mentorId,pageable);
+			paymentHistoryRepository.findByUserIdAndSettleStatus(mentorId,SettleStatus.PROCESSING,pageable);
 
 		return CommonResponseDto.<Page<AdminSettlementResponseDto>>builder()
 			.msg("멘토의 정산 리스트가 조회되었습니다.")
