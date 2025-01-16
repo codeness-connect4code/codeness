@@ -1,7 +1,7 @@
 package com.connect.codeness.domain.review;
 
 
-import com.connect.codeness.domain.mentoringpost.dto.PaginationResponseDto;
+import com.connect.codeness.global.dto.PaginationResponseDto;
 import com.connect.codeness.domain.review.dto.ReviewCreateRequestDto;
 import com.connect.codeness.domain.review.dto.ReviewFindResponseDto;
 import com.connect.codeness.global.dto.CommonResponseDto;

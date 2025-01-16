@@ -1,7 +1,7 @@
 package com.connect.codeness.domain.news;
 
 
-import com.connect.codeness.domain.mentoringpost.dto.PaginationResponseDto;
+import com.connect.codeness.global.dto.PaginationResponseDto;
 import com.connect.codeness.domain.news.dto.NewsResponseDto;
 import com.connect.codeness.global.dto.CommonResponseDto;
 

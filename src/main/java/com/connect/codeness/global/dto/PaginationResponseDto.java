@@ -1,4 +1,4 @@
-package com.connect.codeness.domain.mentoringpost.dto;
+package com.connect.codeness.global.dto;
 
 import java.util.List;
 import lombok.Builder;

@@ -7,7 +7,7 @@ import com.connect.codeness.domain.paymenthistory.dto.PaymentHistoryResponseDto;
 import com.connect.codeness.domain.user.User;
 import com.connect.codeness.domain.user.UserRepository;
 import com.connect.codeness.global.dto.CommonResponseDto;
-import com.connect.codeness.global.enums.SettleStatus;
+import com.connect.codeness.global.enums.SettlementStatus;
 import com.connect.codeness.global.enums.UserRole;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
@@ -84,8 +84,8 @@ public class PaymentHistoryServiceImpl implements PaymentHistoryService {
 		}
 		//유저가 멘토일 경우
 		if (userRole == UserRole.MENTOR) {
-			//정산상태 settleStatus 필드 추가
-			builder.settleStatus(paymentHistory.getSettleStatus());
+			//정산상태 settlementStatus 필드 추가
+			builder.settlementStatus(paymentHistory.getSettlementStatus());
 		}
 
 		return builder.build();
@@ -141,14 +141,15 @@ public class PaymentHistoryServiceImpl implements PaymentHistoryService {
 		}
 
 		//정산 상태가 미처리인 결제 내역 조회
-		List<PaymentHistory> unprocessedPaymentHistories = paymentHistoryRepository.findAllByUserIdAndSettleStatus(user.getId(), SettleStatus.UNPROCESSED);
+		List<PaymentHistory> unprocessedPaymentHistories = paymentHistoryRepository.findAllByUserIdAndSettlementStatus(user.getId(), SettlementStatus.UNPROCESSED);
 		//정산 상태가 미처리인 결제 내역이 없을 경우
 		if(unprocessedPaymentHistories.isEmpty()){
 			throw new BusinessException(ExceptionType.NOT_FOUND_SETTLEMENT_DATE);
 		}
 
 		//정산 상태 처리중으로 업데이트
-		unprocessedPaymentHistories.forEach(paymentHistory -> paymentHistory.updateSettleStatus(SettleStatus.PROCESSING));
+		unprocessedPaymentHistories.forEach(paymentHistory -> paymentHistory.updateSettleStatus(
+			SettlementStatus.PROCESSING));
 
 		return CommonResponseDto.builder().msg("정산 신청이 완료되었습니다.").build();
 	}

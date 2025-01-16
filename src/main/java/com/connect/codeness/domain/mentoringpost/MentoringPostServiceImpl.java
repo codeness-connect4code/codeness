@@ -3,7 +3,7 @@ package com.connect.codeness.domain.mentoringpost;
 import com.connect.codeness.domain.mentoringpost.dto.MentoringPostCreateRequestDto;
 import com.connect.codeness.domain.mentoringpost.dto.MentoringPostDetailResponseDto;
 import com.connect.codeness.domain.mentoringpost.dto.MentoringPostSearchResponseDto;
-import com.connect.codeness.domain.mentoringpost.dto.PaginationResponseDto;
+import com.connect.codeness.global.dto.PaginationResponseDto;
 import com.connect.codeness.domain.mentoringschedule.MentoringSchedule;
 import com.connect.codeness.domain.mentoringschedule.MentoringScheduleRepository;
 import com.connect.codeness.domain.user.User;

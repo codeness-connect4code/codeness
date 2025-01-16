@@ -2,7 +2,7 @@ package com.connect.codeness.domain.paymenthistory.dto;
 
 import com.connect.codeness.global.enums.PaymentStatus;
 import com.connect.codeness.global.enums.ReviewStatus;
-import com.connect.codeness.global.enums.SettleStatus;
+import com.connect.codeness.global.enums.SettlementStatus;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import lombok.Builder;
@@ -26,7 +26,7 @@ public class PaymentHistoryResponseDto {
 
 	private PaymentStatus paymentStatus;//결제 상태
 
-	private SettleStatus settleStatus; //정산 상태
+	private SettlementStatus settlementStatus; //정산 상태
 
 	private LocalDateTime canceledAt; //결제 취소일
 

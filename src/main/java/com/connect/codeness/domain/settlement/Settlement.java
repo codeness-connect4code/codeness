@@ -2,7 +2,8 @@ package com.connect.codeness.domain.settlement;
 
 import com.connect.codeness.domain.paymenthistory.PaymentHistory;
 import com.connect.codeness.domain.user.User;
-import com.connect.codeness.global.enums.SettleStatus;
+import com.connect.codeness.global.entity.CreateTimeEntity;
+import com.connect.codeness.global.enums.SettlementStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -16,7 +17,7 @@ import lombok.Getter;
 
 @Getter
 @Entity
-public class Settlement {
+public class Settlement extends CreateTimeEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,7 +32,7 @@ public class Settlement {
 	private User user; //멘토 고유 식별자 (외래키)
 
 	@Column(nullable = false)
-	private SettleStatus settleStatus; //정산 상태
+	private SettlementStatus settlementStatus; //정산 상태
 
 	@Column(nullable = true)
 	private String account; //사용자 계좌
@@ -44,7 +45,7 @@ public class Settlement {
 
 	public Settlement(){}
 
-	public void updateSettleStatus(SettleStatus settleStatus) {
-		this.settleStatus = settleStatus;
+	public void updateSettleStatus(SettlementStatus settlementStatus) {
+		this.settlementStatus = settlementStatus;
 	}
 }

@@ -1,6 +1,6 @@
 package com.connect.codeness.domain.review;
 
-import com.connect.codeness.domain.mentoringpost.dto.PaginationResponseDto;
+import com.connect.codeness.global.dto.PaginationResponseDto;
 import com.connect.codeness.domain.mentoringschedule.MentoringSchedule;
 import com.connect.codeness.domain.paymenthistory.PaymentHistory;
 import com.connect.codeness.domain.paymenthistory.PaymentHistoryRepository;
