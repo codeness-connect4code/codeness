@@ -2,7 +2,6 @@ package com.connect.codeness.domain.mentoringschedule;
 
 
 import com.connect.codeness.domain.mentoringpost.MentoringPost;
-import com.connect.codeness.global.entity.BaseEntity;
 import com.connect.codeness.global.entity.CreateTimeEntity;
 import com.connect.codeness.global.enums.BookedStatus;
 import jakarta.persistence.Column;
