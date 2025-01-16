@@ -21,9 +21,4 @@ public interface MentoringScheduleRepository extends JpaRepository<MentoringSche
 
 	List<MentoringSchedule> findByMentoringPostId(Long mentoringPostId);
 
-//	default MentoringSchedule findByMentoringPostIdOrElseThrow(Long mentoringPostId){
-//		return findByMentoringPostId(mentoringPostId).orElseThrow(() -> new BusinessException(ExceptionType.NOT_FOUND_MENTORING_SCHEDULE));
-//	}
-
-
 }

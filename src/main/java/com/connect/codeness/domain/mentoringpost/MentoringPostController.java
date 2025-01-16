@@ -4,6 +4,9 @@ import static com.connect.codeness.global.constants.Constants.PAGE_NUMBER;
 import static com.connect.codeness.global.constants.Constants.PAGE_SIZE;
 import static com.connect.codeness.global.constants.Constants.AUTHORIZATION;
 import com.connect.codeness.domain.mentoringpost.dto.MentoringPostCreateRequestDto;
+import com.connect.codeness.domain.mentoringpost.dto.MentoringPostDetailResponseDto;
+import com.connect.codeness.domain.mentoringpost.dto.MentoringPostSearchResponseDto;
+import com.connect.codeness.domain.mentoringpost.dto.PaginationResponseDto;
 import com.connect.codeness.global.jwt.JwtUtil;
 import com.connect.codeness.domain.mentoringpost.dto.MentoringPostResponseDto;
 import com.connect.codeness.global.dto.CommonResponseDto;
@@ -62,13 +65,14 @@ public class MentoringPostController {
 	 * 멘토링 공고 전체 조회 API
 	 * - 모든 유저 가능
 	 */
-	public ResponseEntity<CommonResponseDto> getMentoringPostAll(@RequestParam(defaultValue = PAGE_NUMBER) int pageNumber,
+	@GetMapping
+	public ResponseEntity<CommonResponseDto<PaginationResponseDto<MentoringPostSearchResponseDto>>> getMentoringPostAll(@RequestParam(defaultValue = PAGE_NUMBER) int pageNumber,
 		@RequestParam(defaultValue = PAGE_SIZE) int pageSize,
 		@RequestParam(required = false) String title,
 		@RequestParam(required = false) String field,
-		@RequestParam(required = false) String Nickname) {
+		@RequestParam(required = false) String nickname) {
 
-		CommonResponseDto responseDto = mentoringPostService.searchMentoringPosts(pageNumber,pageSize, title, field, Nickname);
+		CommonResponseDto<PaginationResponseDto<MentoringPostSearchResponseDto>> responseDto = mentoringPostService.searchMentoringPosts(pageNumber,pageSize, title, field, nickname);
 
 		return new ResponseEntity<>(responseDto, HttpStatus.OK);
 	}
@@ -78,9 +82,9 @@ public class MentoringPostController {
 	 * - 모든 유저 가능
 	 */
 	@GetMapping("/{mentoringPostId}")
-	public ResponseEntity<CommonResponseDto<MentoringPostResponseDto>> getMentoringPostDetail(@PathVariable Long mentoringPostId) {
+	public ResponseEntity<CommonResponseDto<MentoringPostDetailResponseDto>> getMentoringPostDetail(@PathVariable Long mentoringPostId) {
 
-		CommonResponseDto<MentoringPostResponseDto> responseDto = mentoringPostService.getMentoringPostDetail(mentoringPostId);
+		CommonResponseDto<MentoringPostDetailResponseDto> responseDto = mentoringPostService.getMentoringPostDetail(mentoringPostId);
 
 		return new ResponseEntity<>(responseDto, HttpStatus.OK);
 	}

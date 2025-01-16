@@ -2,5 +2,23 @@
 POST localhost:8080/mentoring
 
 {
+    "company" : "내일배움캠프테스트",
+	"title" : "멘토링 공고 제목입니다",
+	"field" : "FRONTEND",
+	"career" : 10,
+	"region" : "서울, 경기 남부",
+	"price" : 50000,
+	"startDate" : "2025-01-16",
+	"endDate" : "2025-01-17",
+	"startTime" : "23:00",
+	"endTime" : "02:00",
+	"description" : "진로에 대해 고민하시는 분들에게 최선을 다해 상담해드리겠습니다 :)"
+}
+
+### 멘토링 공고 전체 조회하기
+POST localhost:8080/login
+Content-Type: application/json
+
+{
 
 }

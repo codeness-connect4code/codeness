@@ -61,6 +61,7 @@ public class PaymentHistoryController {
 	 * 결제내역 정산 신청 API
 	 * - 멘토
 	 * - 정산상태 변경
+	 * - TODO : 정산 도메인으로 옮기기
 	 */
 	@PatchMapping("/mentors/mentoring/payment-history/settles")
 	public ResponseEntity<CommonResponseDto> requestSettlement(@RequestHeader(AUTHORIZATION) String token){
