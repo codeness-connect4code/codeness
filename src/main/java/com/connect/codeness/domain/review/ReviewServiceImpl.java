@@ -1,5 +1,6 @@
 package com.connect.codeness.domain.review;
 
+import com.connect.codeness.global.dto.PaginationResponseDto;
 import com.connect.codeness.domain.mentoringschedule.MentoringSchedule;
 import com.connect.codeness.domain.paymenthistory.PaymentHistory;
 import com.connect.codeness.domain.paymenthistory.PaymentHistoryRepository;
@@ -7,7 +8,6 @@ import com.connect.codeness.domain.review.dto.ReviewCreateRequestDto;
 import com.connect.codeness.domain.review.dto.ReviewFindResponseDto;
 import com.connect.codeness.domain.user.User;
 import com.connect.codeness.global.dto.CommonResponseDto;
-import com.connect.codeness.global.dto.PaginationResponseDto;
 import com.connect.codeness.global.enums.ReviewStatus;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;

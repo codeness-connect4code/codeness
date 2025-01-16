@@ -6,6 +6,7 @@ import com.connect.codeness.domain.user.User;
 import com.connect.codeness.global.entity.CreateTimeEntity;
 import com.connect.codeness.global.enums.PaymentStatus;
 import com.connect.codeness.global.enums.ReviewStatus;
+import com.connect.codeness.global.enums.SettlementStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -53,6 +54,13 @@ public class PaymentHistory extends CreateTimeEntity {
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private PaymentStatus paymentStatus;//결제 상태
+
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	private SettlementStatus settlementStatus; //정산 상태
+
+	@Column(nullable = true)
+	private LocalDateTime settlementRequestAt; //정산 요청일
 
 	@Column(nullable = true)
 	private LocalDateTime canceledAt; //결제 취소일

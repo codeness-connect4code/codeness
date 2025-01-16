@@ -65,8 +65,12 @@ public class User extends BaseEntity {
 	@Size(max = 100, message = "이 필드는 최대 {max}자까지 가능합니다.")
 	private String siteLink;
 
-	@Size(max = 100, message = "이 필드는 최대 {max}자까지 가능합니다.")
-	private String firebaseUserId;
+	//사용자 계좌
+	@Size(max = 30, message = "이 필드는 최대 {max}자까지 가능합니다.")
+	private String account;
+
+	@Size(max = 30, message = "이 필드는 최대 {max}자까지 가능합니다.")
+	private String bankName;
 
 	@Enumerated(EnumType.STRING)
 	private FieldType field;
@@ -74,8 +78,10 @@ public class User extends BaseEntity {
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<ImageFile> imageFiles = new ArrayList<>();
 
+	private String provider;
+
 	@Builder
-	public User(String email, String password,String name, String userNickname, String phoneNumber, FieldType field, UserRole role, String provider ) {
+	public User(String email, String password,String name, String userNickname, String phoneNumber, FieldType field, UserRole role, String provider) {
 		this.email = email;
 		this.password = password;
 		this.name = name;
@@ -100,8 +106,6 @@ public class User extends BaseEntity {
 		updateImageFiles(imageFile);
 	}
 
-	private String provider;
-
 	public void updateImageFiles(ImageFile imageFile) {
 		this.imageFiles.add(imageFile);
 	}
@@ -110,6 +114,10 @@ public class User extends BaseEntity {
 		this.password = password;
 	}
 
+	public void updateBank(String bankName, String account){
+		this.bankName = bankName;
+		this.account = account;
+	}
 
 	public void deleteUser() {
 		this.userStatus = UserStatus.LEAVE;

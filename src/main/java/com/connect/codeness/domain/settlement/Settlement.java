@@ -3,6 +3,7 @@ package com.connect.codeness.domain.settlement;
 import com.connect.codeness.domain.paymenthistory.PaymentHistory;
 import com.connect.codeness.domain.user.User;
 import com.connect.codeness.global.enums.SettlementStatus;
+import com.connect.codeness.global.entity.CreateTimeEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -18,7 +19,7 @@ import lombok.Getter;
 
 @Getter
 @Entity
-public class Settlement {
+public class Settlement extends CreateTimeEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,7 +44,7 @@ public class Settlement {
 	private String bankName; //정산 고유 식별자
 
 	@Column(nullable = true)
-	private LocalDateTime settlementRequestAt; //정산 요청일
+	private LocalDateTime settlementRequestAt; //정산 요청일 -> 생성일이랑 고민해보기
 
 	public Settlement(){}
 
