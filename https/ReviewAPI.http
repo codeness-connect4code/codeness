@@ -26,7 +26,6 @@ Content-Type: application/json
   client.log("Token saved: " + client.global.get("token"));
 %}
 
-
 ### 리뷰 생성하기
 POST localhost:8080/payment-history/1/reviews
 Content-Type: application/json
