@@ -6,6 +6,7 @@ import com.connect.codeness.domain.admin.dto.AdminUpdateMentorRequestDto;
 import com.connect.codeness.domain.mentorrequest.dto.MentorRequestResponseDto;
 import com.connect.codeness.domain.user.dto.UserResponseDto;
 import com.connect.codeness.global.dto.CommonResponseDto;
+import java.util.List;
 import org.springframework.data.domain.Page;
 
 public interface AdminService {
@@ -15,7 +16,7 @@ public interface AdminService {
 	CommonResponseDto<MentorRequestResponseDto> getMentorRequest(Long mentoringRequestId);
 	CommonResponseDto updateMentor(Long mentorId, AdminUpdateMentorRequestDto adminUpdateMentorRequestDto);
 	CommonResponseDto updateSettlements(Long mentorId);
-	CommonResponseDto<Page<AdminSettlementListResponseDto>> getSettlementList(int pageNumber, int pageSize);
+	CommonResponseDto<List<AdminSettlementListResponseDto>> getSettlementList();
 	CommonResponseDto getSettlement(Long mentorId, int pageNumber, int pageSize);
 }
 
