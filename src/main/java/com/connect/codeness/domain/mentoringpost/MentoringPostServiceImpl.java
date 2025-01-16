@@ -157,7 +157,7 @@ public class MentoringPostServiceImpl implements MentoringPostService {
 		//멘토링 공고 조회
 		Page<MentoringPostSearchResponseDto> mentoringPosts = mentoringPostRepository.findAllBySearchParameters(title, field, nickname, pageable);
 
-		//dto 변환 page -> PaginationResponseDto TODO : DTO로 받아오는거 고민
+		//dto 변환 page -> PaginationResponseDto TODO : DTO로
 //		List<MentoringPostSearchResponseDto> mentoringPostResponseDtos = mentoringPosts.getContent().stream()
 //			.map(mentoringPost -> MentoringPostSearchResponseDto.builder()
 //				.mentoringPostId(mentoringPost.getMentoringPostId())

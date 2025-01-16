@@ -3,9 +3,9 @@ package com.connect.codeness.domain.news;
 import static com.connect.codeness.global.constants.Constants.PAGE_NUMBER;
 import static com.connect.codeness.global.constants.Constants.PAGE_SIZE;
 
-import com.connect.codeness.domain.mentoringpost.dto.PaginationResponseDto;
 import com.connect.codeness.domain.news.dto.NewsResponseDto;
 import com.connect.codeness.global.dto.CommonResponseDto;
+import com.connect.codeness.global.dto.PaginationResponseDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

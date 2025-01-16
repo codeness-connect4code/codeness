@@ -28,6 +28,6 @@ public interface PaymentService {
 	/**
 	 * 결제 환불 메서드
 	 */
-	CommonResponseDto refundPayment(Long paymentId, PaymentRefundRequestDto requestDto);
+	CommonResponseDto refundPayment(Long userId, Long paymentId, PaymentRefundRequestDto requestDto);
 }
 

@@ -102,7 +102,7 @@ public class PaymentHistoryServiceImpl implements PaymentHistoryService {
 
 		//결제 내역 조회 - 다른 유저 결제내역 조회시 예외
 		PaymentHistory paymentHistory = paymentHistoryRepository.findByIdAndUserId(paymentHistoryId, user.getId())
-			.orElseThrow(() -> new BusinessException(ExceptionType.FORBIDDEN_PAYMENT_ACCESS));
+			.orElseThrow(() -> new BusinessException(ExceptionType.FORBIDDEN_PAYMENT_HISTORY_ACCESS));
 
 		PaymentHistoryResponseDto paymentHistoryResponseDto = PaymentHistoryResponseDto.builder()
 			.id(paymentHistory.getId())

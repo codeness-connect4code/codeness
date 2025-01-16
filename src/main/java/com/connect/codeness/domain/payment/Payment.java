@@ -74,5 +74,10 @@ public class Payment extends CreateTimeEntity {
 		this.pgTid = pgTid;
 	}
 
-	
+	/**
+	 * 결제 환불시 취소일 업데이트
+	 */
+	public void updatePaymentCanceledAt() {
+		this.canceledAt = LocalDateTime.now();
+	}
 }

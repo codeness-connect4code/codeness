@@ -51,7 +51,7 @@ public class PaymentController {
 	@DeleteMapping("/payments/{paymentId}")
 	public ResponseEntity<CommonResponseDto> deletePayment(@PathVariable Long paymentId, @Valid @RequestBody PaymentDeleteRequestDto requestDto){
 
-		CommonResponseDto responseDto = paymentService.deletePayment(paymentId, requestDto);
+		CommonResponseDto responseDto = paymentService.deletePayment(userId, paymentId, requestDto);
 
 		return new ResponseEntity<>(responseDto, HttpStatus.OK);
 	}
@@ -71,8 +71,10 @@ public class PaymentController {
 	 * 결제 환불 API
 	 */
 	@PostMapping("/payments/{paymentId}/refund")
-	public ResponseEntity<CommonResponseDto> refundPayment(@PathVariable Long paymentId, @Valid @RequestBody PaymentRefundRequestDto requestDto){
-	CommonResponseDto responseDto = paymentService.refundPayment(paymentId, requestDto);
+	public ResponseEntity<CommonResponseDto> refundPayment(@RequestHeader(AUTHORIZATION) String token, @PathVariable Long paymentId, @Valid @RequestBody PaymentRefundRequestDto requestDto){
+		Long userId = jwtUtil.extractUserId(token);
+
+		CommonResponseDto responseDto = paymentService.refundPayment(userId, paymentId, requestDto);
 
 	return new ResponseEntity<>(responseDto, HttpStatus.OK);
 	}

@@ -6,7 +6,6 @@ import com.connect.codeness.domain.user.User;
 import com.connect.codeness.global.entity.CreateTimeEntity;
 import com.connect.codeness.global.enums.PaymentStatus;
 import com.connect.codeness.global.enums.ReviewStatus;
-import com.connect.codeness.global.enums.SettlementStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -89,8 +88,9 @@ public class PaymentHistory extends CreateTimeEntity {
 	/**
 	 * paymentList 결제 상태 수정 COMPLETE -> CANCEL
 	 */
-	public void updatePaymentStatus(PaymentStatus paymentStatus) {
+	public void updatePaymentStatus(PaymentStatus paymentStatus, LocalDateTime canceledAt) {
 		this.paymentStatus = paymentStatus;
+		this.canceledAt = LocalDateTime.now();
 	}
 
 }

@@ -52,8 +52,8 @@ public class SettlementServiceImpl implements SettlementService {
 			throw new BusinessException(ExceptionType.NOT_FOUND_SETTLEMENT_DATE);
 		}
 
-		//정산 상태 처리중으로 업데이트
-		unprocessedPaymentHistories.forEach(paymentHistory -> paymentHistory.updateSettleStatus(SettlementStatus.PROCESSING));
+		//정산 상태 처리중으로 업데이트 TODO : 로직 수정 예정
+//		unprocessedPaymentHistories.forEach(paymentHistory -> paymentHistory.updateSettlementStatus(SettlementStatus.PROCESSING));
 
 		return CommonResponseDto.builder().msg("정산 신청이 완료되었습니다.").build();
 	}

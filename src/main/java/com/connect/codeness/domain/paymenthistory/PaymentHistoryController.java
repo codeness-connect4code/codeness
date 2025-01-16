@@ -25,11 +25,9 @@ public class PaymentHistoryController {
 	}
 
 	/**
-	 * TODO : PaymentHistory -> PaymentHistory 이름 변경
 	 * - 로그인한 유저의 결제 내역 전체 & 단건 조회
 	 * - 특정 유저의 결제 내역 단건 조회 -> 어드민
 	 * - 전체 유저 결제 내역 조회 -> 어드민
-	 * - 멘티, 멘토 구분
 	 */
 
 	/**

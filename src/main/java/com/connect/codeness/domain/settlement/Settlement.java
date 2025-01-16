@@ -47,14 +47,10 @@ public class Settlement {
 
 	public Settlement(){}
 
-	public void updateSettleStatus(SettleStatus settleStatus) {
-		this.settleStatus = settleStatus;
-	}
-
 	/**
 	 * 정산 상태 수정 UNPROCESSED -> PROCESSING
 	 */
-	public void updateSettleStatus(SettlementStatus settlementStatus) {
+	public void updateSettlementStatus(SettlementStatus settlementStatus) {
 		this.settlementStatus = settlementStatus;
 	}
 }

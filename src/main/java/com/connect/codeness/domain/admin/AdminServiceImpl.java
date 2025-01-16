@@ -3,7 +3,6 @@ package com.connect.codeness.domain.admin;
 import com.connect.codeness.domain.admin.dto.AdminSettlementListResponseDto;
 import com.connect.codeness.domain.admin.dto.AdminSettlementResponseDto;
 import com.connect.codeness.domain.admin.dto.AdminUpdateMentorRequestDto;
-import com.connect.codeness.domain.mentoringpost.dto.PaginationResponseDto;
 import com.connect.codeness.domain.mentorrequest.MentorRequest;
 import com.connect.codeness.domain.mentorrequest.MentorRequestRepository;
 import com.connect.codeness.domain.mentorrequest.dto.MentorRequestResponseDto;
@@ -14,6 +13,7 @@ import com.connect.codeness.domain.user.User;
 import com.connect.codeness.domain.user.UserRepository;
 import com.connect.codeness.domain.user.dto.UserResponseDto;
 import com.connect.codeness.global.dto.CommonResponseDto;
+import com.connect.codeness.global.dto.PaginationResponseDto;
 import com.connect.codeness.global.enums.MentorRequestStatus;
 import com.connect.codeness.global.enums.SettlementStatus;
 import com.connect.codeness.global.enums.UserRole;
@@ -127,7 +127,7 @@ public class AdminServiceImpl implements AdminService {
 			throw new BusinessException(ExceptionType.NOT_FOUND);
 		}
 		for (Settlement s : settlementList){
-			s.updateSettleStatus(SettlementStatus.COMPLETE);
+			s.updateSettlementStatus(SettlementStatus.COMPLETE);
 		}
 
 		settlementRepository.saveAll(settlementList);

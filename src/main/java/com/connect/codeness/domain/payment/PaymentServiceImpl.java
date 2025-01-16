@@ -1,6 +1,7 @@
 package com.connect.codeness.domain.payment;
 
 
+import com.connect.codeness.domain.chat.ChatServiceImpl;
 import com.connect.codeness.domain.mentoringschedule.MentoringSchedule;
 import com.connect.codeness.domain.mentoringschedule.MentoringScheduleRepository;
 import com.connect.codeness.domain.payment.dto.PaymentDeleteRequestDto;
@@ -14,9 +15,10 @@ import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.enums.BookedStatus;
 import com.connect.codeness.global.enums.PaymentStatus;
 import com.connect.codeness.global.enums.ReviewStatus;
-import com.connect.codeness.global.enums.SettlementStatus;
+import com.connect.codeness.global.enums.UserRole;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
+import com.google.firebase.database.FirebaseDatabase;
 import com.siot.IamportRestClient.IamportClient;
 import com.siot.IamportRestClient.exception.IamportResponseException;
 import com.siot.IamportRestClient.request.CancelData;
@@ -36,15 +38,20 @@ public class PaymentServiceImpl implements PaymentService {
 	private final PaymentHistoryRepository paymentHistoryRepository;
 	private final UserRepository userRepository;
 	private final MentoringScheduleRepository mentoringScheduleRepository;
+	private final ChatServiceImpl chatService;
+	private final FirebaseDatabase firebaseDatabase;
 
 	public PaymentServiceImpl(IamportClient iamportClient, PaymentRepository paymentRepository,
 		PaymentHistoryRepository paymentHistoryRepository,
-		UserRepository userRepository, MentoringScheduleRepository mentoringScheduleRepository) {
+		UserRepository userRepository, MentoringScheduleRepository mentoringScheduleRepository, ChatServiceImpl chatService,
+		FirebaseDatabase firebaseDatabase) {
 		this.iamportClient = iamportClient;
 		this.paymentRepository = paymentRepository;
 		this.paymentHistoryRepository = paymentHistoryRepository;
 		this.userRepository = userRepository;
 		this.mentoringScheduleRepository = mentoringScheduleRepository;
+		this.chatService = chatService;
+		this.firebaseDatabase = firebaseDatabase;
 	}
 
 	/**
@@ -62,23 +69,28 @@ public class PaymentServiceImpl implements PaymentService {
 
 		//유저 조회
 		User user = userRepository.findByIdOrElseThrow(userId);
+		//멘토는 멘토링 신청이 불가함
+		if(user.getRole().equals(UserRole.MENTOR)){
+			throw new BusinessException(ExceptionType.MENTOR_PAYMENT_NOT_ALLOWED);
+		}
 
-		//TODO : 멘토링 스케쥴 전체 조회 API 구현시 코드 옮기기
+		// TODO : 스케쥴 검증 결제 생성에서 하지 말기
+
+//		//멘토링 스케쥴 상태 체크
+//		if (mentoringSchedule.getBookedStatus().equals(BookedStatus.BOOKED)) {
+//			throw new BusinessException(ExceptionType.ALREADY_BOOKED);
+//		}
+//
+//		//현재 날짜, 시간 체크
+//		LocalDateTime now = LocalDateTime.now();
+//		LocalDateTime mentoringDateTime = LocalDateTime.of(mentoringSchedule.getMentoringDate(), mentoringSchedule.getMentoringTime());
+//		//멘토링 스케쥴이 현재보다 이전이면 예외
+//		if (mentoringDateTime.isBefore(now)) {
+//			throw new BusinessException(ExceptionType.MENTORING_SCHEDULE_EXPIRED);
+//		}
+
 		//멘토링 스케쥴 조회
 		MentoringSchedule mentoringSchedule = mentoringScheduleRepository.findByIdOrElseThrow(requestDto.getMentoringScheduleId());
-
-		//멘토링 스케쥴 상태 체크
-		if (mentoringSchedule.getBookedStatus().equals(BookedStatus.BOOKED)) {
-			throw new BusinessException(ExceptionType.ALREADY_BOOKED);
-		}
-
-		//현재 날짜, 시간 체크
-		LocalDateTime now = LocalDateTime.now();
-		LocalDateTime mentoringDateTime = LocalDateTime.of(mentoringSchedule.getMentoringDate(), mentoringSchedule.getMentoringTime());
-		//멘토링 스케쥴이 현재보다 이전이면 예외
-		if (mentoringDateTime.isBefore(now)) {
-			throw new BusinessException(ExceptionType.MENTORING_SCHEDULE_EXPIRED);
-		}
 
 		Payment payment = Payment.builder()
 			.user(user)
@@ -89,7 +101,7 @@ public class PaymentServiceImpl implements PaymentService {
 
 		//결제(멘토링 신청) db 저장
 		paymentRepository.save(payment);
-
+		
 		return CommonResponseDto.builder().msg("멘토링 스케쥴이 신청 되었습니다.").data(payment.getId()).build();
 	}
 
@@ -181,6 +193,10 @@ public class PaymentServiceImpl implements PaymentService {
 		//멘토링 스케쥴 상태 변경
 		MentoringSchedule mentoringSchedule = mentoringScheduleRepository.findByIdOrElseThrow(requestDto.getMentoringScheduleId());
 		mentoringSchedule.updateBookedStatus(BookedStatus.BOOKED);
+		
+		//정산 테이블 저장
+		
+		//채팅방 생성
 
 		return CommonResponseDto.builder().msg("결제가 완료되었습니다.").data(payment.getId()).build();
 	}
@@ -192,10 +208,10 @@ public class PaymentServiceImpl implements PaymentService {
 	 */
 	@Transactional
 	@Override
-	public CommonResponseDto refundPayment(Long paymentId, PaymentRefundRequestDto requestDto) {
+	public CommonResponseDto refundPayment(Long userId, Long paymentId, PaymentRefundRequestDto requestDto) {
 
-		//결제 내역 테이블 조회
-		PaymentHistory paymentHistory = paymentHistoryRepository.findByPaymentIdOrElseThrow(paymentId);
+		//결제 내역 테이블 조회 - 로그인한 유저 ID & 결제 ID
+		PaymentHistory paymentHistory = paymentHistoryRepository.findByIdAndUserIdOrElseThrow(userId, paymentId);
 
 		//pgTid 유효성 검사
 		if (paymentHistory.getPgTid() == null || paymentHistory.getPgTid().isEmpty()) {
@@ -234,8 +250,14 @@ public class PaymentServiceImpl implements PaymentService {
 		MentoringSchedule mentoringSchedule = paymentHistory.getPayment().getMentoringSchedule();
 		mentoringSchedule.updateBookedStatus(BookedStatus.EMPTY);
 
-		//결제 내역 상태 업데이트 -> 수정
-		paymentHistory.updatePaymentStatus(PaymentStatus.CANCEL);
+		//결제 내역 업데이트 : 상태, 취소일
+		paymentHistory.updatePaymentStatus(PaymentStatus.CANCEL, paymentHistory.getCanceledAt());
+		//결제 업데이트 : 취소일
+		Payment payment = paymentHistory.getPayment();
+		payment.updatePaymentCanceledAt();
+
+		//채팅방 삭제 TODO : chatRoomId 어떻게 가져오면 될까?
+//		chatService.deleteChatRoom(userId, );
 
 		return CommonResponseDto.builder().msg("결제가 환불되었습니다.").build();
 	}
