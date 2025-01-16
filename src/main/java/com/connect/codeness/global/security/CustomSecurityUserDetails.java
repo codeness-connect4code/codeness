@@ -68,10 +68,6 @@ public class CustomSecurityUserDetails implements UserDetails {
 		return user.getPhoneNumber();
 	}
 
-	public String getFirebaseUserId() {
-		return user.getFirebaseUserId();
-	}
-
 	public String getUserNickname() {
 		return user.getUserNickname();
 	}
