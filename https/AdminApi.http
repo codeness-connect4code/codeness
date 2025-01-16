@@ -26,6 +26,41 @@ Content-Type: application/json
   client.log("Token saved: " + client.global.get("token"));
 %}
 
-###
+### 멘토 정산 처리 API
+PATCH localhost:8080/mentors/1/settlements
+Authorization: Bearer {{token}}
+
+### 전체 멘토 리스트 조회 API
 GET localhost:8080/admin/mentors
 Authorization: Bearer {{token}}
+
+### 멘토 상세 조회 API
+GET localhost:8080/admin/mentors/1
+Authorization: Bearer {{token}}
+
+### 멘토 신청 리스트 조회 API
+GET localhost:8080/admin/mentors/mentor-requests
+Authorization: Bearer {{token}}
+
+### 멘토 신청 상세 조회 API
+GET localhost:8080/admin/mentors/mentor-requests/1
+Authorization: Bearer {{token}}
+
+### 멘토 거절/수락 API
+PATCH localhost:8080/admin/mentors/mentor-requests/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "isAccepted" : "ACCEPTED"
+}
+
+### 멘토 정산 내역 조회 API
+GET localhost:8080/admin/mentors/settlements
+Authorization: Bearer {{token}}
+
+### 멘토 정산 내역 상세 조회 API
+GET localhost:8080/admin/mentors/settlements/1
+Authorization: Bearer {{token}}
+
+
