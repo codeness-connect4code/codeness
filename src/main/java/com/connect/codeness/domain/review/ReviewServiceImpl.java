@@ -82,28 +82,19 @@ public class ReviewServiceImpl implements ReviewService {
 
 		Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("createdAt").descending());
 
-		Page<Review> reviews = reviewRepository.findByMentoringPostId(mentoringPostId, pageable);
+		Page<ReviewFindResponseDto> reviews = reviewRepository.findByMentoringPostId(mentoringPostId, pageable);
 
-		Page<ReviewFindResponseDto> responseDto = reviews.map(
-			review -> ReviewFindResponseDto.builder()
-				.reviewId(review.getId())
-				.userId(review.getUser().getId())
-				.content(review.getReviewContent())
-				.starRating(review.getStarRating())
-				.createdAt(review.getCreatedAt())
-				.build());
-
-		PaginationResponseDto<ReviewFindResponseDto> responseDtoCustom = PaginationResponseDto.<ReviewFindResponseDto>builder()
-			.content(responseDto.getContent())
-			.totalPages(responseDto.getTotalPages())
-			.totalElements(responseDto.getTotalElements())
+		PaginationResponseDto<ReviewFindResponseDto> responseDto = PaginationResponseDto.<ReviewFindResponseDto>builder()
+			.content(reviews.getContent())
+			.totalPages(reviews.getTotalPages())
+			.totalElements(reviews.getTotalElements())
 			.pageNumber(pageNumber)
 			.pageSize(pageSize)
 			.build();
 
 		return CommonResponseDto.<PaginationResponseDto<ReviewFindResponseDto>>builder()
 			.msg("리뷰가 조회되었습니다.")
-			.data(responseDtoCustom)
+			.data(responseDto)
 			.build();
 	}
 
