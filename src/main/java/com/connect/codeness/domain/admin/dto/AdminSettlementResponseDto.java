@@ -1,7 +1,7 @@
 package com.connect.codeness.domain.admin.dto;
 
 import com.connect.codeness.domain.settlement.Settlement;
-import com.connect.codeness.global.enums.SettleStatus;
+import com.connect.codeness.global.enums.SettlementStatus;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import lombok.Getter;
@@ -10,14 +10,14 @@ import lombok.Getter;
 public class AdminSettlementResponseDto {
 
 	private Long settlementId;
-	private SettleStatus settleStatus;
+	private SettlementStatus settlementStatus;
 	private String mentorName;
 	private LocalDate mentoringDate;
 	private LocalTime mentoringTime;
 
 	public AdminSettlementResponseDto(Settlement s) {
 		this.settlementId = s.getId();
-		this.settleStatus = s.getSettleStatus();
+		this.settlementStatus = s.getSettlementStatus();
 		this.mentorName = s.getUser().getName();
 		this.mentoringDate = s.getPaymentHistory().getPayment().getMentoringSchedule()
 			.getMentoringDate();

@@ -3,7 +3,7 @@ package com.connect.codeness.domain.admin;
 import com.connect.codeness.domain.admin.dto.AdminSettlementListResponseDto;
 import com.connect.codeness.domain.admin.dto.AdminSettlementResponseDto;
 import com.connect.codeness.domain.admin.dto.AdminUpdateMentorRequestDto;
-import com.connect.codeness.domain.mentoringpost.dto.PaginationResponseDto;
+import com.connect.codeness.global.dto.PaginationResponseDto;
 import com.connect.codeness.domain.mentorrequest.MentorRequest;
 import com.connect.codeness.domain.mentorrequest.MentorRequestRepository;
 import com.connect.codeness.domain.mentorrequest.dto.MentorRequestResponseDto;
@@ -15,7 +15,7 @@ import com.connect.codeness.domain.user.UserRepository;
 import com.connect.codeness.domain.user.dto.UserResponseDto;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.enums.MentorRequestStatus;
-import com.connect.codeness.global.enums.SettleStatus;
+import com.connect.codeness.global.enums.SettlementStatus;
 import com.connect.codeness.global.enums.UserRole;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
@@ -121,13 +121,14 @@ public class AdminServiceImpl implements AdminService {
 	@Override
 	@Transactional
 	public CommonResponseDto updateSettlements(Long mentorId) {
-		List<Settlement> settlementList = settlementRepository.findAllByUserIdAndSettleStatus(mentorId,SettleStatus.PROCESSING);
+		List<Settlement> settlementList = settlementRepository.findAllByUserIdAndSettleStatus(mentorId,
+			SettlementStatus.PROCESSING);
 
 		if (settlementList.isEmpty()) {
 			throw new BusinessException(ExceptionType.NOT_FOUND);
 		}
 		for (Settlement s : settlementList){
-			s.updateSettleStatus(SettleStatus.COMPLETE);
+			s.updateSettleStatus(SettlementStatus.COMPLETE);
 		}
 
 		settlementRepository.saveAll(settlementList);
@@ -138,7 +139,7 @@ public class AdminServiceImpl implements AdminService {
 	@Override
 	public CommonResponseDto<List<AdminSettlementListResponseDto>> getSettlementList() {
 		List<AdminSettlementListResponseDto> adminSettlementGetResponseDto =
-			settlementRepository.findBySettleStatusMentorGroupList(SettleStatus.PROCESSING);
+			settlementRepository.findBySettleStatusMentorGroupList(SettlementStatus.PROCESSING);
 
 		return CommonResponseDto.<List<AdminSettlementListResponseDto>>builder()
 			.msg("멘토 정산 내역이 조회되었습니다.")
@@ -148,7 +149,7 @@ public class AdminServiceImpl implements AdminService {
 	@Override
 	public CommonResponseDto getSettlement(Long mentorId, int pageNumber, int pageSize) {
 		List<AdminSettlementResponseDto> adminSettlementResponseDto =
-			settlementRepository.findByUserIdAndSettleStatus(mentorId,SettleStatus.PROCESSING);
+			settlementRepository.findByUserIdAndSettleStatus(mentorId, SettlementStatus.PROCESSING);
 
 		return CommonResponseDto.<List<AdminSettlementResponseDto>>builder()
 			.msg("멘토의 정산 리스트가 조회되었습니다.")

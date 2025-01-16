@@ -14,7 +14,7 @@ import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.enums.BookedStatus;
 import com.connect.codeness.global.enums.PaymentStatus;
 import com.connect.codeness.global.enums.ReviewStatus;
-import com.connect.codeness.global.enums.SettleStatus;
+import com.connect.codeness.global.enums.SettlementStatus;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
 import com.siot.IamportRestClient.IamportClient;
@@ -172,7 +172,7 @@ public class PaymentServiceImpl implements PaymentService {
 			.paymentCost(payment.getPaymentCost())
 			.paymentCard(payment.getPaymentCard())
 			.paymentStatus(PaymentStatus.COMPLETE)
-			.settleStatus(SettleStatus.UNPROCESSED)
+			.settlementStatus(SettlementStatus.UNPROCESSED)
 			.reviewStatus(ReviewStatus.NOT_YET)
 			.account(payment.getUser().getAccount())
 			.bankName(payment.getUser().getBankName())

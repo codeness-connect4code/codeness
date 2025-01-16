@@ -6,7 +6,7 @@ import com.connect.codeness.domain.user.User;
 import com.connect.codeness.global.entity.CreateTimeEntity;
 import com.connect.codeness.global.enums.PaymentStatus;
 import com.connect.codeness.global.enums.ReviewStatus;
-import com.connect.codeness.global.enums.SettleStatus;
+import com.connect.codeness.global.enums.SettlementStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -57,7 +57,7 @@ public class PaymentHistory extends CreateTimeEntity {
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
-	private SettleStatus settleStatus; //정산 상태
+	private SettlementStatus settlementStatus; //정산 상태
 
 	@Column(nullable = true)
 	private LocalDateTime settlementRequestAt; //정산 요청일
@@ -81,7 +81,7 @@ public class PaymentHistory extends CreateTimeEntity {
 
 	@Builder
 	public PaymentHistory(Payment payment, User user, String pgTid, BigDecimal paymentCost,
-		String paymentCard, PaymentStatus paymentStatus, SettleStatus settleStatus,
+		String paymentCard, PaymentStatus paymentStatus, SettlementStatus settlementStatus,
 		LocalDateTime canceledAt, ReviewStatus reviewStatus, String account, String bankName) {
 		this.payment = payment;
 		this.user = user;
@@ -89,7 +89,7 @@ public class PaymentHistory extends CreateTimeEntity {
 		this.paymentCost = paymentCost;
 		this.paymentCard = paymentCard;
 		this.paymentStatus = paymentStatus;
-		this.settleStatus = settleStatus;
+		this.settlementStatus = settlementStatus;
 		this.canceledAt = canceledAt;
 		this.reviewStatus = reviewStatus;
 		this.account = account;
@@ -113,8 +113,8 @@ public class PaymentHistory extends CreateTimeEntity {
 	/**
 	 * paymentList 정산 상태 수정 UNPROCESSED -> PROCESSING
 	 */
-	public void updateSettleStatus(SettleStatus settleStatus) {
-		this.settleStatus = settleStatus;
+	public void updateSettleStatus(SettlementStatus settlementStatus) {
+		this.settlementStatus = settlementStatus;
 	}
 
 }

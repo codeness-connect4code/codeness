@@ -1,15 +1,11 @@
 package com.connect.codeness.domain.paymenthistory;
 
 
-import com.connect.codeness.domain.admin.dto.AdminSettlementListResponseDto;
-import com.connect.codeness.domain.admin.dto.AdminSettlementResponseDto;
-import com.connect.codeness.global.enums.SettleStatus;
+import com.connect.codeness.global.enums.SettlementStatus;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -39,6 +35,6 @@ public interface PaymentHistoryRepository extends JpaRepository<PaymentHistory, 
 	 */
 	Optional<PaymentHistory> findByUserId(Long userId);
 
-	List<PaymentHistory> findAllByUserIdAndSettleStatus(Long userId, SettleStatus settleStatus);
+	List<PaymentHistory> findAllByUserIdAndSettlementStatus(Long userId, SettlementStatus settlementStatus);
 }
 

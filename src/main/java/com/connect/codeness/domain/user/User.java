@@ -75,7 +75,7 @@ public class User extends BaseEntity {
 	private List<ImageFile> imageFiles = new ArrayList<>();
 
 	@Builder
-	public User(String email, String password,String name, String userNickname, String phoneNumber, FieldType field, UserRole role, String provider ) {
+	public User(String email, String password,String name, String userNickname, String phoneNumber, FieldType field, UserRole role, String provider) {
 		this.email = email;
 		this.password = password;
 		this.name = name;
