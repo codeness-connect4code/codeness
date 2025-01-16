@@ -48,7 +48,7 @@ public interface PaymentHistoryRepository extends JpaRepository<PaymentHistory, 
 			"WHERE p.settleStatus = :settleStatus "+
 			"GROUP BY p.user.id, p.user.name"
 	)
-	Page<AdminSettlementListResponseDto> findBySettleStatusMentorGroupList(SettleStatus settleStatus, Pageable pageable);
+	List<AdminSettlementListResponseDto> findBySettleStatusMentorGroupList(SettleStatus settleStatus);
 
 
 	@Query(
