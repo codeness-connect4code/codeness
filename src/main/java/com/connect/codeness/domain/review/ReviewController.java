@@ -32,6 +32,12 @@ public class ReviewController {
 		this.jwtUtil = jwtUtil;
 	}
 
+	@PostMapping("/logout")
+	public ResponseEntity<String> logout(){
+		return new ResponseEntity<>("로그아웃",HttpStatus.OK);
+
+	}
+
 	@PostMapping("/payment-history/{paymentHistoryId}/reviews")
 	public ResponseEntity<CommonResponseDto> createReview(
 		@PathVariable Long paymentHistoryId,
@@ -45,7 +51,7 @@ public class ReviewController {
 		return new ResponseEntity<>(commonResponseDto, HttpStatus.CREATED);
 	}
 
-	@GetMapping("/mentoring-posts/{mentoringPostId}/reviews")
+	@GetMapping("/mentoring/{mentoringPostId}/reviews")
 	public ResponseEntity<CommonResponseDto<Page<ReviewFindResponseDto>>> findReviews(
 		@PathVariable Long mentoringPostId,
 		@RequestParam(defaultValue = PAGE_NUMBER) int pageNumber,

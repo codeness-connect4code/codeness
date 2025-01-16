@@ -22,7 +22,6 @@ public enum ExceptionType {
 	MENTORING_SCHEDULE_EXPIRED(HttpStatus.BAD_REQUEST, "멘토링 스케쥴 시간이 만료되었습니다." ),
 	ALREADY_CLOSED_MENTOR_REQUEST(HttpStatus.BAD_REQUEST,"이미 처리된 멘토 신청 입니다."),
 	NOT_MENTOR(HttpStatus.BAD_REQUEST,"멘토인 사용자가 아닙니다."),
-
 	ALREADY_EXIST_CHATROOM(HttpStatus.BAD_REQUEST, "이미 생성된 채팅방입니다."),
 	// 401 Unauthorized
 	UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증이 필요합니다."),
@@ -40,6 +39,7 @@ public enum ExceptionType {
 	NOT_YOUR_COMMENT(HttpStatus.FORBIDDEN, "해당 댓글의 작성자가 아닙니다."),
 	FORBIDDEN_PAYMENT_ACCESS(HttpStatus.FORBIDDEN, "다른 사용자의 결제 내역을 조회할 수 없습니다."),
 	FORBIDDEN_SETTLEMENT_ACCESS(HttpStatus.FORBIDDEN, "정산 신청을 할 수 있는 권한이 없습니다."),
+	FORBIDDEN_MENTORING_CREATE_ACCESS(HttpStatus.FORBIDDEN, "멘토링 공고를 생성할 수 있는 권한이 없습니다."),
 	FORBIDDEN_ADMIN_ACCESS(HttpStatus.FORBIDDEN,"관리자 권한이 필요합니다."),
 
 	// 404 NOT_FOUND
@@ -59,6 +59,7 @@ public enum ExceptionType {
 	NOT_FOUND_PAYMENT_BY_IAMPORT(HttpStatus.NOT_FOUND, "아임포트에서 결제 내역을 조회할 수 없습니다."),
 	NOT_FOUND_SETTLEMENT_DATE(HttpStatus.NOT_FOUND, "정산 가능한 결제 내역이 없습니다."),
 	NOT_FOUND_MENTOR_REQUEST(HttpStatus.NOT_FOUND,"멘토 신청 내역이 없습니다."),
+	NOT_FOUND_MENTORING_POST(HttpStatus.NOT_FOUND, "멘토링 공고를 찾을 수 없습니다."),
 
 	// 409 CONFLICT
 	DUPLICATE_VALUE(HttpStatus.CONFLICT, "중복된 정보입니다."),
