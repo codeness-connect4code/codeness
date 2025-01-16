@@ -58,7 +58,7 @@ public class UserController {
 	}
 
 	/**
-	 *
+	 * 회원가입 API
 	 * @param userCreateRequestDto
 	 * @return
 	 */
@@ -72,7 +72,7 @@ public class UserController {
 	//todo : 프론트 구현시 토큰 출력 삭제
 
 	/**
-	 *
+	 * 로그인 API
 	 * @param loginRequestDto
 	 * @return
 	 */
@@ -88,7 +88,7 @@ public class UserController {
 	}
 
 	/**
-	 *
+	 * 유저 상세 조회 API
 	 * @param authorizationHeader
 	 * @return
 	 */
@@ -101,7 +101,7 @@ public class UserController {
 	}
 
 	/**
-	 *
+	 * 유저 정보 수정 API
 	 * @param authorizationHeader
 	 * @param userUpdateRequestDto
 	 * @param userId

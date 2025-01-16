@@ -24,7 +24,7 @@ public class Settlement {
 
 	@OneToOne
 	@JoinColumn(name = "payment_history_id")
-	private PaymentHistory paymentHistoryId; //결제 내역 고유 식별자 (외래키)
+	private PaymentHistory paymentHistory; //결제 내역 고유 식별자 (외래키)
 
 	@ManyToOne
 	@JoinColumn(name = "mentor_id")
@@ -42,7 +42,9 @@ public class Settlement {
 	@Column(nullable = true)
 	private LocalDateTime settlementRequestAt; //정산 요청일
 
-	public Settlement(){
+	public Settlement(){}
 
+	public void updateSettleStatus(SettleStatus settleStatus) {
+		this.settleStatus = settleStatus;
 	}
 }

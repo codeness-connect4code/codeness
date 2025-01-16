@@ -1,7 +1,7 @@
 package com.connect.codeness.domain.admin.dto;
 
-import com.connect.codeness.domain.paymenthistory.PaymentHistory;
-import com.connect.codeness.global.enums.PaymentStatus;
+import com.connect.codeness.domain.settlement.Settlement;
+import com.connect.codeness.global.enums.SettleStatus;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import lombok.Getter;
@@ -9,18 +9,20 @@ import lombok.Getter;
 @Getter
 public class AdminSettlementResponseDto {
 
-	private Long paymentHistoryId;
-	 private PaymentStatus paymentState;
-	 private String mentorName;
-	 private LocalDate mentoringDate;
-	 private LocalTime mentoringTime;
+	private Long settlementId;
+	private SettleStatus settleStatus;
+	private String mentorName;
+	private LocalDate mentoringDate;
+	private LocalTime mentoringTime;
 
-	 public AdminSettlementResponseDto(PaymentHistory paymentHistory) {
-		 this.paymentHistoryId = paymentHistory.getId();
-		 this.paymentState = paymentHistory.getPaymentStatus();
-		 this.mentorName = paymentHistory.getUser().getName();
-		 this.mentoringDate = paymentHistory.getPayment().getMentoringSchedule().getMentoringDate();
-		 this.mentoringTime = paymentHistory.getPayment().getMentoringSchedule().getMentoringTime();
-	 }
+	public AdminSettlementResponseDto(Settlement s) {
+		this.settlementId = s.getId();
+		this.settleStatus = s.getSettleStatus();
+		this.mentorName = s.getUser().getName();
+		this.mentoringDate = s.getPaymentHistory().getPayment().getMentoringSchedule()
+			.getMentoringDate();
+		this.mentoringTime = s.getPaymentHistory().getPayment().getMentoringSchedule()
+			.getMentoringTime();
+	}
 
 }

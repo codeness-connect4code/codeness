@@ -131,7 +131,8 @@ public class UserServiceImpl implements UserService {
 		if(!passwordEncoder.matches(dto.getCurrentPassword(),user.getPassword())){
 			throw new BusinessException(ExceptionType.UNAUTHORIZED_PASSWORD);
 		}
-		user.updatePassword(dto.getNewPassword());
+		String encodedPassword = passwordEncoder.encode(dto.getNewPassword());
+		user.updatePassword(encodedPassword);
 		userRepository.save(user);
 		return CommonResponseDto.builder().msg("패스워드 수정 완료").build();
 	}

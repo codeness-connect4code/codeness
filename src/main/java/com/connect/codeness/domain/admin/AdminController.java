@@ -5,6 +5,7 @@ import static com.connect.codeness.global.constants.Constants.PAGE_SIZE;
 
 import com.connect.codeness.domain.admin.dto.AdminSettlementListResponseDto;
 import com.connect.codeness.domain.admin.dto.AdminUpdateMentorRequestDto;
+import com.connect.codeness.domain.mentoringpost.dto.PaginationResponseDto;
 import com.connect.codeness.domain.mentorrequest.dto.MentorRequestResponseDto;
 import com.connect.codeness.domain.user.UserRepository;
 import com.connect.codeness.domain.user.dto.UserResponseDto;
@@ -59,7 +60,7 @@ public class AdminController {
 		@RequestParam(defaultValue = PAGE_NUMBER) int pageNumber,
 		@RequestParam(defaultValue = PAGE_SIZE) int pageSize
 	){
-		CommonResponseDto<Page<UserResponseDto>> responseDto =
+		CommonResponseDto<PaginationResponseDto<UserResponseDto>> responseDto =
 			adminService.getMentorList(pageNumber, pageSize);
 
 		return new ResponseEntity<>(responseDto, HttpStatus.OK);
