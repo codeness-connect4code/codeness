@@ -65,13 +65,6 @@ public class User extends BaseEntity {
 	@Size(max = 100, message = "이 필드는 최대 {max}자까지 가능합니다.")
 	private String siteLink;
 
-	//사용자 계좌
-	@Size(max = 30, message = "이 필드는 최대 {max}자까지 가능합니다.")
-	private String account;
-
-	@Size(max = 30, message = "이 필드는 최대 {max}자까지 가능합니다.")
-	private String bankName;
-
 	@Size(max = 100, message = "이 필드는 최대 {max}자까지 가능합니다.")
 	private String firebaseUserId;
 
@@ -117,10 +110,6 @@ public class User extends BaseEntity {
 		this.password = password;
 	}
 
-	public void updateBank(String bankName, String account){
-		this.bankName = bankName;
-		this.account = account;
-	}
 
 	public void deleteUser() {
 		this.userStatus = UserStatus.LEAVE;
