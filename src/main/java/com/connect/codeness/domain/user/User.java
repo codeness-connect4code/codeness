@@ -63,14 +63,7 @@ public class User extends BaseEntity {
 	private String mbti;
 
 	@Size(max = 100, message = "이 필드는 최대 {max}자까지 가능합니다.")
-	private String site_link;
-
-	//사용자 계좌
-	@Size(max = 30, message = "이 필드는 최대 {max}자까지 가능합니다.")
-	private String account;
-
-	@Size(max = 30, message = "이 필드는 최대 {max}자까지 가능합니다.")
-	private String bankName;
+	private String siteLink;
 
 	@Size(max = 100, message = "이 필드는 최대 {max}자까지 가능합니다.")
 	private String firebaseUserId;
@@ -82,7 +75,7 @@ public class User extends BaseEntity {
 	private List<ImageFile> imageFiles = new ArrayList<>();
 
 	@Builder
-	public User(String email, String password,String name, String userNickname, String phoneNumber, FieldType field, UserRole role, String provider, String providerId) {
+	public User(String email, String password,String name, String userNickname, String phoneNumber, FieldType field, UserRole role, String provider) {
 		this.email = email;
 		this.password = password;
 		this.name = name;
@@ -92,7 +85,6 @@ public class User extends BaseEntity {
 		this.role = role;
 		this.userStatus = UserStatus.ACTIVE;
 		this.provider = provider;
-		this.providerId = providerId;
 	}
 
 	public User() {}
@@ -103,14 +95,12 @@ public class User extends BaseEntity {
 		this.region = dto.getRegion();
 		this.career = dto.getCareer();
 		this.mbti = dto.getMbti();
-		this.site_link = dto.getSiteLink();
+		this.siteLink = dto.getSiteLink();
 		this.field = dto.getField();
 		updateImageFiles(imageFile);
 	}
 
 	private String provider;
-
-	private String providerId;
 
 	public void updateImageFiles(ImageFile imageFile) {
 		this.imageFiles.add(imageFile);
@@ -120,10 +110,6 @@ public class User extends BaseEntity {
 		this.password = password;
 	}
 
-	public void updateBank(String bankName, String account){
-		this.bankName = bankName;
-		this.account = account;
-	}
 
 	public void deleteUser() {
 		this.userStatus = UserStatus.LEAVE;

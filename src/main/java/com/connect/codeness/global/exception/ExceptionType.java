@@ -20,12 +20,16 @@ public enum ExceptionType {
 	REFUND_FAILED(HttpStatus.BAD_REQUEST, "환불 요청이 실패했습니다."),
 	ALREADY_BOOKED(HttpStatus.BAD_REQUEST, "이미 예약된 멘토링 스케쥴 입니다." ),
 	MENTORING_SCHEDULE_EXPIRED(HttpStatus.BAD_REQUEST, "멘토링 스케쥴 시간이 만료되었습니다." ),
-
+	ALREADY_CLOSED_MENTOR_REQUEST(HttpStatus.BAD_REQUEST,"이미 처리된 멘토 신청 입니다."),
+	NOT_MENTOR(HttpStatus.BAD_REQUEST,"멘토인 사용자가 아닙니다."),
+	ALREADY_EXIST_CHATROOM(HttpStatus.BAD_REQUEST, "이미 생성된 채팅방입니다."),
 	// 401 Unauthorized
 	UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증이 필요합니다."),
 	UNAUTHORIZED_PASSWORD(HttpStatus.UNAUTHORIZED, "패스워드가 틀렸습니다."),
 	UNAUTHORIZED_DELETE_REQUEST(HttpStatus.UNAUTHORIZED, "권한이 없는 삭제 요청입니다."),
-	UNAUTHORIZED_CREATE_REQUEST(HttpStatus.UNAUTHORIZED, "권한이 없는 생성 요청입니다."),
+	UNAUTHORIZED_POST_REQUEST(HttpStatus.UNAUTHORIZED, "권한이 없는 생성 요청입니다."),
+	UNAUTHORIZED_UPDATE_REQUEST(HttpStatus.UNAUTHORIZED, "권한이 없는 수정 요청입니다."),
+	UNAUTHORIZED_GET_REQUEST(HttpStatus.UNAUTHORIZED, "권한이 없는 조회 요청입니다."),
 	INVALID_TOKEN(HttpStatus.UNAUTHORIZED,"유효하지 않은 토큰입니다."),
 
 	// 403 Forbidden
@@ -35,10 +39,13 @@ public enum ExceptionType {
 	NOT_YOUR_COMMENT(HttpStatus.FORBIDDEN, "해당 댓글의 작성자가 아닙니다."),
 	FORBIDDEN_PAYMENT_ACCESS(HttpStatus.FORBIDDEN, "다른 사용자의 결제 내역을 조회할 수 없습니다."),
 	FORBIDDEN_SETTLEMENT_ACCESS(HttpStatus.FORBIDDEN, "정산 신청을 할 수 있는 권한이 없습니다."),
+	FORBIDDEN_MENTORING_CREATE_ACCESS(HttpStatus.FORBIDDEN, "멘토링 공고를 생성할 수 있는 권한이 없습니다."),
+	FORBIDDEN_ADMIN_ACCESS(HttpStatus.FORBIDDEN,"관리자 권한이 필요합니다."),
 
 	// 404 NOT_FOUND
 	NOT_FOUND(HttpStatus.NOT_FOUND, "리소스를 찾을 수 없습니다."),
 	NOT_FOUND_POST(HttpStatus.NOT_FOUND, "게시글을 찾을 수 없습니다."),
+	NOT_FOUND_COMMENT(HttpStatus.NOT_FOUND, "댓글을 찾을 수 없습니다."),
 	NOT_FOUND_PAYMENTLIST(HttpStatus.NOT_FOUND, "거래 내역을 찾을 수 없습니다."),
 	NOT_FOUND_NEWS(HttpStatus.NOT_FOUND,"뉴스를 찾을 수 없습니다."),
 	NOT_FOUND_USER(HttpStatus.NOT_FOUND,"유저를 찾을 수 없습니다."),
@@ -51,14 +58,19 @@ public enum ExceptionType {
 	NOT_FOUND_AMOUNT(HttpStatus.NOT_FOUND, "결제 금액이 올바르지 않습니다."),
 	NOT_FOUND_PAYMENT_BY_IAMPORT(HttpStatus.NOT_FOUND, "아임포트에서 결제 내역을 조회할 수 없습니다."),
 	NOT_FOUND_SETTLEMENT_DATE(HttpStatus.NOT_FOUND, "정산 가능한 결제 내역이 없습니다."),
+	NOT_FOUND_MENTOR_REQUEST(HttpStatus.NOT_FOUND,"멘토 신청 내역이 없습니다."),
+	NOT_FOUND_MENTORING_POST(HttpStatus.NOT_FOUND, "멘토링 공고를 찾을 수 없습니다."),
 
 	// 409 CONFLICT
 	DUPLICATE_VALUE(HttpStatus.CONFLICT, "중복된 정보입니다."),
 	USER_ALREADY_DELETED(HttpStatus.CONFLICT, "이미 탈퇴한 사용자 아이디입니다."),
+	POST_ALREADY_DELETED(HttpStatus.CONFLICT, "이미 삭제된 게시물 입니다."),
 
 	// 500 INTERNAL_SERVER_ERROR
 	LOAD_FAIL_CHATROOMLIST(HttpStatus.INTERNAL_SERVER_ERROR, "채팅방 정보를 가져오기에 실패했습니다."),
 	LOAD_FAIL_CHATLIST(HttpStatus.INTERNAL_SERVER_ERROR, "채팅 정보를 가져오기에 실패했습니다."),
+	TIME_OUT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "타임 아웃 또는 인터럽트가 발생했습니다." ),
+
 	;
 
 	private final HttpStatus httpStatus;

@@ -2,7 +2,7 @@ package com.connect.codeness.domain.post;
 
 import com.connect.codeness.domain.user.User;
 import com.connect.codeness.global.entity.BaseEntity;
-import com.connect.codeness.global.enums.CommunityStatus;
+import com.connect.codeness.global.enums.PostStatus;
 import com.connect.codeness.global.enums.PostType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -49,18 +49,18 @@ public class Post extends BaseEntity {
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
-	private CommunityStatus Status;
+	private PostStatus postStatus;
 
 	@Builder
 	public Post(User user, String title, String content, String writer, Long view, PostType postType,
-		CommunityStatus status) {
+		PostStatus postStatus) {
 		this.user = user;
 		this.title = title;
 		this.writer = writer;
 		this.content = content;
 		this.view = view;
 		this.postType = postType;
-		this.Status = status;
+		this.postStatus = postStatus;
 	}
 
 	public void increaseView(Long view) {
@@ -71,6 +71,11 @@ public class Post extends BaseEntity {
 		this.title = title;
 		this.content = content;
 	}
+
+	public void deletePost(){
+		this.postStatus = PostStatus.DELETED;
+	}
+
 	public Post() {
 	}
 }

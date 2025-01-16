@@ -6,15 +6,15 @@ import com.connect.codeness.domain.mentoringschedule.MentoringScheduleRepository
 import com.connect.codeness.domain.payment.dto.PaymentDeleteRequestDto;
 import com.connect.codeness.domain.payment.dto.PaymentRefundRequestDto;
 import com.connect.codeness.domain.payment.dto.PaymentRequestDto;
-import com.connect.codeness.domain.paymentlist.PaymentList;
-import com.connect.codeness.domain.paymentlist.PaymentListRepository;
+import com.connect.codeness.domain.paymenthistory.PaymentHistory;
+import com.connect.codeness.domain.paymenthistory.PaymentHistoryRepository;
 import com.connect.codeness.domain.user.User;
 import com.connect.codeness.domain.user.UserRepository;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.enums.BookedStatus;
 import com.connect.codeness.global.enums.PaymentStatus;
 import com.connect.codeness.global.enums.ReviewStatus;
-import com.connect.codeness.global.enums.SettleStatus;
+import com.connect.codeness.global.enums.SettlementStatus;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
 import com.siot.IamportRestClient.IamportClient;
@@ -33,23 +33,19 @@ public class PaymentServiceImpl implements PaymentService {
 
 	private final IamportClient iamportClient;
 	private final PaymentRepository paymentRepository;
-	private final PaymentListRepository paymentListRepository;
+	private final PaymentHistoryRepository paymentHistoryRepository;
 	private final UserRepository userRepository;
 	private final MentoringScheduleRepository mentoringScheduleRepository;
 
 	public PaymentServiceImpl(IamportClient iamportClient, PaymentRepository paymentRepository,
-		PaymentListRepository paymentListRepository,
+		PaymentHistoryRepository paymentHistoryRepository,
 		UserRepository userRepository, MentoringScheduleRepository mentoringScheduleRepository) {
 		this.iamportClient = iamportClient;
 		this.paymentRepository = paymentRepository;
-		this.paymentListRepository = paymentListRepository;
+		this.paymentHistoryRepository = paymentHistoryRepository;
 		this.userRepository = userRepository;
 		this.mentoringScheduleRepository = mentoringScheduleRepository;
 	}
-
-	/**
-	 * TODO : PaymentList -> PaymentHistory 이름 변경
-	 */
 
 	/**
 	 * 결제 생성 서비스 메서드
@@ -169,21 +165,21 @@ public class PaymentServiceImpl implements PaymentService {
 		User mentor = mentoringScheduleRepository.findMentorById(payment.getMentoringSchedule().getId());
 
 		//결제 내역 생성 & 저장
-		PaymentList paymentList = PaymentList.builder()
+		PaymentHistory paymentHistory = PaymentHistory.builder()
 			.payment(payment)
 			.user(mentor)
 			.pgTid(requestDto.getPgTid())
 			.paymentCost(payment.getPaymentCost())
 			.paymentCard(payment.getPaymentCard())
 			.paymentStatus(PaymentStatus.COMPLETE)
-			.settleStatus(SettleStatus.UNPROCESSED)
+			.settlementStatus(SettlementStatus.UNPROCESSED)
 			.reviewStatus(ReviewStatus.NOT_YET)
 			.account(payment.getUser().getAccount())
 			.bankName(payment.getUser().getBankName())
 			.build();
 
 		//결제 내역 db 저장
-		paymentListRepository.save(paymentList);
+		paymentHistoryRepository.save(paymentHistory);
 
 		//멘토링 스케쥴 상태 변경
 		MentoringSchedule mentoringSchedule = mentoringScheduleRepository.findByIdOrElseThrow(requestDto.getMentoringScheduleId());
@@ -202,22 +198,22 @@ public class PaymentServiceImpl implements PaymentService {
 	public CommonResponseDto refundPayment(Long paymentId, PaymentRefundRequestDto requestDto) {
 
 		//결제 내역 테이블 조회
-		PaymentList paymentList = paymentListRepository.findByPaymentIdOrElseThrow(paymentId);
+		PaymentHistory paymentHistory = paymentHistoryRepository.findByPaymentIdOrElseThrow(paymentId);
 
 		//pgTid 유효성 검사
-		if (paymentList.getPgTid() == null || paymentList.getPgTid().isEmpty()) {
+		if (paymentHistory.getPgTid() == null || paymentHistory.getPgTid().isEmpty()) {
 			throw new BusinessException(ExceptionType.NOT_FOUND_PGTID);
 		}
 
 		//상태가 결제 취소일 경우
-		if (paymentList.getPaymentStatus().equals("CANCEL")) {
+		if (paymentHistory.getPaymentStatus().equals("CANCEL")) {
 			throw new BusinessException(ExceptionType.ALREADY_CANCEL);
 		}
 
 		//Iamport api 호출 - 결제 환불 요청
 		IamportResponse<com.siot.IamportRestClient.response.Payment> iamportResponse;
 
-		String impUid = paymentList.getPayment().getImpUid();
+		String impUid = paymentHistory.getPayment().getImpUid();
 		//impUid 유효성 검사
 		if (impUid == null || impUid.isEmpty()) {
 			throw new BusinessException(ExceptionType.NOT_FOUND_IMPUID);
@@ -238,11 +234,11 @@ public class PaymentServiceImpl implements PaymentService {
 		}
 
 		//멘토링 스케쥴 예약 상태 변경
-		MentoringSchedule mentoringSchedule = paymentList.getPayment().getMentoringSchedule();
+		MentoringSchedule mentoringSchedule = paymentHistory.getPayment().getMentoringSchedule();
 		mentoringSchedule.updateBookedStatus(BookedStatus.EMPTY);
 
 		//결제 내역 상태 업데이트 -> 수정
-		paymentList.updatePaymentStatus(PaymentStatus.CANCEL);
+		paymentHistory.updatePaymentStatus(PaymentStatus.CANCEL);
 
 		return CommonResponseDto.builder().msg("결제가 환불되었습니다.").build();
 	}

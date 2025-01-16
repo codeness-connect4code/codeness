@@ -10,6 +10,8 @@ public class ReviewFindResponseDto {
 
 	private Long reviewId;
 
+	private Long userId;
+
 	private String content;
 
 	private Integer starRating;

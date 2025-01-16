@@ -2,7 +2,6 @@ package com.connect.codeness.domain.mentoringschedule;
 
 
 import com.connect.codeness.domain.mentoringpost.MentoringPost;
-import com.connect.codeness.global.entity.BaseEntity;
 import com.connect.codeness.global.entity.CreateTimeEntity;
 import com.connect.codeness.global.enums.BookedStatus;
 import jakarta.persistence.Column;
@@ -48,4 +47,15 @@ public class MentoringSchedule extends CreateTimeEntity {
 	public void updateBookedStatus(BookedStatus bookedStatus) {
 		this.bookedStatus = bookedStatus;
 	}
+
+	/**
+	 * 멘토링 공고 생성 - 스케쥴 생성
+	 */
+	public void createMentoringSchedule(MentoringPost mentoringPost, LocalDate date, LocalTime hour, BookedStatus bookedStatus) {
+		this.mentoringPost = mentoringPost;
+		this.mentoringDate = date;
+		this.mentoringTime = hour;
+		this.bookedStatus = bookedStatus;
+	}
+
 }

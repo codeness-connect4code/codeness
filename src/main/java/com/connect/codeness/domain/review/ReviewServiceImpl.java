@@ -1,10 +1,12 @@
 package com.connect.codeness.domain.review;
 
+import com.connect.codeness.global.dto.PaginationResponseDto;
 import com.connect.codeness.domain.mentoringschedule.MentoringSchedule;
-import com.connect.codeness.domain.paymentlist.PaymentList;
-import com.connect.codeness.domain.paymentlist.PaymentListRepository;
+import com.connect.codeness.domain.paymenthistory.PaymentHistory;
+import com.connect.codeness.domain.paymenthistory.PaymentHistoryRepository;
 import com.connect.codeness.domain.review.dto.ReviewCreateRequestDto;
 import com.connect.codeness.domain.review.dto.ReviewFindResponseDto;
+import com.connect.codeness.domain.user.User;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.enums.ReviewStatus;
 import com.connect.codeness.global.exception.BusinessException;
@@ -24,31 +26,31 @@ import org.springframework.transaction.annotation.Transactional;
 public class ReviewServiceImpl implements ReviewService {
 
 	private final ReviewRepository reviewRepository;
-	private final PaymentListRepository paymentListRepository;
+	private final PaymentHistoryRepository paymentHistoryRepository;
 
 	public ReviewServiceImpl(ReviewRepository reviewRepository,
-		PaymentListRepository paymentListRepository) {
+		PaymentHistoryRepository paymentHistoryRepository) {
 
 		this.reviewRepository = reviewRepository;
-		this.paymentListRepository = paymentListRepository;
+		this.paymentHistoryRepository = paymentHistoryRepository;
 	}
 
 	@Transactional
 	@Override
-	public CommonResponseDto createReview(Long userId, Long paymentListId,
+	public CommonResponseDto createReview(Long userId, Long paymentHistoryId,
 		ReviewCreateRequestDto dto) {
 		//리뷰를 생성할 거래 내역 가져오기
-		PaymentList paymentList = paymentListRepository.findById(paymentListId).orElseThrow(
-			() -> new BusinessException(ExceptionType.NOT_FOUND_PAYMENTLIST)
-		);
+		PaymentHistory paymentHistory = paymentHistoryRepository.findByPaymentIdOrElseThrow(paymentHistoryId);
 
 		//내가 거래한 내역이 아니라면 생성 x
-		if (!Objects.equals(paymentList.getUser().getId(), userId)) {
-			throw new BusinessException(ExceptionType.UNAUTHORIZED_CREATE_REQUEST);
+		User user = paymentHistory.getUser();
+
+		if (!Objects.equals(user.getId(), userId)) {
+			throw new BusinessException(ExceptionType.UNAUTHORIZED_POST_REQUEST);
 		}
 
 		//멘토링 날짜가 아직 아니라면
-		MentoringSchedule mentoringSchedule = paymentList.getPayment().getMentoringSchedule();
+		MentoringSchedule mentoringSchedule = paymentHistory.getPayment().getMentoringSchedule();
 
 		LocalDate mentoringDate = mentoringSchedule.getMentoringDate();
 		LocalTime mentoringTime = mentoringSchedule.getMentoringTime();
@@ -61,35 +63,36 @@ public class ReviewServiceImpl implements ReviewService {
 		}
 
 		Review review = Review.builder()
-			.paymentList(paymentList)
+			.paymentHistory(paymentHistory)
+			.user(user)
 			.reviewContent(dto.getContent())
 			.starRating(dto.getStarRating())
 			.build();
 
 		//후기 내용 작성 후 결제내역의 후기 작성 상태 COMPLETE
 		reviewRepository.save(review);
-		paymentList.updateReviewStatus(ReviewStatus.COMPLETE);
+		paymentHistory.updateReviewStatus(ReviewStatus.COMPLETE);
 
 		return CommonResponseDto.builder().msg("리뷰 생성이 완료되었습니다.").build();
 	}
 
 	@Override
-	public CommonResponseDto<Page<ReviewFindResponseDto>> findReviews(Long mentoringPostId,
+	public CommonResponseDto<PaginationResponseDto<ReviewFindResponseDto>> findReviews(Long mentoringPostId,
 		int pageNumber, int pageSize) {
 
 		Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("createdAt").descending());
 
-		Page<Review> reviews = reviewRepository.findByMentoringPostId(mentoringPostId, pageable);
+		Page<ReviewFindResponseDto> reviews = reviewRepository.findByMentoringPostId(mentoringPostId, pageable);
 
-		Page<ReviewFindResponseDto> responseDto = reviews.map(
-			review -> ReviewFindResponseDto.builder()
-				.reviewId(review.getId())
-				.content(review.getReviewContent())
-				.starRating(review.getStarRating())
-				.createdAt(review.getCreatedAt())
-				.build());
+		PaginationResponseDto<ReviewFindResponseDto> responseDto = PaginationResponseDto.<ReviewFindResponseDto>builder()
+			.content(reviews.getContent())
+			.totalPages(reviews.getTotalPages())
+			.totalElements(reviews.getTotalElements())
+			.pageNumber(pageNumber)
+			.pageSize(pageSize)
+			.build();
 
-		return CommonResponseDto.<Page<ReviewFindResponseDto>>builder()
+		return CommonResponseDto.<PaginationResponseDto<ReviewFindResponseDto>>builder()
 			.msg("리뷰가 조회되었습니다.")
 			.data(responseDto)
 			.build();
@@ -100,7 +103,7 @@ public class ReviewServiceImpl implements ReviewService {
 		Review review = reviewRepository.findByIdOrElseThrow(reviewId);
 
 		//내가 작성한 리뷰가 아니면 삭제 못함!
-		if (!Objects.equals(review.getPaymentList().getUser().getId(), userId)) {
+		if (!Objects.equals(review.getUser().getId(), userId)) {
 			throw new BusinessException(ExceptionType.UNAUTHORIZED_DELETE_REQUEST);
 		}
 

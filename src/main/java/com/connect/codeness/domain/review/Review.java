@@ -1,6 +1,7 @@
 package com.connect.codeness.domain.review;
 
-import com.connect.codeness.domain.paymentlist.PaymentList;
+import com.connect.codeness.domain.paymenthistory.PaymentHistory;
+import com.connect.codeness.domain.user.User;
 import com.connect.codeness.global.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -8,6 +9,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -26,9 +28,14 @@ public class Review extends BaseEntity {
 	private Long id;
 
 	@OneToOne
-	@JoinColumn(name = "payment_list_id")
+	@JoinColumn(name = "payment_history_id")
 	@NotNull
-	private PaymentList paymentList;
+	private PaymentHistory paymentHistory;
+
+	@NotNull
+	@ManyToOne
+	@JoinColumn(name = "user_id")
+	private User user;
 
 	@Min(1)
 	@Max(5)
@@ -45,9 +52,10 @@ public class Review extends BaseEntity {
 	}
 
 	@Builder
-	public Review(PaymentList paymentList, Integer starRating,
+	public Review(PaymentHistory paymentHistory, User user, Integer starRating,
 		String reviewContent) {
-		this.paymentList = paymentList;
+		this.paymentHistory = paymentHistory;
+		this.user = user;
 		this.starRating = starRating;
 		this.reviewContent = reviewContent;
 	}

@@ -1,0 +1,63 @@
+### 회원가입
+POST localhost:8080/signup
+Content-Type: application/json
+
+{
+  "email" : "3aaaaaaaa@naver.com",
+  "password" : "asdf1234!@",
+  "name" : "이름",
+  "nickname" : "열일하는 개발자",
+  "phoneNumber" : "010 - 1234 - 6328",
+  "field" : "BACKEND",
+  "userRole" : "MENTEE"
+}
+
+### 로그인
+POST localhost:8080/login
+Content-Type: application/json
+
+{
+  "email" : "3aaaaaaaa@naver.com",
+  "password" : "asdf1234!@"
+}
+
+> {%
+  client.global.set("token",response.body.token);
+  client.log("Token saved: " + client.global.get("token"));
+%}
+
+### 멘토 신청 API
+POST localhost:8080/users/mentors
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="company"
+
+테스트 회사
+--boundary
+Content-Disposition: form-data; name="field"
+
+BACKEND
+--boundary
+Content-Disposition: form-data; name="phoneNumber"
+
+010-1234-5678
+--boundary
+Content-Disposition: form-data; name="position"
+
+팀장
+--boundary
+Content-Disposition: form-data; name="career"
+
+5
+--boundary
+Content-Disposition: form-data; name="companyEmail"
+
+test@example.com
+--boundary
+Content-Disposition: form-data; name="multipartFile"; filename="profile.jpg"
+Content-Type: image/jpeg
+
+<  ./testImage.png
+--boundary--

@@ -8,7 +8,7 @@ import com.connect.codeness.domain.post.dto.PostCreateRequestDto;
 import com.connect.codeness.domain.post.dto.PostFindAllResponseDto;
 import com.connect.codeness.domain.post.dto.PostFindResponseDto;
 import com.connect.codeness.domain.post.dto.PostUpdateRequestDto;
-import com.connect.codeness.global.Jwt.JwtUtil;
+import com.connect.codeness.global.jwt.JwtUtil;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.enums.PostType;
 import jakarta.validation.Valid;
@@ -18,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,7 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class PostController {
 
 	private PostService postService;
-	private  JwtUtil jwtUtil;
+	private JwtUtil jwtUtil;
 
 	public PostController(PostService postService, JwtUtil jwtUtil) {
 		this.postService = postService;
@@ -44,7 +45,7 @@ public class PostController {
 	@PostMapping
 	public ResponseEntity<CommonResponseDto> createPost(
 		@Valid @RequestBody PostCreateRequestDto dto,
-		@RequestHeader("Authorization") String token){
+		@RequestHeader("Authorization") String token) {
 
 		Long userId = jwtUtil.extractUserId(token);
 
@@ -64,18 +65,18 @@ public class PostController {
 
 		Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("createdAt").descending());
 
-		CommonResponseDto<Page<PostFindAllResponseDto>> posts = postService.findAllPost(postType, keyword, writer, pageable);
+		CommonResponseDto<Page<PostFindAllResponseDto>> responseDto = postService.findAllPost(postType, keyword, writer, pageable);
 
-		return new ResponseEntity<>(posts, HttpStatus.OK);
+		return new ResponseEntity<>(responseDto, HttpStatus.OK);
 	}
 
 	// 게시글 상세 조회
 	@GetMapping("/{postId}")
 	public ResponseEntity<CommonResponseDto> getPost(@PathVariable Long postId) {
 
-		CommonResponseDto<PostFindResponseDto> post = postService.findPost(postId);
+		CommonResponseDto<PostFindResponseDto> responseDto = postService.findPost(postId);
 
-		return new ResponseEntity<>(post, HttpStatus.OK);
+		return new ResponseEntity<>(responseDto, HttpStatus.OK);
 	}
 
 	// 게시글 수정
@@ -88,6 +89,18 @@ public class PostController {
 		Long userId = jwtUtil.extractUserId(token);
 
 		CommonResponseDto responseDto = postService.updatePost(userId, postId, dto);
+
+		return new ResponseEntity<>(responseDto, HttpStatus.OK);
+	}
+
+	@DeleteMapping("/{postId}")
+	public ResponseEntity<CommonResponseDto> deletePost(
+		@PathVariable Long postId,
+		@RequestHeader(AUTHORIZATION) String token) {
+
+		Long userId = jwtUtil.extractUserId(token);
+
+		CommonResponseDto responseDto = postService.deletePost(userId, postId);
 
 		return new ResponseEntity<>(responseDto, HttpStatus.OK);
 	}

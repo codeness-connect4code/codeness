@@ -5,8 +5,8 @@ import static com.connect.codeness.global.constants.Constants.AUTHORIZATION;
 import com.connect.codeness.domain.payment.dto.PaymentDeleteRequestDto;
 import com.connect.codeness.domain.payment.dto.PaymentRefundRequestDto;
 import com.connect.codeness.domain.payment.dto.PaymentRequestDto;
-import com.connect.codeness.domain.paymentlist.PaymentListService;
-import com.connect.codeness.global.Jwt.JwtUtil;
+import com.connect.codeness.domain.paymenthistory.PaymentHistoryService;
+import com.connect.codeness.global.jwt.JwtUtil;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -26,7 +26,7 @@ public class PaymentController {
 	private final PaymentService paymentService;
 	private final JwtUtil jwtUtil;
 
-	public PaymentController(PaymentService paymentService, PaymentListService paymentListService, JwtUtil jwtUtil) {
+	public PaymentController(PaymentService paymentService, PaymentHistoryService paymentHistoryService, JwtUtil jwtUtil) {
 		this.paymentService = paymentService;
 		this.jwtUtil = jwtUtil;
 	}

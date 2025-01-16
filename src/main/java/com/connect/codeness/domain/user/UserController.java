@@ -5,7 +5,6 @@ import static com.connect.codeness.global.constants.Constants.AUTHORIZATION;
 import com.connect.codeness.domain.file.FileRepository;
 import com.connect.codeness.domain.file.FileService;
 import com.connect.codeness.domain.file.ImageFile;
-import com.connect.codeness.domain.file.dto.FileCreateDto;
 import com.connect.codeness.domain.user.dto.JwtResponseDto;
 import com.connect.codeness.domain.user.dto.LoginRequestDto;
 import com.connect.codeness.domain.user.dto.UserBankUpdateRequestDto;
@@ -13,8 +12,7 @@ import com.connect.codeness.domain.user.dto.UserCreateRequestDto;
 import com.connect.codeness.domain.user.dto.UserDeleteResponseDto;
 import com.connect.codeness.domain.user.dto.UserPasswordUpdateRequestDto;
 import com.connect.codeness.domain.user.dto.UserUpdateRequestDto;
-import com.connect.codeness.global.Jwt.JwtUtil;
-import com.connect.codeness.global.constants.Constants;
+import com.connect.codeness.global.jwt.JwtUtil;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.enums.FileCategory;
 import com.connect.codeness.global.exception.BusinessException;
@@ -60,7 +58,7 @@ public class UserController {
 	}
 
 	/**
-	 *
+	 * 회원가입 API
 	 * @param userCreateRequestDto
 	 * @return
 	 */
@@ -74,7 +72,7 @@ public class UserController {
 	//todo : 프론트 구현시 토큰 출력 삭제
 
 	/**
-	 *
+	 * 로그인 API
 	 * @param loginRequestDto
 	 * @return
 	 */
@@ -90,7 +88,7 @@ public class UserController {
 	}
 
 	/**
-	 *
+	 * 유저 상세 조회 API
 	 * @param authorizationHeader
 	 * @return
 	 */
@@ -103,7 +101,7 @@ public class UserController {
 	}
 
 	/**
-	 *
+	 * 유저 정보 수정 API
 	 * @param authorizationHeader
 	 * @param userUpdateRequestDto
 	 * @param userId

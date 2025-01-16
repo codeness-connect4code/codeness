@@ -9,8 +9,9 @@ import com.connect.codeness.domain.post.dto.PostUpdateRequestDto;
 import com.connect.codeness.domain.user.User;
 import com.connect.codeness.domain.user.UserRepository;
 import com.connect.codeness.global.dto.CommonResponseDto;
-import com.connect.codeness.global.enums.CommunityStatus;
+import com.connect.codeness.global.enums.PostStatus;
 import com.connect.codeness.global.enums.PostType;
+import com.connect.codeness.global.enums.UserRole;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
 import jakarta.transaction.Transactional;
@@ -38,6 +39,10 @@ public class PostServiceImpl implements PostService {
 
 		User user = userRepository.findByIdOrElseThrow(userId);
 
+		if (dto.getPostType()==PostType.NOTICE&&user.getRole()!= UserRole.ADMIN){
+			throw new BusinessException(ExceptionType.FORBIDDEN_ADMIN_ACCESS);
+		}
+
 		Post post = new Post().builder()
 			.user(user)
 			.title(dto.getTitle())
@@ -45,7 +50,7 @@ public class PostServiceImpl implements PostService {
 			.writer(user.getUserNickname())
 			.view(0L)
 			.postType(dto.getPostType())
-			.status(CommunityStatus.DISPLAYED)
+			.postStatus(PostStatus.DISPLAYED)
 			.build();
 
 		// 객체 저장
@@ -89,29 +94,20 @@ public class PostServiceImpl implements PostService {
 
 		ImageFile writerProfile = fileRepository.findByUserId(post.getUser().getId());
 
-		PostFindResponseDto postFindResult;
-
 		post.increaseView(post.getView());
 
+		PostFindResponseDto postFindResult= PostFindResponseDto.builder()
+			.postId(post.getId())
+			.title(post.getTitle())
+			.writer(post.getWriter())
+			.view(post.getView())
+			.content(post.getContent())
+			.postType(post.getPostType())
+			.modifiedAt(post.getModifiedAt())
+			.build();
+
 		if (writerProfile != null) {
-			postFindResult = PostFindResponseDto.builder()
-				.postId(post.getId())
-				.title(post.getTitle())
-				.writer(post.getWriter())
-				.view(post.getView())
-				.content(post.getContent())
-				.writerProfileUrl(writerProfile.getFilePath())
-				.postType(post.getPostType())
-				.build();
-		} else {
-			postFindResult = PostFindResponseDto.builder()
-				.postId(post.getId())
-				.title(post.getTitle())
-				.writer(post.getWriter())
-				.view(post.getView())
-				.content(post.getContent())
-				.postType(post.getPostType())
-				.build();
+			postFindResult.inputWriterProfileUrl(writerProfile.getFilePath());
 		}
 
 		return CommonResponseDto.<PostFindResponseDto>builder()
@@ -136,6 +132,25 @@ public class PostServiceImpl implements PostService {
 
 		return CommonResponseDto.builder()
 			.msg("게시글 수정이 완료되었습니다.")
+			.build();
+	}
+
+	// 게시글 삭제
+	@Override
+	@Transactional
+	public CommonResponseDto deletePost(Long userId, Long postId) {
+
+		User user = userRepository.findByIdOrElseThrow(userId);
+		Post post = postRepository.findByIdOrElseThrow(postId);
+
+		if (!Objects.equals(user, post.getUser())) {
+			throw new BusinessException(ExceptionType.FORBIDDEN_PERMISSION);
+		}
+
+		post.deletePost();
+
+		return CommonResponseDto.builder()
+			.msg("게시글 삭제가 완료되었습니다.")
 			.build();
 	}
 }
