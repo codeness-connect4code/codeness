@@ -1,5 +1,6 @@
 package com.connect.codeness.domain.review;
 
+import com.connect.codeness.domain.mentoringpost.dto.PaginationResponseDto;
 import com.connect.codeness.domain.mentoringschedule.MentoringSchedule;
 import com.connect.codeness.domain.paymenthistory.PaymentHistory;
 import com.connect.codeness.domain.paymenthistory.PaymentHistoryRepository;
@@ -76,23 +77,22 @@ public class ReviewServiceImpl implements ReviewService {
 	}
 
 	@Override
-	public CommonResponseDto<Page<ReviewFindResponseDto>> findReviews(Long mentoringPostId,
+	public CommonResponseDto<PaginationResponseDto<ReviewFindResponseDto>> findReviews(Long mentoringPostId,
 		int pageNumber, int pageSize) {
 
 		Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("createdAt").descending());
 
-		Page<Review> reviews = reviewRepository.findByMentoringPostId(mentoringPostId, pageable);
+		Page<ReviewFindResponseDto> reviews = reviewRepository.findByMentoringPostId(mentoringPostId, pageable);
 
-		Page<ReviewFindResponseDto> responseDto = reviews.map(
-			review -> ReviewFindResponseDto.builder()
-				.reviewId(review.getId())
-				.userId(review.getUser().getId())
-				.content(review.getReviewContent())
-				.starRating(review.getStarRating())
-				.createdAt(review.getCreatedAt())
-				.build());
+		PaginationResponseDto<ReviewFindResponseDto> responseDto = PaginationResponseDto.<ReviewFindResponseDto>builder()
+			.content(reviews.getContent())
+			.totalPages(reviews.getTotalPages())
+			.totalElements(reviews.getTotalElements())
+			.pageNumber(pageNumber)
+			.pageSize(pageSize)
+			.build();
 
-		return CommonResponseDto.<Page<ReviewFindResponseDto>>builder()
+		return CommonResponseDto.<PaginationResponseDto<ReviewFindResponseDto>>builder()
 			.msg("리뷰가 조회되었습니다.")
 			.data(responseDto)
 			.build();
