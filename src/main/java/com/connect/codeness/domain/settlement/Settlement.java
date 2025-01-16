@@ -45,8 +45,10 @@ public class Settlement {
 	@Column(nullable = true)
 	private LocalDateTime settlementRequestAt; //정산 요청일
 
-	public Settlement(){
+	public Settlement(){}
 
+	public void updateSettleStatus(SettleStatus settleStatus) {
+		this.settleStatus = settleStatus;
 	}
 
 	/**

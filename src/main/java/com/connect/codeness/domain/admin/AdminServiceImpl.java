@@ -3,11 +3,13 @@ package com.connect.codeness.domain.admin;
 import com.connect.codeness.domain.admin.dto.AdminSettlementListResponseDto;
 import com.connect.codeness.domain.admin.dto.AdminSettlementResponseDto;
 import com.connect.codeness.domain.admin.dto.AdminUpdateMentorRequestDto;
+import com.connect.codeness.domain.mentoringpost.dto.PaginationResponseDto;
 import com.connect.codeness.domain.mentorrequest.MentorRequest;
 import com.connect.codeness.domain.mentorrequest.MentorRequestRepository;
 import com.connect.codeness.domain.mentorrequest.dto.MentorRequestResponseDto;
-import com.connect.codeness.domain.paymenthistory.PaymentHistory;
 import com.connect.codeness.domain.paymenthistory.PaymentHistoryRepository;
+import com.connect.codeness.domain.settlement.Settlement;
+import com.connect.codeness.domain.settlement.SettlementRepository;
 import com.connect.codeness.domain.user.User;
 import com.connect.codeness.domain.user.UserRepository;
 import com.connect.codeness.domain.user.dto.UserResponseDto;
@@ -31,23 +33,37 @@ public class AdminServiceImpl implements AdminService {
 	private final UserRepository userRepository;
 	private final MentorRequestRepository mentorRequestRepository;
 	private final PaymentHistoryRepository paymentHistoryRepository;
+	private final SettlementRepository settlementRepository;
 
 	public AdminServiceImpl(UserRepository userRepository, MentorRequestRepository mentorRequestRepository,
-		PaymentHistoryRepository paymentHistoryRepository) {
+		PaymentHistoryRepository paymentHistoryRepository,
+		SettlementRepository settlementRepository) {
 		this.userRepository = userRepository;
 		this.mentorRequestRepository = mentorRequestRepository;
 		this.paymentHistoryRepository = paymentHistoryRepository;
+		this.settlementRepository = settlementRepository;
 	}
 
 	/* -----------------멘토 신청 관련 로직------------------ */
 
 	@Override
-	public CommonResponseDto<Page<UserResponseDto>> getMentorList(int pageNumber, int pageSize) {
+	public CommonResponseDto<PaginationResponseDto<UserResponseDto>> getMentorList(int pageNumber, int pageSize) {
 		Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("createdAt").descending());
-		Page<UserResponseDto> userResponseDto = userRepository.findByRole(UserRole.MENTOR, pageable);
-		return CommonResponseDto.<Page<UserResponseDto>>builder()
+
+		Page<UserResponseDto> userResponseDtoPage = userRepository.findByRole(UserRole.MENTOR, pageable);
+
+		PaginationResponseDto<UserResponseDto> pageUserResponseList =
+			PaginationResponseDto.<UserResponseDto>builder()
+				.content(userResponseDtoPage.getContent())
+				.totalPages(userResponseDtoPage.getTotalPages())
+				.totalElements(userResponseDtoPage.getTotalElements())
+				.pageNumber(userResponseDtoPage.getNumber())
+				.pageSize(userResponseDtoPage.getSize())
+				.build();
+
+		return CommonResponseDto.<PaginationResponseDto<UserResponseDto>>builder()
 			.msg("전체 멘토 리스트 조회 되었습니다.")
-			.data(userResponseDto)
+			.data(pageUserResponseList)
 			.build();
 	}
 
@@ -105,16 +121,16 @@ public class AdminServiceImpl implements AdminService {
 	@Override
 	@Transactional
 	public CommonResponseDto updateSettlements(Long mentorId) {
-		List<PaymentHistory> paymentHistoryList = paymentHistoryRepository.findAllByUserIdAndSettleStatus(mentorId, SettlementStatus.PROCESSING);
+		List<Settlement> settlementList = settlementRepository.findAllByUserIdAndSettleStatus(mentorId,SettlementStatus.PROCESSING);
 
-		if (paymentHistoryList.isEmpty()) {
+		if (settlementList.isEmpty()) {
 			throw new BusinessException(ExceptionType.NOT_FOUND);
 		}
-		for (PaymentHistory p : paymentHistoryList){
-			p.updateSettleStatus(SettlementStatus.COMPLETE);
+		for (Settlement s : settlementList){
+			s.updateSettleStatus(SettlementStatus.COMPLETE);
 		}
 
-		paymentHistoryRepository.saveAll(paymentHistoryList);
+		settlementRepository.saveAll(settlementList);
 		return CommonResponseDto.builder()
 			.msg("정산 처리가 완료되었습니다.").build();
 	}
@@ -122,7 +138,7 @@ public class AdminServiceImpl implements AdminService {
 	@Override
 	public CommonResponseDto<List<AdminSettlementListResponseDto>> getSettlementList() {
 		List<AdminSettlementListResponseDto> adminSettlementGetResponseDto =
-			paymentHistoryRepository.findBySettleStatusMentorGroupList(SettlementStatus.PROCESSING);
+			settlementRepository.findBySettleStatusMentorGroupList(SettlementStatus.PROCESSING);
 
 		return CommonResponseDto.<List<AdminSettlementListResponseDto>>builder()
 			.msg("멘토 정산 내역이 조회되었습니다.")
@@ -131,11 +147,10 @@ public class AdminServiceImpl implements AdminService {
 
 	@Override
 	public CommonResponseDto getSettlement(Long mentorId, int pageNumber, int pageSize) {
-		Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("createdAt").descending());
-		Page<AdminSettlementResponseDto> adminSettlementResponseDto =
-			paymentHistoryRepository.findByUserIdAndSettleStatus(mentorId, SettlementStatus.PROCESSING,pageable);
+		List<AdminSettlementResponseDto> adminSettlementResponseDto =
+			settlementRepository.findByUserIdAndSettleStatus(mentorId,SettlementStatus.PROCESSING);
 
-		return CommonResponseDto.<Page<AdminSettlementResponseDto>>builder()
+		return CommonResponseDto.<List<AdminSettlementResponseDto>>builder()
 			.msg("멘토의 정산 리스트가 조회되었습니다.")
 			.data(adminSettlementResponseDto).build();
 	}

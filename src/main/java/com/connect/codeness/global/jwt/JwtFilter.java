@@ -23,7 +23,7 @@ public class JwtFilter extends OncePerRequestFilter {
 	@Autowired
 	private CustomUserDetailService userDetailService;
 
-	private static final List<String> POST_EXCLUDED_PATHS = List.of("/login", "/signup","/logout");
+	private static final List<String> POST_EXCLUDED_PATHS = List.of("/login","/signup","/logout");
 	private static final List<String> GET_EXCLUDED_PATHS = List.of("/posts", "/posts/.*","/news","/mentoring/\\d+/reviews");
 	private static final List<String> EXCLUDED_PATHS = List.of("/payment", "/mentoring", "/mentoring/.*", "/login-page", "/users", "/loginPage.html", "/payment.html");//TODO : 결제 테스트 - 나중에 지우기
 
@@ -61,7 +61,6 @@ public class JwtFilter extends OncePerRequestFilter {
 			logger.warn("Authorization header is missing or invalid.");
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			response.getWriter().write("Unauthorized: Missing or invalid Authorization header");
-			return;
 		}
 
 		String token = authorizationHeader.substring(7);

@@ -1,5 +1,6 @@
 package com.connect.codeness.domain.news;
 
+import com.connect.codeness.domain.mentoringpost.dto.PaginationResponseDto;
 import com.connect.codeness.domain.news.dto.NewsResponseDto;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.exception.BusinessException;
@@ -8,7 +9,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -26,17 +26,19 @@ public class NewsServiceImpl implements NewsService {
 
 
 	@Override
-	public CommonResponseDto<Page<NewsResponseDto>> findNews(int pageNumber, int pageSize) {
+	public CommonResponseDto<PaginationResponseDto<NewsResponseDto>> findNews(int pageNumber, int pageSize) {
 		try {
 			Long[] allNewsIds = cacheService.fetchTopStoryIds();
 
-			if (allNewsIds == null || allNewsIds.length == 0) {
+			int totalCount = allNewsIds.length;
+
+			if (allNewsIds == null || totalCount == 0) {
 				throw new BusinessException(ExceptionType.NOT_FOUND_NEWS);
 			}
 
 			int start = pageNumber * pageSize;
 
-			if (start >= allNewsIds.length) {
+			if (start >= totalCount) {
 				throw new BusinessException(ExceptionType.NOT_FOUND_NEWS);
 			}
 
@@ -55,11 +57,19 @@ public class NewsServiceImpl implements NewsService {
 				.toList();
 
 			PageImpl<NewsResponseDto> newsPage = new PageImpl<>(newsList,
-				PageRequest.of(pageNumber, pageSize, Sort.by("time")), allNewsIds.length);
+				PageRequest.of(pageNumber, pageSize, Sort.by("time")), totalCount);
 
-			return CommonResponseDto.<Page<NewsResponseDto>>builder()
+			PaginationResponseDto<NewsResponseDto> newsPageResponse = PaginationResponseDto.<NewsResponseDto>builder()
+				.content(newsPage.getContent())
+				.pageNumber(pageNumber)
+				.pageSize(pageSize)
+				.totalElements(newsPage.getTotalElements())
+				.totalPages(newsPage.getTotalPages())
+				.build();
+
+			return CommonResponseDto.<PaginationResponseDto<NewsResponseDto>>builder()
 				.msg("뉴스 조회가 완료되었습니다.")
-				.data(newsPage)
+				.data(newsPageResponse)
 				.build();
 
 		} catch (Exception e) {

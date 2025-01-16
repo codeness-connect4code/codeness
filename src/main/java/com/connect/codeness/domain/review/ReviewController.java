@@ -4,12 +4,12 @@ import static com.connect.codeness.global.constants.Constants.AUTHORIZATION;
 import static com.connect.codeness.global.constants.Constants.PAGE_NUMBER;
 import static com.connect.codeness.global.constants.Constants.PAGE_SIZE;
 
+import com.connect.codeness.domain.mentoringpost.dto.PaginationResponseDto;
 import com.connect.codeness.domain.review.dto.ReviewCreateRequestDto;
 import com.connect.codeness.domain.review.dto.ReviewFindResponseDto;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.jwt.JwtUtil;
 import jakarta.validation.Valid;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -52,12 +52,12 @@ public class ReviewController {
 	}
 
 	@GetMapping("/mentoring/{mentoringPostId}/reviews")
-	public ResponseEntity<CommonResponseDto<Page<ReviewFindResponseDto>>> findReviews(
+	public ResponseEntity<CommonResponseDto<PaginationResponseDto<ReviewFindResponseDto>>> findReviews(
 		@PathVariable Long mentoringPostId,
 		@RequestParam(defaultValue = PAGE_NUMBER) int pageNumber,
 		@RequestParam(defaultValue = PAGE_SIZE) int pageSize
 	) {
-		CommonResponseDto<Page<ReviewFindResponseDto>> commonResponseDto
+		CommonResponseDto<PaginationResponseDto<ReviewFindResponseDto>> commonResponseDto
 			= reviewService.findReviews(mentoringPostId, pageNumber, pageSize);
 
 		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);

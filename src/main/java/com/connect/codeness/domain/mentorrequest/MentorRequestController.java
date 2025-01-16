@@ -35,7 +35,13 @@ public class MentorRequestController {
 		this.fileService = fileService;
 	}
 
-	//todo : 파일 service 구현시 파일 추가로 수정 (사원증 이미지 첨부), token 구현시 사용자 정보 받아오기 수정(현재는 임의의 userid 1 전송)
+	/**
+	 * 멘토 신청 API
+	 * @param authorizationHeader
+	 * @param mentorRequestCreateRequestDto
+	 * @return
+	 * @throws IOException
+	 */
 	@PostMapping("/mentors")
 	public ResponseEntity<CommonResponseDto> createMentorRequest(
 		@RequestHeader(AUTHORIZATION) String authorizationHeader,

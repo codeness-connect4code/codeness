@@ -17,6 +17,7 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
@@ -64,6 +65,8 @@ public class SecurityConfig {
 					.userInfoEndpoint(userInfo ->
 						userInfo.userService(customOAuth2UserService()));
 			})
+			//.addFilterAfter(jwtFilter, ExceptionTranslationFilter.class);
+		//시큐리티 예외처리 필터
 			.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
