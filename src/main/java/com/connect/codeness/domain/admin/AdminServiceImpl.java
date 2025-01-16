@@ -13,7 +13,7 @@ import com.connect.codeness.domain.user.UserRepository;
 import com.connect.codeness.domain.user.dto.UserResponseDto;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.enums.MentorRequestStatus;
-import com.connect.codeness.global.enums.SettleStatus;
+import com.connect.codeness.global.enums.SettlementStatus;
 import com.connect.codeness.global.enums.UserRole;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
@@ -105,13 +105,13 @@ public class AdminServiceImpl implements AdminService {
 	@Override
 	@Transactional
 	public CommonResponseDto updateSettlements(Long mentorId) {
-		List<PaymentHistory> paymentHistoryList = paymentHistoryRepository.findAllByUserIdAndSettleStatus(mentorId,SettleStatus.PROCESSING);
+		List<PaymentHistory> paymentHistoryList = paymentHistoryRepository.findAllByUserIdAndSettleStatus(mentorId, SettlementStatus.PROCESSING);
 
 		if (paymentHistoryList.isEmpty()) {
 			throw new BusinessException(ExceptionType.NOT_FOUND);
 		}
 		for (PaymentHistory p : paymentHistoryList){
-			p.updateSettleStatus(SettleStatus.COMPLETE);
+			p.updateSettleStatus(SettlementStatus.COMPLETE);
 		}
 
 		paymentHistoryRepository.saveAll(paymentHistoryList);
@@ -122,7 +122,7 @@ public class AdminServiceImpl implements AdminService {
 	@Override
 	public CommonResponseDto<List<AdminSettlementListResponseDto>> getSettlementList() {
 		List<AdminSettlementListResponseDto> adminSettlementGetResponseDto =
-			paymentHistoryRepository.findBySettleStatusMentorGroupList(SettleStatus.PROCESSING);
+			paymentHistoryRepository.findBySettleStatusMentorGroupList(SettlementStatus.PROCESSING);
 
 		return CommonResponseDto.<List<AdminSettlementListResponseDto>>builder()
 			.msg("멘토 정산 내역이 조회되었습니다.")
@@ -133,7 +133,7 @@ public class AdminServiceImpl implements AdminService {
 	public CommonResponseDto getSettlement(Long mentorId, int pageNumber, int pageSize) {
 		Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("createdAt").descending());
 		Page<AdminSettlementResponseDto> adminSettlementResponseDto =
-			paymentHistoryRepository.findByUserIdAndSettleStatus(mentorId,SettleStatus.PROCESSING,pageable);
+			paymentHistoryRepository.findByUserIdAndSettleStatus(mentorId, SettlementStatus.PROCESSING,pageable);
 
 		return CommonResponseDto.<Page<AdminSettlementResponseDto>>builder()
 			.msg("멘토의 정산 리스트가 조회되었습니다.")

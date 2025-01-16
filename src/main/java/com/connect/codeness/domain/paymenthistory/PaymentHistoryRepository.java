@@ -3,7 +3,7 @@ package com.connect.codeness.domain.paymenthistory;
 
 import com.connect.codeness.domain.admin.dto.AdminSettlementListResponseDto;
 import com.connect.codeness.domain.admin.dto.AdminSettlementResponseDto;
-import com.connect.codeness.global.enums.SettleStatus;
+import com.connect.codeness.global.enums.SettlementStatus;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
 import java.util.List;
@@ -39,7 +39,7 @@ public interface PaymentHistoryRepository extends JpaRepository<PaymentHistory, 
 	 */
 	Optional<PaymentHistory> findByUserId(Long userId);
 
-	List<PaymentHistory> findAllByUserIdAndSettleStatus(Long userId, SettleStatus settleStatus);
+	List<PaymentHistory> findAllByUserIdAndSettleStatus(Long userId, SettlementStatus settlementStatus);
 
 	@Query(
 		"SELECT new com.connect.codeness.domain.admin.dto.AdminSettlementListResponseDto("
@@ -48,7 +48,7 @@ public interface PaymentHistoryRepository extends JpaRepository<PaymentHistory, 
 			"WHERE p.settleStatus = :settleStatus "+
 			"GROUP BY p.user.id, p.user.name"
 	)
-	List<AdminSettlementListResponseDto> findBySettleStatusMentorGroupList(SettleStatus settleStatus);
+	List<AdminSettlementListResponseDto> findBySettleStatusMentorGroupList(SettlementStatus settlementStatus);
 
 
 	@Query(
@@ -57,7 +57,7 @@ public interface PaymentHistoryRepository extends JpaRepository<PaymentHistory, 
 			"WHERE p.paymentStatus = :settleStatus " +
 			"AND p.id = :userId"
 	)
-	Page<AdminSettlementResponseDto> findByUserIdAndSettleStatus(Long userId, SettleStatus settleStatus, Pageable pageable);
+	Page<AdminSettlementResponseDto> findByUserIdAndSettleStatus(Long userId, SettlementStatus settlementStatus, Pageable pageable);
 
 	List<PaymentHistory>findAllByUserId(Long mentorId);
 }

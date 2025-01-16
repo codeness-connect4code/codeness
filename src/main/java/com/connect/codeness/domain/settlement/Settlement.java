@@ -2,9 +2,11 @@ package com.connect.codeness.domain.settlement;
 
 import com.connect.codeness.domain.paymenthistory.PaymentHistory;
 import com.connect.codeness.domain.user.User;
-import com.connect.codeness.global.enums.SettleStatus;
+import com.connect.codeness.global.enums.SettlementStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -24,14 +26,15 @@ public class Settlement {
 
 	@OneToOne
 	@JoinColumn(name = "payment_history_id")
-	private PaymentHistory paymentHistoryId; //결제 내역 고유 식별자 (외래키)
+	private PaymentHistory paymentHistory; //결제 내역 고유 식별자 (외래키)
 
 	@ManyToOne
 	@JoinColumn(name = "mentor_id")
 	private User user; //멘토 고유 식별자 (외래키)
 
+	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
-	private SettleStatus settleStatus; //정산 상태
+	private SettlementStatus settlementStatus; //정산 상태
 
 	@Column(nullable = true)
 	private String account; //사용자 계좌
@@ -44,5 +47,12 @@ public class Settlement {
 
 	public Settlement(){
 
+	}
+
+	/**
+	 * 정산 상태 수정 UNPROCESSED -> PROCESSING
+	 */
+	public void updateSettleStatus(SettlementStatus settlementStatus) {
+		this.settlementStatus = settlementStatus;
 	}
 }

@@ -17,9 +17,5 @@ public interface PaymentHistoryService {
 	 */
 	CommonResponseDto<PaymentHistoryResponseDto> getPaymentHistory(Long userId, Long paymentHistoryId);
 
-	/**
-	 * 결제내역 정산 신청 메서드
-	 */
-	CommonResponseDto requestSettlement(Long userId);
 }
 

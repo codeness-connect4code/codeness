@@ -3,7 +3,7 @@ package com.connect.codeness.domain.mentoringpost;
 import com.connect.codeness.domain.mentoringpost.dto.MentoringPostCreateRequestDto;
 import com.connect.codeness.domain.mentoringpost.dto.MentoringPostDetailResponseDto;
 import com.connect.codeness.domain.mentoringpost.dto.MentoringPostSearchResponseDto;
-import com.connect.codeness.domain.mentoringpost.dto.PaginationResponseDto;
+import com.connect.codeness.global.dto.PaginationResponseDto;
 import com.connect.codeness.domain.mentoringschedule.MentoringSchedule;
 import com.connect.codeness.domain.mentoringschedule.MentoringScheduleRepository;
 import com.connect.codeness.domain.user.User;
@@ -155,21 +155,21 @@ public class MentoringPostServiceImpl implements MentoringPostService {
 		Pageable pageable = PageRequest.of(pageNumber, pageSize);
 
 		//멘토링 공고 조회
-		Page<MentoringPost> mentoringPosts = mentoringPostRepository.findAllBySearchParameters(title, field, nickname, pageable);
+		Page<MentoringPostSearchResponseDto> mentoringPosts = mentoringPostRepository.findAllBySearchParameters(title, field, nickname, pageable);
 
-		//dto 변환 page -> PaginationResponseDto
-		List<MentoringPostSearchResponseDto> mentoringPostResponseDtos = mentoringPosts.getContent().stream()
-			.map(mentoringPost -> MentoringPostSearchResponseDto.builder()
-				.mentoringPostId(mentoringPost.getId())
-				.userNickname(mentoringPost.getUser().getUserNickname())
-				.field(mentoringPost.getField())
-				.title(mentoringPost.getTitle())
-				.career(mentoringPost.getCareer())
-				.build()).toList();
+		//dto 변환 page -> PaginationResponseDto TODO : DTO로 받아오는거 고민
+//		List<MentoringPostSearchResponseDto> mentoringPostResponseDtos = mentoringPosts.getContent().stream()
+//			.map(mentoringPost -> MentoringPostSearchResponseDto.builder()
+//				.mentoringPostId(mentoringPost.getMentoringPostId())
+//				.userNickname(mentoringPost.getUserNickname())
+//				.field(mentoringPost.getField())
+//				.title(mentoringPost.getTitle())
+//				.career(mentoringPost.getCareer())
+//				.build()).toList();
 
 		//PaginationResponseDto 생성
 		PaginationResponseDto<MentoringPostSearchResponseDto> paginationResponseDto = PaginationResponseDto.<MentoringPostSearchResponseDto>builder()
-			.content(mentoringPostResponseDtos)
+			.content(mentoringPosts.getContent())
 			.totalPages(mentoringPosts.getTotalPages())
 			.totalElements(mentoringPosts.getTotalElements())
 			.pageNumber(mentoringPosts.getNumber())

@@ -2,7 +2,10 @@ package com.connect.codeness.domain.mentoringpost;
 
 
 import static com.connect.codeness.domain.mentoringpost.QMentoringPost.mentoringPost;
+
+import com.connect.codeness.domain.mentoringpost.dto.MentoringPostSearchResponseDto;
 import com.connect.codeness.global.enums.FieldType;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -24,25 +27,45 @@ public class MentoringPostRepositoryImpl implements MentoringPostRepositoryCusto
 
 	//QueryDSL 사용
 	@Override
-	public Page<MentoringPost> findAllBySearchParameters(String title, String field, String nickname, Pageable pageable) {
+	public Page<MentoringPostSearchResponseDto> findAllBySearchParameters(String title, String field, String nickname, Pageable pageable) {
 
-		//쿼리 생성
-		JPQLQuery<MentoringPost> jpqlQuery = jpaQueryFactory.selectFrom(mentoringPost)
-			.distinct()
-			.where(
-				filterByTitle(title),
-				filterByField(field),
-				filterByNickname(nickname)
+		BooleanExpression condition = filterByTitle(title)
+			.and(filterByField(field))
+			.and(filterByNickname(nickname));
+		
+		//쿼리 생성 & 프로젝션 사용
+		JPQLQuery<MentoringPostSearchResponseDto> jpqlQuery = jpaQueryFactory.select(
+			Projections.constructor(MentoringPostSearchResponseDto.class,
+				mentoringPost.id,
+				mentoringPost.title,
+				mentoringPost.field.stringValue(),
+				mentoringPost.createdAt.stringValue()
 			)
+		).from(mentoringPost)
+			.where(condition)
 			.orderBy(mentoringPost.createdAt.desc());
+
+//		JPQLQuery<MentoringPost> jpqlQuery = jpaQueryFactory.selectFrom(mentoringPost)
+//			.distinct()
+//			.where(
+//				filterByTitle(title),
+//				filterByField(field),
+//				filterByNickname(nickname)
+//			)
+//			.orderBy(mentoringPost.createdAt.desc());
 
 		//페이징
 		long total = jpqlQuery.fetchCount();//전체 데이터 개수
 
-		List<MentoringPost> content = jpqlQuery
+		List<MentoringPostSearchResponseDto> content = jpqlQuery
 			.offset(pageable.getOffset()) //현재 페이지 첫번째 데이터 위치 설정
 			.limit(pageable.getPageSize()) //한 페이지에서 가져올 최대 데이터 수
 			.fetch();
+
+//		List<MentoringPost> content = jpqlQuery
+//			.offset(pageable.getOffset()) //현재 페이지 첫번째 데이터 위치 설정
+//			.limit(pageable.getPageSize()) //한 페이지에서 가져올 최대 데이터 수
+//			.fetch();
 
 		return new PageImpl<>(content, pageable, total);
 	}

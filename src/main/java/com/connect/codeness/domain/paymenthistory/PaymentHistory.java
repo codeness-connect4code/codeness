@@ -6,7 +6,7 @@ import com.connect.codeness.domain.user.User;
 import com.connect.codeness.global.entity.CreateTimeEntity;
 import com.connect.codeness.global.enums.PaymentStatus;
 import com.connect.codeness.global.enums.ReviewStatus;
-import com.connect.codeness.global.enums.SettleStatus;
+import com.connect.codeness.global.enums.SettlementStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -55,13 +55,6 @@ public class PaymentHistory extends CreateTimeEntity {
 	@Column(nullable = false)
 	private PaymentStatus paymentStatus;//결제 상태
 
-	@Enumerated(EnumType.STRING)
-	@Column(nullable = false)
-	private SettleStatus settleStatus; //정산 상태
-
-	@Column(nullable = true)
-	private LocalDateTime settlementRequestAt; //정산 요청일
-
 	@Column(nullable = true)
 	private LocalDateTime canceledAt; //결제 취소일
 
@@ -69,31 +62,21 @@ public class PaymentHistory extends CreateTimeEntity {
 	@Column(nullable = false)
 	private ReviewStatus reviewStatus; //후기 작성 상태
 
-	@Column(nullable = true)
-	private String account; //사용자 계좌
-
-	@Column(nullable = true)
-	private String bankName; //계좌 은행명
-
 	public PaymentHistory() {
 
 	}
 
 	@Builder
-	public PaymentHistory(Payment payment, User user, String pgTid, BigDecimal paymentCost,
-		String paymentCard, PaymentStatus paymentStatus, SettleStatus settleStatus,
-		LocalDateTime canceledAt, ReviewStatus reviewStatus, String account, String bankName) {
+	public PaymentHistory(Payment payment, User user, String pgTid, BigDecimal paymentCost, String paymentCard, PaymentStatus paymentStatus,
+		LocalDateTime canceledAt, ReviewStatus reviewStatus) {
 		this.payment = payment;
 		this.user = user;
 		this.pgTid = pgTid;
 		this.paymentCost = paymentCost;
 		this.paymentCard = paymentCard;
 		this.paymentStatus = paymentStatus;
-		this.settleStatus = settleStatus;
 		this.canceledAt = canceledAt;
 		this.reviewStatus = reviewStatus;
-		this.account = account;
-		this.bankName = bankName;
 	}
 
 	/**
@@ -108,13 +91,6 @@ public class PaymentHistory extends CreateTimeEntity {
 	 */
 	public void updatePaymentStatus(PaymentStatus paymentStatus) {
 		this.paymentStatus = paymentStatus;
-	}
-
-	/**
-	 * paymentList 정산 상태 수정 UNPROCESSED -> PROCESSING
-	 */
-	public void updateSettleStatus(SettleStatus settleStatus) {
-		this.settleStatus = settleStatus;
 	}
 
 }

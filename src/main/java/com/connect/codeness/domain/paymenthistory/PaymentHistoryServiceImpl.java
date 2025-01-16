@@ -7,7 +7,7 @@ import com.connect.codeness.domain.paymenthistory.dto.PaymentHistoryResponseDto;
 import com.connect.codeness.domain.user.User;
 import com.connect.codeness.domain.user.UserRepository;
 import com.connect.codeness.global.dto.CommonResponseDto;
-import com.connect.codeness.global.enums.SettleStatus;
+import com.connect.codeness.global.enums.SettlementStatus;
 import com.connect.codeness.global.enums.UserRole;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
@@ -73,9 +73,7 @@ public class PaymentHistoryServiceImpl implements PaymentHistoryService {
 			.paymentCost(paymentHistory.getPaymentCost())
 			.paymentCard(paymentHistory.getPaymentCard())
 			.canceledAt(paymentHistory.getCanceledAt())
-			.reviewStatus(paymentHistory.getReviewStatus())
-			.account(paymentHistory.getAccount())
-			.bankName(paymentHistory.getBankName());
+			.reviewStatus(paymentHistory.getReviewStatus());
 
 		//유저가 멘티일 경우
 		if (userRole == UserRole.MENTEE) {
@@ -83,10 +81,10 @@ public class PaymentHistoryServiceImpl implements PaymentHistoryService {
 			builder.paymentStatus(paymentHistory.getPaymentStatus());
 		}
 		//유저가 멘토일 경우
-		if (userRole == UserRole.MENTOR) {
-			//정산상태 settleStatus 필드 추가
-			builder.settleStatus(paymentHistory.getSettleStatus());
-		}
+//		if (userRole == UserRole.MENTOR) {
+//			//정산상태 settlementStatus 필드 추가
+//			builder.settlementStatus(paymentHistory.getSettlementStatus());
+//		}
 
 		return builder.build();
 	}
@@ -116,41 +114,10 @@ public class PaymentHistoryServiceImpl implements PaymentHistoryService {
 			.paymentStatus(paymentHistory.getPaymentStatus())
 			.canceledAt(paymentHistory.getCanceledAt())
 			.reviewStatus(paymentHistory.getReviewStatus())
-			.account(paymentHistory.getAccount())
-			.bankName(paymentHistory.getBankName())
 			.build();
 
 		return CommonResponseDto.<PaymentHistoryResponseDto>builder().msg("결제 내역이 단건 조회 되었습니다.").data(paymentHistoryResponseDto).build();
 	}
 
-	/**
-	 * 결제내역 정산 신청 서비스 메서드
-	 * - 멘토
-	 * - 정산상태 변경
-	 * - TODO : 결제내역 데이터가 없을 경우 예외처리 추가
-	 */
-	@Transactional
-	@Override
-	public CommonResponseDto requestSettlement(Long userId) {
-		//유저 조회
-		User user = userRepository.findByIdOrElseThrow(userId);
-
-		//유저가 멘티거나 어드민일 경우
-		if(user.getRole().equals(UserRole.MENTEE) || user.getRole().equals(UserRole.ADMIN)){
-			throw new BusinessException(ExceptionType.FORBIDDEN_SETTLEMENT_ACCESS);
-		}
-
-		//정산 상태가 미처리인 결제 내역 조회
-		List<PaymentHistory> unprocessedPaymentHistories = paymentHistoryRepository.findAllByUserIdAndSettleStatus(user.getId(), SettleStatus.UNPROCESSED);
-		//정산 상태가 미처리인 결제 내역이 없을 경우
-		if(unprocessedPaymentHistories.isEmpty()){
-			throw new BusinessException(ExceptionType.NOT_FOUND_SETTLEMENT_DATE);
-		}
-
-		//정산 상태 처리중으로 업데이트
-		unprocessedPaymentHistories.forEach(paymentHistory -> paymentHistory.updateSettleStatus(SettleStatus.PROCESSING));
-
-		return CommonResponseDto.builder().msg("정산 신청이 완료되었습니다.").build();
-	}
 }
 
