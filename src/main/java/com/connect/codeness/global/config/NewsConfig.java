@@ -1,7 +1,7 @@
 package com.connect.codeness.global.config;
 
+import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.CacheManager;
@@ -30,14 +30,19 @@ public class NewsConfig {
 	public CacheManager cacheManager() {
 		CaffeineCacheManager cacheManager = new CaffeineCacheManager();
 
-		cacheManager.setCacheNames(Arrays.asList(
-			"newStories","stories"
-		));
+		Cache<Object, Object> newStoriesCache = Caffeine.newBuilder()
+				.expireAfterAccess(2,TimeUnit.MINUTES)
+				.expireAfterWrite(5,TimeUnit.MINUTES)
+				.maximumSize(1)
+				.build();
 
-		cacheManager.setCaffeine(Caffeine.newBuilder()
-			.expireAfterAccess(5, TimeUnit.MINUTES)
-			.expireAfterWrite(10, TimeUnit.MINUTES)
-			.maximumSize(500));
+		Cache<Object, Object> storiesCache = Caffeine.newBuilder()
+			.expireAfterWrite(30,TimeUnit.MINUTES)
+			.maximumSize(200)
+			.build();
+
+		cacheManager.registerCustomCache("newStories", newStoriesCache);
+		cacheManager.registerCustomCache("stories", storiesCache);
 
 		log.info("Initialized cache manager with caches: {}", cacheManager.getCacheNames());
 		return cacheManager;
