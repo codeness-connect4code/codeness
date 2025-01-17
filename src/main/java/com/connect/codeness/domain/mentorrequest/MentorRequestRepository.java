@@ -14,7 +14,7 @@ public interface MentorRequestRepository extends JpaRepository<MentorRequest, Lo
 	boolean existsByUserId(Long userId);
 
 	@Query("""
-			SELECT new com.connect.codeness.domain.mentorrequest.dto.MentorRequestResponseDto(mr)
+			SELECT mr
 			FROM MentorRequest mr WHERE mr.isAccepted = :status
 			ORDER BY mr.createdAt ASC
 		""")
