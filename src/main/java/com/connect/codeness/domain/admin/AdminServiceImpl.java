@@ -1,5 +1,6 @@
 package com.connect.codeness.domain.admin;
 
+import com.connect.codeness.domain.admin.dto.AdminMentorListResponseDto;
 import com.connect.codeness.domain.admin.dto.AdminSettlementListResponseDto;
 import com.connect.codeness.domain.admin.dto.AdminSettlementResponseDto;
 import com.connect.codeness.domain.admin.dto.AdminUpdateMentorRequestDto;
@@ -48,13 +49,13 @@ public class AdminServiceImpl implements AdminService {
 	/* -----------------멘토 신청 관련 로직------------------ */
 
 	@Override
-	public CommonResponseDto<PaginationResponseDto<UserResponseDto>> getMentorList(int pageNumber, int pageSize) {
+	public CommonResponseDto<PaginationResponseDto<AdminMentorListResponseDto>> getMentorList(int pageNumber, int pageSize) {
 		Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("createdAt").descending());
 
-		Page<UserResponseDto> userResponseDtoPage = userRepository.findByRole(UserRole.MENTOR, pageable);
+		Page<AdminMentorListResponseDto> userResponseDtoPage = userRepository.findByRole(UserRole.MENTOR, pageable);
 
-		PaginationResponseDto<UserResponseDto> pageUserResponseList =
-			PaginationResponseDto.<UserResponseDto>builder()
+		PaginationResponseDto<AdminMentorListResponseDto> pageUserResponseList =
+			PaginationResponseDto.<AdminMentorListResponseDto>builder()
 				.content(userResponseDtoPage.getContent())
 				.totalPages(userResponseDtoPage.getTotalPages())
 				.totalElements(userResponseDtoPage.getTotalElements())
@@ -62,7 +63,7 @@ public class AdminServiceImpl implements AdminService {
 				.pageSize(userResponseDtoPage.getSize())
 				.build();
 
-		return CommonResponseDto.<PaginationResponseDto<UserResponseDto>>builder()
+		return CommonResponseDto.<PaginationResponseDto<AdminMentorListResponseDto>>builder()
 			.msg("전체 멘토 리스트 조회 되었습니다.")
 			.data(pageUserResponseList)
 			.build();
