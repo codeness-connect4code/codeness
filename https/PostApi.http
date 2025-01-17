@@ -4,7 +4,7 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "title" : "자유 게시글 - 테스트",
+  "title" : "자유 게시3 - 테스트2",
   "content" : "테스트를 위한 게시글 생성입니다.",
   "postType" : "FREE"
 }
@@ -16,10 +16,10 @@ Authorization: Bearer {{token}}
 ### 게시글 목록 조회
 GET localhost:8080/posts
 
-### 게시글 목록 조회
+### 게시글 상세 조회
 GET localhost:8080/posts/2
 
-### 댓글 수정
+### 게시글 수정
 PATCH localhost:8080/posts/3
 Content-Type: application/json
 Authorization: Bearer {{token}}

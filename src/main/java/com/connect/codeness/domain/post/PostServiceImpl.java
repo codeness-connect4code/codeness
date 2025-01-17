@@ -9,6 +9,7 @@ import com.connect.codeness.domain.post.dto.PostUpdateRequestDto;
 import com.connect.codeness.domain.user.User;
 import com.connect.codeness.domain.user.UserRepository;
 import com.connect.codeness.global.dto.CommonResponseDto;
+import com.connect.codeness.global.dto.PaginationResponseDto;
 import com.connect.codeness.global.enums.PostStatus;
 import com.connect.codeness.global.enums.PostType;
 import com.connect.codeness.global.enums.UserRole;
@@ -64,24 +65,24 @@ public class PostServiceImpl implements PostService {
 
 	// 게시글 목록 조회
 	@Override
-	public CommonResponseDto<Page<PostFindAllResponseDto>> findAllPost(PostType postType, String keyword, String writer, Pageable pageable) {
+	public CommonResponseDto<PaginationResponseDto<PostFindAllResponseDto>> findAllPost(PostType postType, String keyword, String writer, Pageable pageable) {
 
 		// DB 에서 게시글 가져오기
-		Page<Post> posts = postRepository.findByTypeAndKeyword(postType, keyword, writer, pageable);
+		Page<PostFindAllResponseDto> posts = postRepository.findByTypeAndKeyword(postType, keyword, writer, pageable);
 
-		// DTO로 매핑
-		Page<PostFindAllResponseDto> postList = posts.map(post -> PostFindAllResponseDto.builder()
-				.postId(post.getId())
-				.title(post.getTitle())
-				.writer(post.getWriter())
-				.view(post.getView())
-				.createdAt(post.getCreatedAt())
-				.build());
+		PaginationResponseDto<PostFindAllResponseDto> findAllPostResult =
+			PaginationResponseDto.<PostFindAllResponseDto>builder()
+				.content(posts.getContent())
+				.totalPages(posts.getTotalPages())
+				.totalElements(posts.getTotalElements())
+				.pageNumber(posts.getNumber())
+				.pageSize(posts.getSize())
+				.build();
 
 		// CommonResponseDto에 Page를 직접 포함
-		return CommonResponseDto.<Page<PostFindAllResponseDto>>builder()
+		return CommonResponseDto.<PaginationResponseDto<PostFindAllResponseDto>>builder()
 			.msg("게시글 목록 조회가 완료되었습니다.")
-			.data(postList)
+			.data(findAllPostResult)
 			.build();
 	}
 
