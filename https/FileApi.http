@@ -17,7 +17,13 @@ Content-Type: image/png
 
 ### 파일 삭제
 DELETE localhost:8080/files
+Content-Type: application/json
 Authorization: Bearer {{token}}
+
+{
+  "userId" : 1,
+  "fileCategory" : "PROFILE"
+}
 
 > {%
   client.global.get("auth.token");
