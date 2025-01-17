@@ -1,5 +1,5 @@
 ### 게시글 생성
-POST localhost:8080/posts/1/comments
+POST localhost:8080/posts
 Content-Type: application/json
 Authorization: Bearer {{token}}
 

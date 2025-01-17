@@ -53,6 +53,7 @@ public class SecurityConfig {
 							"/posts/**",
 							"/news"
 				).permitAll()
+				.requestMatchers("/admin/**").hasAuthority("ADMIN")
 				.requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
 				.anyRequest().authenticated()
 			)

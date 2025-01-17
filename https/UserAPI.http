@@ -31,7 +31,7 @@ GET localhost:8080/users
 Authorization: Bearer {{token}}
 
 ### 유저 정보 수정 API
-PATCH localhost:8080/users/1
+PATCH localhost:8080/users/23
 Authorization: Bearer {{token}}
 Content-Type: multipart/form-data; boundary=boundary
 
@@ -72,7 +72,7 @@ Content-Type: image/jpeg
 --boundary--
 
 ### 유저 비밀번호 변경 API
-PATCH localhost:8080/users/1/password
+PATCH localhost:8080/users/23/password
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
@@ -82,7 +82,7 @@ Content-Type: application/json
 }
 
 ### 유저 계좌 변경 API
-PATCH localhost:8080/users/1/bank-account
+PATCH localhost:8080/users/23/bank-account
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
@@ -92,10 +92,10 @@ Content-Type: application/json
 }
 
 ### 유저 탈퇴 API
-DELETE localhost:8080/users/1
+DELETE localhost:8080/users/23
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-	"password" : "asdf1234!@"
+	"password" : "abcd123aaaaaa@"
 }
