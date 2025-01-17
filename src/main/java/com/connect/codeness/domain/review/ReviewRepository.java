@@ -1,5 +1,6 @@
 package com.connect.codeness.domain.review;
 
+import com.connect.codeness.domain.paymenthistory.PaymentHistory;
 import com.connect.codeness.domain.review.dto.ReviewFindResponseDto;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
@@ -23,9 +24,9 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 		    SELECT new com.connect.codeness.domain.review.dto.ReviewFindResponseDto(
 		    r.id, r.user.id, r.reviewContent, r.starRating, r.createdAt)
 		    FROM Review r
-		    JOIN r.paymentHistory pl
-		    JOIN pl.payment p
-		    WHERE p.mentoringSchedule.mentoringPost.id = :postId
+		    WHERE r.mentoringPost.id = :postId
 		""")
 	Page<ReviewFindResponseDto> findByMentoringPostId(@Param("postId") Long postId, Pageable pageable);
+
+	Boolean existsByPaymentHistory(PaymentHistory paymentHistory);
 }

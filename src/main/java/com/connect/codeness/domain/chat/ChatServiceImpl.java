@@ -337,7 +337,7 @@ public class ChatServiceImpl implements ChatService {
 	}
 
 	//채팅방 ID 생성
-	private String generateChatRoomId(Long userId, Long partnerId) {
+	public String generateChatRoomId(Long userId, Long partnerId) {
 		return String.format("%d_%d", userId, partnerId);
 	}
 
