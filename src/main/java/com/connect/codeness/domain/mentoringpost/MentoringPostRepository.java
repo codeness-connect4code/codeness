@@ -19,13 +19,10 @@ public interface MentoringPostRepository extends JpaRepository<MentoringPost, Lo
 	@Query(
 		value = "SELECT new com.connect.codeness.domain.mentoringpost.dto.MentoringPostRecommendResponseDto(m, " +
 			"COALESCE((SELECT CAST(AVG(r.starRating) AS DOUBLE) FROM Review r " +
-			"JOIN r.paymentHistory pl " +
-			"JOIN pl.payment p " +
-			"JOIN p.mentoringSchedule ms " +
-			"WHERE ms.mentoringPost.id = m.id), 0.0)) " +
+			"WHERE r.mentoringPost.id = m.id), 0.0)) " +
 			"FROM MentoringPost m " +
 			"WHERE (:field IS NULL OR m.field = :field) " +
-			"AND (:region IS NULL OR m.region LIKE %:region% OR :region IS NULL)"
+			"AND (:region IS NULL OR m.region LIKE %:region%)"
 	)
 	Page<MentoringPostRecommendResponseDto> findByFilter(
 		@Param("field") FieldType field,

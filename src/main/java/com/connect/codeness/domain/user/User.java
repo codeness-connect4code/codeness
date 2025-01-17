@@ -122,4 +122,8 @@ public class User extends BaseEntity {
 	public void deleteUser() {
 		this.userStatus = UserStatus.LEAVE;
 	}
+
+	public void updateRole(UserRole userRole) {
+		this.role = userRole;
+	}
 }
