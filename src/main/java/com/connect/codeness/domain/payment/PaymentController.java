@@ -51,7 +51,7 @@ public class PaymentController {
 	@DeleteMapping("/payments/{paymentId}")
 	public ResponseEntity<CommonResponseDto> deletePayment(@PathVariable Long paymentId, @Valid @RequestBody PaymentDeleteRequestDto requestDto){
 
-		CommonResponseDto responseDto = paymentService.deletePayment(userId, paymentId, requestDto);
+		CommonResponseDto responseDto = paymentService.deletePayment(paymentId, requestDto);
 
 		return new ResponseEntity<>(responseDto, HttpStatus.OK);
 	}

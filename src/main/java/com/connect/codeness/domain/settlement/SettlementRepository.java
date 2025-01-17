@@ -12,7 +12,7 @@ public interface SettlementRepository extends JpaRepository<Settlement, Long> {
 	@Query(
 		"SELECT s "+
 			"FROM Settlement s "+
-			"WHERE s.settlementStatus = :settleStatus " +
+			"WHERE s.settlementStatus = :settlementStatus " +
 			"AND s.user.id = :mentorId"
 	)
 	List<Settlement> findAllByUserIdAndSettleStatus(Long mentorId, SettlementStatus settlementStatus);
@@ -21,7 +21,7 @@ public interface SettlementRepository extends JpaRepository<Settlement, Long> {
 		"SELECT new com.connect.codeness.domain.admin.dto.AdminSettlementListResponseDto("
 			+ "s.user.id, s.user.name, COUNT(s), SUM(s.paymentHistory.paymentCost), MAX(s.settlementRequestAt)) " +
 			"FROM Settlement s " +
-			"WHERE s.settlementStatus = :settleStatus "+
+			"WHERE s.settlementStatus = :settlementStatus "+
 			"GROUP BY s.user.id, s.user.name "+
 			"ORDER BY MAX(s.settlementRequestAt) DESC"
 	)
@@ -31,7 +31,7 @@ public interface SettlementRepository extends JpaRepository<Settlement, Long> {
 	@Query(
 		"SELECT new com.connect.codeness.domain.admin.dto.AdminSettlementResponseDto(s) " +
 			"FROM Settlement s " +
-			"WHERE s.settlementStatus = :settleStatus " +
+			"WHERE s.settlementStatus = :settlementStatus " +
 			"AND s.user.id = :userId"
 	)
 	List<AdminSettlementResponseDto> findByUserIdAndSettleStatus(Long mentorId, SettlementStatus settlementStatus);

@@ -9,12 +9,15 @@ import com.connect.codeness.domain.payment.dto.PaymentRefundRequestDto;
 import com.connect.codeness.domain.payment.dto.PaymentRequestDto;
 import com.connect.codeness.domain.paymenthistory.PaymentHistory;
 import com.connect.codeness.domain.paymenthistory.PaymentHistoryRepository;
+import com.connect.codeness.domain.settlement.Settlement;
+import com.connect.codeness.domain.settlement.SettlementRepository;
 import com.connect.codeness.domain.user.User;
 import com.connect.codeness.domain.user.UserRepository;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.enums.BookedStatus;
 import com.connect.codeness.global.enums.PaymentStatus;
 import com.connect.codeness.global.enums.ReviewStatus;
+import com.connect.codeness.global.enums.SettlementStatus;
 import com.connect.codeness.global.enums.UserRole;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
@@ -38,19 +41,19 @@ public class PaymentServiceImpl implements PaymentService {
 	private final UserRepository userRepository;
 	private final MentoringScheduleRepository mentoringScheduleRepository;
 	private final ChatServiceImpl chatService;
-	private final FirebaseDatabase firebaseDatabase;
+	private final SettlementRepository settlementRepository;
 
 	public PaymentServiceImpl(IamportClient iamportClient, PaymentRepository paymentRepository,
 		PaymentHistoryRepository paymentHistoryRepository,
 		UserRepository userRepository, MentoringScheduleRepository mentoringScheduleRepository, ChatServiceImpl chatService,
-		FirebaseDatabase firebaseDatabase) {
+		FirebaseDatabase firebaseDatabase, SettlementRepository settlementRepository) {
 		this.iamportClient = iamportClient;
 		this.paymentRepository = paymentRepository;
 		this.paymentHistoryRepository = paymentHistoryRepository;
 		this.userRepository = userRepository;
 		this.mentoringScheduleRepository = mentoringScheduleRepository;
 		this.chatService = chatService;
-		this.firebaseDatabase = firebaseDatabase;
+		this.settlementRepository = settlementRepository;
 	}
 
 	/**
@@ -73,8 +76,7 @@ public class PaymentServiceImpl implements PaymentService {
 			throw new BusinessException(ExceptionType.MENTOR_PAYMENT_NOT_ALLOWED);
 		}
 
-		// TODO : 스케쥴 검증 결제 생성에서 하지 말기
-
+		// TODO : 스케쥴 검증 결제 생성에서 X -> 결제 테스트 후 코드 정리하기
 //		//멘토링 스케쥴 상태 체크
 //		if (mentoringSchedule.getBookedStatus().equals(BookedStatus.BOOKED)) {
 //			throw new BusinessException(ExceptionType.ALREADY_BOOKED);
@@ -193,9 +195,17 @@ public class PaymentServiceImpl implements PaymentService {
 		MentoringSchedule mentoringSchedule = mentoringScheduleRepository.findByIdOrElseThrow(requestDto.getMentoringScheduleId());
 		mentoringSchedule.updateBookedStatus(BookedStatus.BOOKED);
 		
-		//정산 테이블 저장
-		
-		//채팅방 생성
+		//정산 생성
+		Settlement settlement = Settlement.builder()
+			.paymentHistory(paymentHistory)
+			.user(mentor)
+			.settlementStatus(SettlementStatus.UNPROCESSED)
+			.build();
+
+		//정산 저장
+		settlementRepository.save(settlement);
+
+		//TODO : 채팅방 생성 - 로그인한 id, 멘토의 id
 
 		return CommonResponseDto.builder().msg("결제가 완료되었습니다.").data(payment.getId()).build();
 	}
@@ -255,7 +265,8 @@ public class PaymentServiceImpl implements PaymentService {
 		Payment payment = paymentHistory.getPayment();
 		payment.updatePaymentCanceledAt();
 
-		//채팅방 삭제 TODO : chatRoomId 어떻게 가져오면 될까?
+		//채팅방 삭제 TODO : chatRoomId 어떻게 가져오면 될까? 채팅 id 생성 메서드 사용하기
+		//채팅방 id는 내 id랑 상대방 id 조합 -> 1_2 -> 채팅방 메서드 사용하기
 //		chatService.deleteChatRoom(userId, );
 
 		return CommonResponseDto.builder().msg("결제가 환불되었습니다.").build();

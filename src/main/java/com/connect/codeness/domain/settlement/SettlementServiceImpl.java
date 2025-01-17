@@ -1,9 +1,7 @@
 package com.connect.codeness.domain.settlement;
 
-import com.connect.codeness.domain.payment.Payment;
 import com.connect.codeness.domain.paymenthistory.PaymentHistory;
 import com.connect.codeness.domain.paymenthistory.PaymentHistoryRepository;
-import com.connect.codeness.domain.paymenthistory.PaymentHistoryService;
 import com.connect.codeness.domain.user.User;
 import com.connect.codeness.domain.user.UserRepository;
 import com.connect.codeness.global.dto.CommonResponseDto;
@@ -22,10 +20,13 @@ public class SettlementServiceImpl implements SettlementService {
 
 	private final UserRepository userRepository;
 	private final PaymentHistoryRepository paymentHistoryRepository;
+	private final SettlementRepository settlementRepository;
 
-	public SettlementServiceImpl(UserRepository userRepository, PaymentHistoryRepository paymentHistoryRepository) {
+	public SettlementServiceImpl(UserRepository userRepository, PaymentHistoryRepository paymentHistoryRepository,
+		SettlementRepository settlementRepository) {
 		this.userRepository = userRepository;
 		this.paymentHistoryRepository = paymentHistoryRepository;
+		this.settlementRepository = settlementRepository;
 	}
 
 	/**
@@ -45,15 +46,21 @@ public class SettlementServiceImpl implements SettlementService {
 			throw new BusinessException(ExceptionType.FORBIDDEN_SETTLEMENT_ACCESS);
 		}
 
-		//정산 상태가 미처리인 결제 내역 조회
-		List<PaymentHistory> unprocessedPaymentHistories = paymentHistoryRepository.findAllByUserIdAndSettleStatus(user.getId(), SettlementStatus.UNPROCESSED);
-		//정산 상태가 미처리인 결제 내역이 없을 경우
-		if(unprocessedPaymentHistories.isEmpty()){
+		//정산 상태가 미처리인 정산 신청 조회
+		List<Settlement> unprocessedSettlements = settlementRepository.findAllByUserIdAndSettleStatus(user.getId(), SettlementStatus.UNPROCESSED);
+		if(unprocessedSettlements.isEmpty()){
 			throw new BusinessException(ExceptionType.NOT_FOUND_SETTLEMENT_DATE);
 		}
+		
+//		List<PaymentHistory> unprocessedPaymentHistories = paymentHistoryRepository.findAllByUserIdAndSettlementStatus(user.getId(), SettlementStatus.UNPROCESSED);
+		//정산 상태가 미처리인 결제 내역이 없을 경우
+//		if(unprocessedPaymentHistories.isEmpty()){
+//			throw new BusinessException(ExceptionType.NOT_FOUND_SETTLEMENT_DATE);
+//		}
 
 		//정산 상태 처리중으로 업데이트 TODO : 로직 수정 예정
 //		unprocessedPaymentHistories.forEach(paymentHistory -> paymentHistory.updateSettlementStatus(SettlementStatus.PROCESSING));
+		unprocessedSettlements.forEach(settlement -> settlement.updateSettlementStatus(SettlementStatus.PROCESSING));
 
 		return CommonResponseDto.builder().msg("정산 신청이 완료되었습니다.").build();
 	}

@@ -4,7 +4,6 @@ import com.connect.codeness.domain.mentoringpost.dto.MentoringPostRecommendRespo
 import com.connect.codeness.global.enums.FieldType;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
-import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

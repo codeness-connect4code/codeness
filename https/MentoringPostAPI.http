@@ -1,18 +1,57 @@
-### 멘토링 공고 생성하기
-POST localhost:8080/mentoring
+### 회원가입 - 멘토
+POST localhost:8080/signup
+Content-Type: application/json
 
 {
-    "company" : "내일배움캠프테스트",
-	"title" : "멘토링 공고 제목입니다",
-	"field" : "FRONTEND",
-	"career" : 10,
+  "email" : "a11@naver.com",
+  "password" : "asdf1234!@",
+  "name" : "한철수",
+  "nickname" : "개발개발",
+  "phoneNumber" : "010 - 1234 - 6328",
+  "field" : "BACKEND",
+  "userRole" : "MENTOR"
+}
+
+### 로그인 - 멘토 한철수
+POST localhost:8080/login
+Content-Type: application/json
+
+{
+  "email" : "a11@naver.com",
+  "password" : "asdf1234!@"
+}
+
+### 로그인 - 멘토
+POST localhost:8080/login
+Content-Type: application/json
+
+{
+  "email" : "asdf132345@naver.com",
+  "password" : "asdf1234!@"
+}
+
+> {%
+  client.global.set("token",response.body.token);
+  client.log("Token saved: " + client.global.get("token"));
+%}
+
+### 멘토링 공고 생성하기
+POST localhost:8080/mentoring
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "company" : "테스트회사",
+	"title" : "백엔드 멘토링 진행합니다",
+	"field" : "BACKEND",
+	"career" : 3,
 	"region" : "서울, 경기 남부",
 	"price" : 50000,
-	"startDate" : "2025-01-16",
-	"endDate" : "2025-01-17",
+	"startDate" : "2025-01-18",
+	"endDate" : "2025-01-19",
 	"startTime" : "23:00",
-	"endTime" : "02:00",
-	"description" : "진로에 대해 고민하시는 분들에게 최선을 다해 상담해드리겠습니다 :)"
+	"endTime" : "04:00",
+	"description" : "멘토링 받으러 오세요~😊"
 }
 
 ### 멘토링 공고 전체 조회하기
@@ -23,17 +62,26 @@ Content-Type: application/json
 
 }
 
-### 멘토링 공고 상세 조회하기
-GET localhost:8080/mentoring
+### 멘토링 공고 전체 조회하기 - 조건별 검색
+GET localhost:8080/mentoring?title=제목&userNickname=개발&field=FRONTEND
 Content-Type: application/json
 
+{
+
+}
+
+### 멘토링 공고 상세 조회하기
+GET localhost:8080/mentoring/8
+Content-Type: application/json
+
+
 ### 멘토링 공고 스케쥴 전체 조회하기
-GET localhost:8080/mentoring/1/mentoring-schedule
+GET localhost:8080/mentoring/16/mentoring-schedule
 Content-Type: application/json
 
 
 ### 멘토링 공고 삭제하기
-GET localhost:8080/mentoring/1
+DELETE localhost:8080/mentoring/12
 Content-Type: application/json
 Authorization: Bearer {{token}}
 

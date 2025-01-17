@@ -1,8 +1,6 @@
 package com.connect.codeness.domain.mentoringpost.dto;
 
 
-import com.connect.codeness.global.enums.FieldType;
-import java.math.BigDecimal;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -14,11 +12,24 @@ public class MentoringPostSearchResponseDto {
 
 	private String userNickname;//사용자 고유 식별자 (외래키)
 
-	private FieldType field; //분야
+	private String field; //분야 - 문자열로 변경
 
 	private String title;//공고 제목
 
 	private Integer career;//경력
 
-	private BigDecimal starRating;//평균 별점 - TODO : 추가
+//	private Double starRating;//평균 별점 - TODO : 추가
+
+
+	public MentoringPostSearchResponseDto() {
+	}
+
+	public MentoringPostSearchResponseDto(Long mentoringPostId, String userNickname, String field, String title, Integer career) {
+		this.mentoringPostId = mentoringPostId;
+		this.userNickname = userNickname;
+		this.field = field;
+		this.title = title;
+		this.career = career;
+	}
+
 }

@@ -2,9 +2,6 @@ package com.connect.codeness.domain.mentoringschedule;
 
 import com.connect.codeness.domain.mentoringschedule.dto.MentoringScheduleResponseDto;
 import com.connect.codeness.global.dto.CommonResponseDto;
-import com.connect.codeness.global.enums.BookedStatus;
-import com.connect.codeness.global.exception.BusinessException;
-import com.connect.codeness.global.exception.ExceptionType;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
@@ -39,8 +36,6 @@ public class MentoringScheduleServiceImpl implements MentoringScheduleService {
 				.bookedStatus(mentoringSchedules.getBookedStatus())
 				.build()
 			).toList();
-
-		//스케쥴이 가능한 것만 보여주기
 
 		return CommonResponseDto.<List<MentoringScheduleResponseDto>>builder().msg("멘토링 공고 스케쥴이 조회되었습니다.").data(mentoringScheduleResponseDto).build();
 	}

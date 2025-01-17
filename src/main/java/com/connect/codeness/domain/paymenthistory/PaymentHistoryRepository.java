@@ -34,7 +34,9 @@ public interface PaymentHistoryRepository extends JpaRepository<PaymentHistory, 
 		return findByIdAndUserId(userId, paymentHistoryId).orElseThrow(
 			() -> new BusinessException(ExceptionType.NOT_FOUND_PAYMENT_HISTORY));
 	}
-
-	List<PaymentHistory> findAllByUserIdAndSettleStatus(Long userId, SettlementStatus settleStatus);
+	/**
+	 * TODO : 사용하지 않으면 지우기
+	 */
+//	List<PaymentHistory> findAllByUserIdAndSettlementStatus(Long userId, SettlementStatus settlementStatus);
 }
 

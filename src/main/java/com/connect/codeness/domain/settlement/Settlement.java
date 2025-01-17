@@ -15,6 +15,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import java.time.LocalDateTime;
+import lombok.Builder;
 import lombok.Getter;
 
 @Getter
@@ -48,8 +49,20 @@ public class Settlement extends CreateTimeEntity {
 
 	public Settlement(){}
 
+	@Builder
+	public Settlement(Long id, PaymentHistory paymentHistory, User user, SettlementStatus settlementStatus, String account, String bankName,
+		LocalDateTime settlementRequestAt) {
+		this.id = id;
+		this.paymentHistory = paymentHistory;
+		this.user = user;
+		this.settlementStatus = settlementStatus;
+		this.account = account;
+		this.bankName = bankName;
+		this.settlementRequestAt = settlementRequestAt;
+	}
+
 	/**
-	 * 정산 상태 수정 UNPROCESSED -> PROCESSING
+	 * 정산 상태 수정
 	 */
 	public void updateSettlementStatus(SettlementStatus settlementStatus) {
 		this.settlementStatus = settlementStatus;
