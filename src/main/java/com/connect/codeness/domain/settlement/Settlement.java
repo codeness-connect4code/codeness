@@ -6,6 +6,8 @@ import com.connect.codeness.global.entity.CreateTimeEntity;
 import com.connect.codeness.global.enums.SettlementStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -32,6 +34,7 @@ public class Settlement extends CreateTimeEntity {
 	private User user; //멘토 고유 식별자 (외래키)
 
 	@Column(nullable = false)
+	@Enumerated(EnumType.STRING)
 	private SettlementStatus settlementStatus; //정산 상태
 
 	@Column(nullable = true)

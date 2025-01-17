@@ -60,5 +60,6 @@ public class GlobalExceptionHandler {
 
 		return new ResponseEntity<>(exceptionResponse, e.getStatusCode());
 	}
+
 }
 

@@ -1,6 +1,9 @@
 package com.connect.codeness.global.jwt;
 
+import com.connect.codeness.global.exception.BusinessException;
+import com.connect.codeness.global.exception.ExceptionType;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -43,9 +46,14 @@ public class JwtUtil {
 		return extractClaims(token).get("role", String.class);
 	}
 
-	// JWT 토큰에서 사용자 ID 추출
 	public Long extractUserId(String token) {
-		return extractClaims(token).get("userId", Long.class);
+		try {
+			// JWT 토큰에서 사용자 ID 추출
+			return extractClaims(token).get("userId", Long.class);
+		} catch (JwtException e) {
+			// JWT 관련 예외 처리 (잘못된 토큰 등)
+			throw new BusinessException(ExceptionType.INVALID_TOKEN);
+		}
 	}
 
 	// JWT 토큰에서 이메일 추출
@@ -64,7 +72,7 @@ public class JwtUtil {
 			extractClaims(token);
 			return !isTokenExpired(token);
 		} catch (Exception e) {
-			return false;
+			throw new BusinessException(ExceptionType.INVALID_TOKEN);
 		}
 	}
 
