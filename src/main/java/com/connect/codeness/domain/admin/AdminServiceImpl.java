@@ -1,5 +1,6 @@
 package com.connect.codeness.domain.admin;
 
+import com.connect.codeness.domain.admin.dto.AdminMentorListResponseDto;
 import com.connect.codeness.domain.admin.dto.AdminSettlementListResponseDto;
 import com.connect.codeness.domain.admin.dto.AdminSettlementResponseDto;
 import com.connect.codeness.domain.admin.dto.AdminUpdateMentorRequestDto;
@@ -17,7 +18,6 @@ import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.enums.MentorRequestStatus;
 import com.connect.codeness.global.enums.SettlementStatus;
 import com.connect.codeness.global.enums.UserRole;
-import com.connect.codeness.global.enums.UserStatus;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
 import java.util.List;
@@ -48,13 +48,13 @@ public class AdminServiceImpl implements AdminService {
 	/* -----------------멘토 신청 관련 로직------------------ */
 
 	@Override
-	public CommonResponseDto<PaginationResponseDto<UserResponseDto>> getMentorList(int pageNumber, int pageSize) {
+	public CommonResponseDto<PaginationResponseDto<AdminMentorListResponseDto>> getMentorList(int pageNumber, int pageSize) {
 		Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("createdAt").descending());
 
-		Page<UserResponseDto> userResponseDtoPage = userRepository.findByRole(UserRole.MENTOR, pageable);
+		Page<AdminMentorListResponseDto> userResponseDtoPage = userRepository.findByRole(UserRole.MENTOR, pageable);
 
-		PaginationResponseDto<UserResponseDto> pageUserResponseList =
-			PaginationResponseDto.<UserResponseDto>builder()
+		PaginationResponseDto<AdminMentorListResponseDto> pageUserResponseList =
+			PaginationResponseDto.<AdminMentorListResponseDto>builder()
 				.content(userResponseDtoPage.getContent())
 				.totalPages(userResponseDtoPage.getTotalPages())
 				.totalElements(userResponseDtoPage.getTotalElements())
@@ -62,7 +62,7 @@ public class AdminServiceImpl implements AdminService {
 				.pageSize(userResponseDtoPage.getSize())
 				.build();
 
-		return CommonResponseDto.<PaginationResponseDto<UserResponseDto>>builder()
+		return CommonResponseDto.<PaginationResponseDto<AdminMentorListResponseDto>>builder()
 			.msg("전체 멘토 리스트 조회 되었습니다.")
 			.data(pageUserResponseList)
 			.build();
@@ -80,12 +80,11 @@ public class AdminServiceImpl implements AdminService {
 	}
 
 	@Override
-	public CommonResponseDto<Page<MentorRequestResponseDto>> getMentorRequestList(int pageNumber, int pageSize) {
-		Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("createdAt").descending());
-		Page<MentorRequestResponseDto> mentorRequestResponseDto
-			= mentorRequestRepository.findByIsAccepted(MentorRequestStatus.WAITING, pageable);
+	public CommonResponseDto<List<MentorRequestResponseDto>> getMentorRequestList() {
+		List<MentorRequestResponseDto> mentorRequestResponseDto
+			= mentorRequestRepository.findByIsAccepted(MentorRequestStatus.WAITING);
 
-		return CommonResponseDto.<Page<MentorRequestResponseDto>>builder()
+		return CommonResponseDto.<List<MentorRequestResponseDto>>builder()
 			.msg("멘토 신청 리스트가 조회되었습니다.")
 			.data(mentorRequestResponseDto)
 			.build();
