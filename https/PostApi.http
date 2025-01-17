@@ -33,7 +33,7 @@ Authorization: Bearer {{token}}
   client.global.get("auth.token");
 %}
 
-### 댓글 삭제
+### 게시글 삭제
 DELETE localhost:8080/posts/3
 Authorization: Bearer {{token}}
 
