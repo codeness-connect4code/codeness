@@ -1,10 +1,12 @@
 package com.connect.codeness.global.jwt;
 
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.security.SignatureException;
 import java.util.Collections;
 import java.util.List;
 import org.slf4j.Logger;
@@ -86,8 +88,14 @@ public class JwtFilter extends OncePerRequestFilter {
 					}
 				}
 			}
-		} catch (Exception e) {
-			logger.error("Cannot set user authentication: {}", e.getMessage());
+		}catch (JwtException e){
+			logger.error("Invalid JWT signature: {}", e.getMessage());
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			response.setContentType("application/json");
+			response.getWriter().write("{\"error\": \"Invalid JWT signature\"}");
+		}catch (Exception e) {
+			logger.error("Invalid JWT: {}", e.getMessage());
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 		}
 
 		chain.doFilter(request, response);
