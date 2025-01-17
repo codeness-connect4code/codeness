@@ -88,14 +88,8 @@ public class JwtFilter extends OncePerRequestFilter {
 					}
 				}
 			}
-		}catch (JwtException e){
-			logger.error("Invalid JWT signature: {}", e.getMessage());
-			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-			response.setContentType("application/json");
-			response.getWriter().write("{\"error\": \"Invalid JWT signature\"}");
-		}catch (Exception e) {
-			logger.error("Invalid JWT: {}", e.getMessage());
-			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+		} catch (Exception e) {
+			logger.error("Cannot set user authentication: {}", e.getMessage());
 		}
 
 		chain.doFilter(request, response);
