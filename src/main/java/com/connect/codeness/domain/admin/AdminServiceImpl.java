@@ -18,7 +18,6 @@ import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.enums.MentorRequestStatus;
 import com.connect.codeness.global.enums.SettlementStatus;
 import com.connect.codeness.global.enums.UserRole;
-import com.connect.codeness.global.enums.UserStatus;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
 import java.util.List;

@@ -1,7 +1,6 @@
 package com.connect.codeness.domain.user;
 
 import com.connect.codeness.domain.admin.dto.AdminMentorListResponseDto;
-import com.connect.codeness.domain.user.dto.UserResponseDto;
 import com.connect.codeness.global.enums.UserRole;
 import com.connect.codeness.global.enums.UserStatus;
 import com.connect.codeness.global.exception.BusinessException;

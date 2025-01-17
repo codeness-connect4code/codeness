@@ -6,10 +6,8 @@ import com.connect.codeness.domain.admin.dto.AdminSettlementListResponseDto;
 import com.connect.codeness.domain.admin.dto.AdminUpdateMentorRequestDto;
 import com.connect.codeness.global.dto.PaginationResponseDto;
 import com.connect.codeness.domain.mentorrequest.dto.MentorRequestResponseDto;
-import com.connect.codeness.domain.user.dto.UserResponseDto;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import java.util.List;
-import org.springframework.data.domain.Page;
 
 public interface AdminService {
 	CommonResponseDto<PaginationResponseDto<AdminMentorListResponseDto>> getMentorList(int pageNumber, int pageSize);
