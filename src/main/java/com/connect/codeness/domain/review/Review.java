@@ -1,5 +1,6 @@
 package com.connect.codeness.domain.review;
 
+import com.connect.codeness.domain.mentoringpost.MentoringPost;
 import com.connect.codeness.domain.paymenthistory.PaymentHistory;
 import com.connect.codeness.domain.user.User;
 import com.connect.codeness.global.entity.BaseEntity;
@@ -32,6 +33,11 @@ public class Review extends BaseEntity {
 	@NotNull
 	private PaymentHistory paymentHistory;
 
+	@ManyToOne
+	@JoinColumn(name = "mentoring_post_id")
+	@NotNull
+	private MentoringPost mentoringPost;
+
 	@NotNull
 	@ManyToOne
 	@JoinColumn(name = "user_id")
@@ -42,7 +48,6 @@ public class Review extends BaseEntity {
 	@Column(nullable = false, length = 5)
 	private Integer starRating;
 
-
 	@NotBlank
 	@Size(max = 300)
 	@Column(nullable = false, length = 300)
@@ -52,9 +57,10 @@ public class Review extends BaseEntity {
 	}
 
 	@Builder
-	public Review(PaymentHistory paymentHistory, User user, Integer starRating,
+	public Review(PaymentHistory paymentHistory,MentoringPost mentoringPost, User user, Integer starRating,
 		String reviewContent) {
 		this.paymentHistory = paymentHistory;
+		this.mentoringPost = mentoringPost;
 		this.user = user;
 		this.starRating = starRating;
 		this.reviewContent = reviewContent;
