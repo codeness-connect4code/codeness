@@ -32,6 +32,7 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
+  "mentoringPostId": 1,
 	"content": "리뷰1",
 	"starRating": 5
 }
