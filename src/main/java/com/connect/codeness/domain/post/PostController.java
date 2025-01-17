@@ -8,11 +8,11 @@ import com.connect.codeness.domain.post.dto.PostCreateRequestDto;
 import com.connect.codeness.domain.post.dto.PostFindAllResponseDto;
 import com.connect.codeness.domain.post.dto.PostFindResponseDto;
 import com.connect.codeness.domain.post.dto.PostUpdateRequestDto;
+import com.connect.codeness.global.dto.PaginationResponseDto;
 import com.connect.codeness.global.jwt.JwtUtil;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.enums.PostType;
 import jakarta.validation.Valid;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -56,7 +56,7 @@ public class PostController {
 
 	// 게시글 목록 조회
 	@GetMapping
-	public ResponseEntity<CommonResponseDto<Page<PostFindAllResponseDto>>> findAllPosts(
+	public ResponseEntity<CommonResponseDto<PaginationResponseDto<PostFindAllResponseDto>>> findAllPosts(
 		@RequestParam(required = false) PostType postType,
 		@RequestParam(required = false) String keyword,
 		@RequestParam(required = false) String writer,
@@ -65,7 +65,7 @@ public class PostController {
 
 		Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("createdAt").descending());
 
-		CommonResponseDto<Page<PostFindAllResponseDto>> responseDto = postService.findAllPost(postType, keyword, writer, pageable);
+		CommonResponseDto<PaginationResponseDto<PostFindAllResponseDto>> responseDto = postService.findAllPost(postType, keyword, writer, pageable);
 
 		return new ResponseEntity<>(responseDto, HttpStatus.OK);
 	}

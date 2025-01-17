@@ -8,7 +8,7 @@ import lombok.Getter;
 @Builder
 public class PostFindAllResponseDto {
 
-	private Long postId;
+	private Long id;
 
 	private String title;
 

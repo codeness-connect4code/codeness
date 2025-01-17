@@ -8,6 +8,7 @@ import static com.connect.codeness.global.constants.Constants.PAGE_SIZE;
 import com.connect.codeness.domain.comment.dto.CommentCreateRequestDto;
 import com.connect.codeness.domain.comment.dto.CommentFindAllResponseDto;
 import com.connect.codeness.global.dto.CommonResponseDto;
+import com.connect.codeness.global.dto.PaginationResponseDto;
 import com.connect.codeness.global.jwt.JwtUtil;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -60,9 +61,9 @@ public class CommentController {
 
 		Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("createdAt").descending());
 
-		CommonResponseDto<Page<CommentFindAllResponseDto>> comments = commentService.findAllComment(postId, pageable);
+		CommonResponseDto<PaginationResponseDto<CommentFindAllResponseDto>> responseDto = commentService.findAllComment(postId, pageable);
 
-		return new ResponseEntity<>(comments, HttpStatus.OK);
+		return new ResponseEntity<>(responseDto, HttpStatus.OK);
 	}
 
 	@PatchMapping("comments/{commentId}")
