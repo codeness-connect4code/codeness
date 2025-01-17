@@ -14,7 +14,7 @@ import org.springframework.data.domain.Page;
 public interface AdminService {
 	CommonResponseDto<PaginationResponseDto<AdminMentorListResponseDto>> getMentorList(int pageNumber, int pageSize);
 	CommonResponseDto getMentor(Long mentorId);
-	CommonResponseDto<Page<MentorRequestResponseDto>> getMentorRequestList(int pageNumber, int pageSize);
+	CommonResponseDto<List<MentorRequestResponseDto>> getMentorRequestList();
 	CommonResponseDto<MentorRequestResponseDto> getMentorRequest(Long mentoringRequestId);
 	CommonResponseDto updateMentor(Long mentorId, AdminUpdateMentorRequestDto adminUpdateMentorRequestDto);
 	CommonResponseDto updateSettlements(Long mentorId);

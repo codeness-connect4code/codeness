@@ -82,16 +82,12 @@ public class AdminController {
 
 	/**
 	 * 멘토 신청 리스트 조회 API(멘토를 신청한 내역들 조회)
-	 * @param pageNumber
-	 * @param pageSize
 	 * @return
 	 */
 	@GetMapping("/mentors/mentor-requests")
 	public ResponseEntity<CommonResponseDto> getMentorRequests(
-		@RequestParam(defaultValue = PAGE_NUMBER) int pageNumber,
-		@RequestParam(defaultValue = PAGE_SIZE) int pageSize
 	){
-		CommonResponseDto<Page<MentorRequestResponseDto>> commonResponseDto = adminService.getMentorRequestList(pageNumber, pageSize);
+		CommonResponseDto<List<MentorRequestResponseDto>> commonResponseDto = adminService.getMentorRequestList();
 		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
 	}
 

@@ -81,12 +81,11 @@ public class AdminServiceImpl implements AdminService {
 	}
 
 	@Override
-	public CommonResponseDto<Page<MentorRequestResponseDto>> getMentorRequestList(int pageNumber, int pageSize) {
-		Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("createdAt").descending());
-		Page<MentorRequestResponseDto> mentorRequestResponseDto
-			= mentorRequestRepository.findByIsAccepted(MentorRequestStatus.WAITING, pageable);
+	public CommonResponseDto<List<MentorRequestResponseDto>> getMentorRequestList() {
+		List<MentorRequestResponseDto> mentorRequestResponseDto
+			= mentorRequestRepository.findByIsAccepted(MentorRequestStatus.WAITING);
 
-		return CommonResponseDto.<Page<MentorRequestResponseDto>>builder()
+		return CommonResponseDto.<List<MentorRequestResponseDto>>builder()
 			.msg("멘토 신청 리스트가 조회되었습니다.")
 			.data(mentorRequestResponseDto)
 			.build();
