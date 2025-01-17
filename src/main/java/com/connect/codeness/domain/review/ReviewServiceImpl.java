@@ -52,7 +52,7 @@ public class ReviewServiceImpl implements ReviewService {
 		}
 
 		//내가 거래한 내역이 아니라면 생성 x
-		User user = paymentHistory.getUser();
+		User user = paymentHistory.getPayment().getUser();
 
 		if (!Objects.equals(user.getId(), userId)) {
 			throw new BusinessException(ExceptionType.UNAUTHORIZED_POST_REQUEST);
