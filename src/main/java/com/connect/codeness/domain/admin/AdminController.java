@@ -3,16 +3,15 @@ package com.connect.codeness.domain.admin;
 import static com.connect.codeness.global.constants.Constants.PAGE_NUMBER;
 import static com.connect.codeness.global.constants.Constants.PAGE_SIZE;
 
+import com.connect.codeness.domain.admin.dto.AdminMentorListResponseDto;
 import com.connect.codeness.domain.admin.dto.AdminSettlementListResponseDto;
 import com.connect.codeness.domain.admin.dto.AdminUpdateMentorRequestDto;
 import com.connect.codeness.global.dto.PaginationResponseDto;
 import com.connect.codeness.domain.mentorrequest.dto.MentorRequestResponseDto;
 import com.connect.codeness.domain.user.UserRepository;
-import com.connect.codeness.domain.user.dto.UserResponseDto;
 import com.connect.codeness.global.jwt.JwtUtil;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import java.util.List;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -60,7 +59,7 @@ public class AdminController {
 		@RequestParam(defaultValue = PAGE_NUMBER) int pageNumber,
 		@RequestParam(defaultValue = PAGE_SIZE) int pageSize
 	){
-		CommonResponseDto<PaginationResponseDto<UserResponseDto>> responseDto =
+		CommonResponseDto<PaginationResponseDto<AdminMentorListResponseDto>> responseDto =
 			adminService.getMentorList(pageNumber, pageSize);
 
 		return new ResponseEntity<>(responseDto, HttpStatus.OK);
@@ -81,16 +80,12 @@ public class AdminController {
 
 	/**
 	 * 멘토 신청 리스트 조회 API(멘토를 신청한 내역들 조회)
-	 * @param pageNumber
-	 * @param pageSize
 	 * @return
 	 */
 	@GetMapping("/mentors/mentor-requests")
 	public ResponseEntity<CommonResponseDto> getMentorRequests(
-		@RequestParam(defaultValue = PAGE_NUMBER) int pageNumber,
-		@RequestParam(defaultValue = PAGE_SIZE) int pageSize
 	){
-		CommonResponseDto<Page<MentorRequestResponseDto>> commonResponseDto = adminService.getMentorRequestList(pageNumber, pageSize);
+		CommonResponseDto<List<MentorRequestResponseDto>> commonResponseDto = adminService.getMentorRequestList();
 		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
 	}
 

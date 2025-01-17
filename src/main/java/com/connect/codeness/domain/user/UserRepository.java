@@ -1,6 +1,6 @@
 package com.connect.codeness.domain.user;
 
-import com.connect.codeness.domain.user.dto.UserResponseDto;
+import com.connect.codeness.domain.admin.dto.AdminMentorListResponseDto;
 import com.connect.codeness.global.enums.UserRole;
 import com.connect.codeness.global.enums.UserStatus;
 import com.connect.codeness.global.exception.BusinessException;
@@ -42,6 +42,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 		return user;
 	}
 
-	@Query("SELECT new com.connect.codeness.domain.user.dto.UserResponseDto(u) FROM user u WHERE u.role = :userRole")
-	Page<UserResponseDto> findByRole(UserRole userRole, Pageable pageable);
+	@Query("SELECT new com.connect.codeness.domain.admin.dto.AdminMentorListResponseDto(u) FROM user u WHERE u.role = :userRole")
+	Page<AdminMentorListResponseDto> findByRole(UserRole userRole, Pageable pageable);
 }
