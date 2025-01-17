@@ -17,6 +17,7 @@ import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.enums.MentorRequestStatus;
 import com.connect.codeness.global.enums.SettlementStatus;
 import com.connect.codeness.global.enums.UserRole;
+import com.connect.codeness.global.enums.UserStatus;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
 import java.util.List;
@@ -104,14 +105,20 @@ public class AdminServiceImpl implements AdminService {
 	public CommonResponseDto updateMentor(Long mentorRequestId,
 		AdminUpdateMentorRequestDto dto) {
 		MentorRequest mentorRequest = mentorRequestRepository.findByIdOrElseThrow(mentorRequestId);
+		User user = userRepository.findByIdOrElseThrow(mentorRequest.getUser().getId());
 		if (
 			mentorRequest.getIsAccepted().equals(MentorRequestStatus.REJECTED)
 				|| mentorRequest.getIsAccepted().equals(MentorRequestStatus.ACCEPTED)
 		) {
 			throw new BusinessException(ExceptionType.ALREADY_CLOSED_MENTOR_REQUEST);
 		}
+		if (dto.getIsAccepted().equals(MentorRequestStatus.ACCEPTED)) {
+			user.updateRole(UserRole.MENTOR);
+		}
 		mentorRequest.updateStatus(dto.getIsAccepted());
 		mentorRequestRepository.save(mentorRequest);
+		userRepository.save(user);
+
 		return CommonResponseDto.builder()
 			.msg("멘토 신청 상태 변경이 완료되었습니다.").build();
 	}

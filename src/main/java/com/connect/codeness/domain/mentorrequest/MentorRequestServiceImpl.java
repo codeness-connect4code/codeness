@@ -3,6 +3,7 @@ package com.connect.codeness.domain.mentorrequest;
 import com.connect.codeness.domain.file.FileService;
 import com.connect.codeness.domain.file.ImageFile;
 import com.connect.codeness.domain.mentorrequest.dto.MentorRequestCreateRequestDto;
+import com.connect.codeness.domain.mentorrequest.dto.MentorRequestResponseDto;
 import com.connect.codeness.domain.user.User;
 import com.connect.codeness.domain.user.UserRepository;
 import com.connect.codeness.global.dto.CommonResponseDto;
@@ -56,6 +57,24 @@ public class MentorRequestServiceImpl implements MentorRequestService {
 		mentorRequestRepository.save(mentorRequest);
 
 		return CommonResponseDto.builder().msg("멘토 신청 완료").build();
+	}
+
+	@Override
+	@Transactional
+	public CommonResponseDto deleteMentorRequest(Long tokenId, Long mentorRequestId) {
+		MentorRequest mentorRequest = mentorRequestRepository.findById(mentorRequestId)
+			.orElseThrow(() -> new BusinessException(ExceptionType.NOT_FOUND_MENTOR_REQUEST));
+
+		if (mentorRequest.getIsAccepted() != MentorRequestStatus.REJECTED){
+			throw new BusinessException(ExceptionType.UNAUTHORIZED_DELETE_REQUEST);
+		}
+
+		if (mentorRequest.getUser().getId() != tokenId){
+			throw new BusinessException(ExceptionType.FORBIDDEN_PERMISSION);
+		}
+
+		mentorRequestRepository.delete(mentorRequest);
+		return CommonResponseDto.builder().msg("멘토 신청 요청이 삭제되었습니다.").build();
 	}
 }
 
