@@ -61,3 +61,8 @@ Content-Type: image/jpeg
 
 <  ./testImage.png
 --boundary--
+
+### 멘토 신청 삭제 API
+DELETE localhost:8080/users/mentors/1
+Authorization: Bearer {{token}}
+
