@@ -57,7 +57,7 @@ public class NewsCacheService {
 
 			// 시간 변환
 			LocalDateTime dateTime = LocalDateTime.ofEpochSecond(
-				response.get("time").asLong(), 0, ZoneOffset.UTC);
+				response.get("time").asLong()+32400, 0, ZoneOffset.UTC);
 			String time = dateTime.atZone(ZoneId.of("Asia/Seoul"))
 				.format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH:mm"));
 
