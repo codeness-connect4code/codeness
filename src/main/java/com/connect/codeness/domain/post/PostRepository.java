@@ -1,5 +1,6 @@
 package com.connect.codeness.domain.post;
 
+import com.connect.codeness.domain.post.dto.PostFindAllResponseDto;
 import com.connect.codeness.global.enums.PostStatus;
 import com.connect.codeness.global.enums.PostType;
 import com.connect.codeness.global.exception.BusinessException;
@@ -25,12 +26,16 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 		return post;
 	}
 
-	@Query("SELECT p FROM Post p WHERE (:type IS NULL OR p.postType = :type) " +
+	@Query("SELECT new com.connect.codeness.domain.post.dto.PostFindAllResponseDto(p.id, p.title, p.writer,p.view, p.createdAt) " +
+		"FROM Post p " +
+		"WHERE (:type IS NULL OR p.postType = :type) " +
 		"AND (:keyword IS NULL OR p.title LIKE %:keyword%) " +
 		"AND (:writer IS NULL OR p.writer = :writer) " +
 		"AND p.postStatus != 'DELETED'")
-	Page<Post> findByTypeAndKeyword(@Param("type") PostType type,
+	Page<PostFindAllResponseDto> findByTypeAndKeyword(
+		@Param("type") PostType type,
 		@Param("keyword") String keyword,
 		@Param("writer") String writer,
-		Pageable pageable);
+		Pageable pageable
+	);
 }
