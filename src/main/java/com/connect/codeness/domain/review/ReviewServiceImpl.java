@@ -1,5 +1,7 @@
 package com.connect.codeness.domain.review;
 
+import com.connect.codeness.domain.mentoringpost.MentoringPost;
+import com.connect.codeness.domain.mentoringpost.MentoringPostRepository;
 import com.connect.codeness.global.dto.PaginationResponseDto;
 import com.connect.codeness.domain.mentoringschedule.MentoringSchedule;
 import com.connect.codeness.domain.paymenthistory.PaymentHistory;
@@ -27,12 +29,14 @@ public class ReviewServiceImpl implements ReviewService {
 
 	private final ReviewRepository reviewRepository;
 	private final PaymentHistoryRepository paymentHistoryRepository;
+	private final MentoringPostRepository mentoringPostRepository;
 
 	public ReviewServiceImpl(ReviewRepository reviewRepository,
-		PaymentHistoryRepository paymentHistoryRepository) {
+		PaymentHistoryRepository paymentHistoryRepository, MentoringPostRepository mentoringPostRepository) {
 
 		this.reviewRepository = reviewRepository;
 		this.paymentHistoryRepository = paymentHistoryRepository;
+		this.mentoringPostRepository = mentoringPostRepository;
 	}
 
 	@Transactional
@@ -41,6 +45,11 @@ public class ReviewServiceImpl implements ReviewService {
 		ReviewCreateRequestDto dto) {
 		//리뷰를 생성할 거래 내역 가져오기
 		PaymentHistory paymentHistory = paymentHistoryRepository.findByPaymentIdOrElseThrow(paymentHistoryId);
+
+		//이미 생성된 리뷰인지 확인
+		if(reviewRepository.existsByPaymentHistory(paymentHistory)){
+			throw new BusinessException(ExceptionType.ALREADY_EXIST_REVIEW);
+		}
 
 		//내가 거래한 내역이 아니라면 생성 x
 		User user = paymentHistory.getUser();
@@ -62,8 +71,12 @@ public class ReviewServiceImpl implements ReviewService {
 			throw new BusinessException(ExceptionType.TOO_EARLY_REVIEW);
 		}
 
+		//멘토링 공고 가져오기
+		MentoringPost mentoringPost = mentoringPostRepository.findByIdOrElseThrow(dto.getMentoringPostId());
+
 		Review review = Review.builder()
 			.paymentHistory(paymentHistory)
+			.mentoringPost(mentoringPost)
 			.user(user)
 			.reviewContent(dto.getContent())
 			.starRating(dto.getStarRating())

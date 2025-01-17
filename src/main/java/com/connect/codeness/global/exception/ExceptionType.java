@@ -23,6 +23,7 @@ public enum ExceptionType {
 	ALREADY_CLOSED_MENTOR_REQUEST(HttpStatus.BAD_REQUEST,"이미 처리된 멘토 신청 입니다."),
 	NOT_MENTOR(HttpStatus.BAD_REQUEST,"멘토인 사용자가 아닙니다."),
 	ALREADY_EXIST_CHATROOM(HttpStatus.BAD_REQUEST, "이미 생성된 채팅방입니다."),
+	ALREADY_EXIST_REVIEW(HttpStatus.BAD_REQUEST, "해당 거래내역에 대한 후기가 이미 존재합니다."),
 
 	// 401 Unauthorized
 	UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증이 필요합니다."),
