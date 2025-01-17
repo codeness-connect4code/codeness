@@ -52,7 +52,7 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "isAccepted" : "ACCEPTED"
+  "isAccepted" : "REJECTED"
 }
 
 ### 멘토 정산 내역 조회 API
