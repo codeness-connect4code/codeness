@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -34,9 +35,16 @@ public interface PaymentHistoryRepository extends JpaRepository<PaymentHistory, 
 		return findByIdAndUserId(userId, paymentHistoryId).orElseThrow(
 			() -> new BusinessException(ExceptionType.NOT_FOUND_PAYMENT_HISTORY));
 	}
-	/**
-	 * TODO : 사용하지 않으면 지우기
-	 */
-//	List<PaymentHistory> findAllByUserIdAndSettlementStatus(Long userId, SettlementStatus settlementStatus);
+
+	@Query("""
+    SELECT ph FROM PaymentHistory ph
+    JOIN ph.payment p
+    WHERE ph.id = :paymentHistoryId
+      AND p.id = :paymentId
+    """)
+	Optional<PaymentHistory> findByIdAndPaymentId(Long paymentHistoryId, Long paymentId);
+
+	List<PaymentHistory> findAllByUserId(Long userId);
+
 }
 

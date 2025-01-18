@@ -2,6 +2,7 @@ package com.connect.codeness.domain.payment;
 
 
 import com.connect.codeness.domain.chat.ChatServiceImpl;
+import com.connect.codeness.domain.chat.dto.ChatRoomCreateRequestDto;
 import com.connect.codeness.domain.mentoringschedule.MentoringSchedule;
 import com.connect.codeness.domain.mentoringschedule.MentoringScheduleRepository;
 import com.connect.codeness.domain.payment.dto.PaymentDeleteRequestDto;
@@ -205,7 +206,13 @@ public class PaymentServiceImpl implements PaymentService {
 		//정산 저장
 		settlementRepository.save(settlement);
 
-		//TODO : 채팅방 생성 - 로그인한 id, 멘토의 id
+		//dto 생성
+		ChatRoomCreateRequestDto chatRoomCreateRequestDto = ChatRoomCreateRequestDto.builder()
+			.partnerId(mentor.getId())
+			.build();
+
+		//채팅방 생성 - 로그인한 id, 멘토의 id
+		chatService.createChatRoom(payment.getUser().getId(), chatRoomCreateRequestDto);
 
 		return CommonResponseDto.builder().msg("결제가 완료되었습니다.").data(payment.getId()).build();
 	}
@@ -213,7 +220,6 @@ public class PaymentServiceImpl implements PaymentService {
 	/**
 	 * 결제 환불 서비스 메서드
 	 * - 결제 완료 후 환불 진행 : 결제 내역 테이블에서 조회 및 진행
-	 * - TODO : 채팅방 삭제 로직 추가, payment & paymentList 취소 날짜 업데이트
 	 */
 	@Transactional
 	@Override
@@ -265,9 +271,9 @@ public class PaymentServiceImpl implements PaymentService {
 		Payment payment = paymentHistory.getPayment();
 		payment.updatePaymentCanceledAt();
 
-		//채팅방 삭제 TODO : chatRoomId 어떻게 가져오면 될까? 채팅 id 생성 메서드 사용하기
-		//채팅방 id는 내 id랑 상대방 id 조합 -> 1_2 -> 채팅방 메서드 사용하기
-//		chatService.deleteChatRoom(userId, );
+		//채팅방 삭제 - 채팅방 id는 로그인한 유저 id랑 상대 멘토 id 조합 -> ex) 1_2
+		String chatRoomId = chatService.generateChatRoomId(userId, payment.getUser().getId());
+		chatService.deleteChatRoom(userId, chatRoomId);
 
 		return CommonResponseDto.builder().msg("결제가 환불되었습니다.").build();
 	}

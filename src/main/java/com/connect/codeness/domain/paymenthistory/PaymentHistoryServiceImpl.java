@@ -3,18 +3,19 @@ package com.connect.codeness.domain.paymenthistory;
 
 import com.connect.codeness.domain.payment.Payment;
 import com.connect.codeness.domain.payment.PaymentRepository;
+import com.connect.codeness.domain.paymenthistory.dto.PaymentHistoryMenteeResponseDto;
+import com.connect.codeness.domain.paymenthistory.dto.PaymentHistoryMentorResponseDto;
 import com.connect.codeness.domain.paymenthistory.dto.PaymentHistoryResponseDto;
 import com.connect.codeness.domain.user.User;
 import com.connect.codeness.domain.user.UserRepository;
 import com.connect.codeness.global.dto.CommonResponseDto;
-import com.connect.codeness.global.enums.SettlementStatus;
 import com.connect.codeness.global.enums.UserRole;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
 import java.util.List;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -34,65 +35,48 @@ public class PaymentHistoryServiceImpl implements PaymentHistoryService {
 	/**
 	 * 결제내역 전체 조회 서비스 메서드
 	 * - 멘티 & 멘토
-	 * - TODO : 어드민 추가
 	 */
 	@Override
-	public CommonResponseDto<List<PaymentHistoryResponseDto>> getAllPaymentHistory(Long userId) {
+	public CommonResponseDto<?> getAllPaymentHistory(Long userId) {
 
 		//유저 조회
 		User user = userRepository.findByIdOrElseThrow(userId);
 
-		//로그인한 유저 id로 결제 list를 조회
-		List<Payment> payments = paymentRepository.findAllByUserId(user.getId());
+		if(user.getRole().equals(UserRole.MENTEE)){
 
-		//결제 list에 대한 결제내역 list를 조회
-		List<PaymentHistory> paymentHistories = payments.stream()
-			.flatMap(payment -> paymentHistoryRepository.findAllByPaymentId(payment.getId()).stream())
-			.toList();
+			//로그인한 유저 id로 결제 list를 조회
+			List<Payment> payments = paymentRepository.findAllByUserId(user.getId());
 
-		//결제내역 list를 dto로 변환
-		List<PaymentHistoryResponseDto> paymentHistoryResponseDtos = paymentHistories.stream()
-			.map(paymentHistory -> helperPaymentHistory(paymentHistory, user.getRole()))
-			.toList();
+			//결제 list에 대한 결제내역 list를 조회
+			List<PaymentHistory> paymentHistories = payments.stream()
+				.flatMap(payment -> paymentHistoryRepository.findAllByPaymentId(payment.getId()).stream())
+				.toList();
 
-		return CommonResponseDto.<List<PaymentHistoryResponseDto>>builder()
-			.msg("결제 내역이 전체 조회 되었습니다.").data(paymentHistoryResponseDtos).build();
-	}
-
-	/**
-	 * 유저 롤에 따른 결제 내역 응답 메서드
-	 * - TODO : 현재 해당하지 않는 필드는 null로 나오는데 responseDto 멘토, 멘티 분리하는게 나을지 고민
-	 * -
-	 */
-	private PaymentHistoryResponseDto helperPaymentHistory(PaymentHistory paymentHistory, UserRole userRole) {
-		PaymentHistoryResponseDto.PaymentHistoryResponseDtoBuilder builder = PaymentHistoryResponseDto.builder()
-			.id(paymentHistory.getId())
-			.paymentId(paymentHistory.getPayment().getId())
-			.mentorId(paymentHistory.getUser().getId())
-			.pgTid(paymentHistory.getPgTid())
-			.paymentCost(paymentHistory.getPaymentCost())
-			.paymentCard(paymentHistory.getPaymentCard())
-			.canceledAt(paymentHistory.getCanceledAt())
-			.reviewStatus(paymentHistory.getReviewStatus());
-
-		//유저가 멘티일 경우
-		if (userRole == UserRole.MENTEE) {
-			//결제상태 paymentStatus 필드 추가
-			builder.paymentStatus(paymentHistory.getPaymentStatus());
+			List<PaymentHistoryMenteeResponseDto> paymentHistoryMenteeResponseDtos = paymentHistories.stream()
+				.map(PaymentHistoryMenteeResponseDto::from)
+				.toList();
+			return CommonResponseDto.<List<PaymentHistoryMenteeResponseDto>>builder()
+				.msg("멘티 결제 내역이 전체 조회 되었습니다.").data(paymentHistoryMenteeResponseDtos).build();
 		}
-		//유저가 멘토일 경우
-//		if (userRole == UserRole.MENTOR) {
-//			//정산상태 settlementStatus 필드 추가
-//			builder.settlementStatus(paymentHistory.getSettlementStatus());
-//		}
+		//멘토의 경우 TODO : 멘토의 경우에는 자신이 올린 멘토링 공고에 대한 결제 내역이 조회되어야 함
+		if(user.getRole().equals(UserRole.MENTOR)){
+			//로그인한 userId로 결제내역 list를 조회
+			List<PaymentHistory> paymentHistoryList =  paymentHistoryRepository.findAllByUserId(userId);
 
-		return builder.build();
+			List<PaymentHistoryMentorResponseDto> paymentHistoryMentorResponseDtos = paymentHistoryList.stream()
+				.map(PaymentHistoryMentorResponseDto::from)
+				.toList();
+			return CommonResponseDto.<List<PaymentHistoryMentorResponseDto>>builder()
+				.msg("멘토 결제 내역이 전체 조회 되었습니다.").data(paymentHistoryMentorResponseDtos).build();
+		} else {
+			throw new BusinessException(ExceptionType.NOT_FOUND_USER);//TODO : 유저 롤 예외처리 추가
+		}
 	}
 
 	/**
-	 * 결제내역 단건 조회 서비스 메서드
+	 * 결제내역 단건 상세 조회 서비스 메서드
 	 * - 멘티 & 멘토
-	 * - TODO : 로그인한 회원만 조회 빼기
+	 * - TODO : 단일 쿼리로 최적화 고민하기
 	 */
 	@Override
 	public CommonResponseDto<PaymentHistoryResponseDto> getPaymentHistory(Long userId, Long paymentHistoryId) {
@@ -100,21 +84,23 @@ public class PaymentHistoryServiceImpl implements PaymentHistoryService {
 		//유저 조회
 		User user = userRepository.findByIdOrElseThrow(userId);
 
-		//결제 내역 조회 - 다른 유저 결제내역 조회시 예외
-		PaymentHistory paymentHistory = paymentHistoryRepository.findByIdAndUserId(paymentHistoryId, user.getId())
+		//로그인한 유저에 해당하는 결제 List 조회
+		List<Payment> payments = paymentRepository.findAllByUserId(user.getId());
+
+		//결제 데이터가 없을 경우 예외처리
+		if(payments.isEmpty()){
+			throw new BusinessException(ExceptionType.NOT_FOUND_PAYMENT);
+		}
+
+		//조회된 결제 List와 결제 내역 id가 일치하는 결제 내역 조회 - 다른 유저 결제내역 조회시 예외
+		PaymentHistory paymentHistory = payments.stream()
+			.map(payment -> paymentHistoryRepository.findByIdAndPaymentId(paymentHistoryId, payment.getId()))
+			.flatMap(Optional::stream)//Optional 값이 존재하면 stream에 포함, 없으면 무시
+			.findFirst()//첫번째 값
 			.orElseThrow(() -> new BusinessException(ExceptionType.FORBIDDEN_PAYMENT_HISTORY_ACCESS));
 
-		PaymentHistoryResponseDto paymentHistoryResponseDto = PaymentHistoryResponseDto.builder()
-			.id(paymentHistory.getId())
-			.paymentId(paymentHistory.getPayment().getId())
-			.mentorId(paymentHistory.getUser().getId())
-			.pgTid(paymentHistory.getPgTid())
-			.paymentCost(paymentHistory.getPaymentCost())
-			.paymentCard(paymentHistory.getPaymentCard())
-			.paymentStatus(paymentHistory.getPaymentStatus())
-			.canceledAt(paymentHistory.getCanceledAt())
-			.reviewStatus(paymentHistory.getReviewStatus())
-			.build();
+		//dto 생성
+		PaymentHistoryResponseDto paymentHistoryResponseDto = PaymentHistoryResponseDto.from(paymentHistory);
 
 		return CommonResponseDto.<PaymentHistoryResponseDto>builder().msg("결제 내역이 단건 조회 되었습니다.").data(paymentHistoryResponseDto).build();
 	}

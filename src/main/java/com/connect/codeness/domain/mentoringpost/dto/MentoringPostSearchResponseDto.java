@@ -1,6 +1,7 @@
 package com.connect.codeness.domain.mentoringpost.dto;
 
 
+import com.connect.codeness.domain.review.Review;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -18,18 +19,19 @@ public class MentoringPostSearchResponseDto {
 
 	private Integer career;//경력
 
-//	private Double starRating;//평균 별점 - TODO : 추가
+	private Double starRating;//평균 별점
 
 
 	public MentoringPostSearchResponseDto() {
 	}
 
-	public MentoringPostSearchResponseDto(Long mentoringPostId, String userNickname, String field, String title, Integer career) {
+	public MentoringPostSearchResponseDto(Long mentoringPostId, String userNickname, String field, String title, Integer career,
+		Double starRating) {
 		this.mentoringPostId = mentoringPostId;
 		this.userNickname = userNickname;
 		this.field = field;
 		this.title = title;
 		this.career = career;
+		this.starRating = starRating;
 	}
-
 }

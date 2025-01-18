@@ -35,7 +35,7 @@ public class MentoringPostRepositoryImpl implements MentoringPostRepositoryCusto
 			.and(filterByField(field))
 			.and(filterByNickname(nickname));
 
-		//쿼리 생성 & Projections 사용 & TODO : 연관 관계 재설정 후 평균 별점 계산
+		//쿼리 생성 & Projections 사용 &  평균 별점 계산
 		JPQLQuery<MentoringPostSearchResponseDto> jpqlQuery = jpaQueryFactory.select(
 			//Projections.fields - 필드 이름으로 DTO 매핑
 			Projections.fields(MentoringPostSearchResponseDto.class,
@@ -43,12 +43,19 @@ public class MentoringPostRepositoryImpl implements MentoringPostRepositoryCusto
 				mentoringPost.user.userNickname.as("userNickname"),
 				mentoringPost.title.as("title"),
 				mentoringPost.field.stringValue().as("field"), //enum에서 string으로 변환
-//				mentoringPost.createdAt.stringValue().as("createdAt")
-				mentoringPost.career.as("career")
+				mentoringPost.career.as("career"),
+				review.starRating.avg().coalesce(0.0).as("starRating")//null 처리하기
 			)
 		).from(mentoringPost)
-			.where(condition)
-			.orderBy(mentoringPost.createdAt.desc());
+			.leftJoin(review).on(review.mentoringPost.eq(mentoringPost))
+			.groupBy(
+				mentoringPost.id,
+				mentoringPost.user.userNickname,
+				mentoringPost.title,
+				mentoringPost.field,
+				mentoringPost.career
+			)
+			.orderBy(mentoringPost.createdAt.desc());//최신순 정렬
 
 		//페이징
 		long total = jpqlQuery.fetchCount();//전체 데이터 개수

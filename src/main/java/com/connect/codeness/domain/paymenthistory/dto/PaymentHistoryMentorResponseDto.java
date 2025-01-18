@@ -1,9 +1,8 @@
 package com.connect.codeness.domain.paymenthistory.dto;
 
 import com.connect.codeness.domain.paymenthistory.PaymentHistory;
-import com.connect.codeness.global.enums.PaymentStatus;
-import com.connect.codeness.global.enums.ReviewStatus;
-import java.math.BigDecimal;
+import com.connect.codeness.domain.settlement.Settlement;
+import com.connect.codeness.global.enums.SettlementStatus;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -12,23 +11,19 @@ import lombok.Getter;
 
 @Builder
 @Getter
-public class PaymentHistoryResponseDto {
+public class PaymentHistoryMentorResponseDto {
 
 	private Long id;//결제 내역 고유 식별자
 
 	private Long paymentId;//결제 고유 식별자 (외래키)
 
-	private Long mentorId;//사용자 고유 식별자 (멘토)
+	private Long mentorId;//사용자 고유 식별자 (외래키)
 
-	private BigDecimal paymentCost; //결제 금액
-
-	private String paymentCard; //결제 카드 정보
-
-	private PaymentStatus paymentStatus;//결제 상태
-
-	private LocalDateTime createdAt; //멘토링 스케쥴 결제 일시
+	private SettlementStatus settlementStatus; //정산 상태
 
 	private LocalDateTime canceledAt; //결제 취소일
+
+	private Long mentoringPostId; //멘토링 공고 고유 식별자
 
 	private String userNickname;//멘토 닉네임
 
@@ -39,24 +34,27 @@ public class PaymentHistoryResponseDto {
 	private LocalTime mentoringTime; //멘토링 스케쥴 시간
 
 	/**
-	 * 결제 단건 상세 조회 메서드 사용
-	 * 정적 메서드
+	 * 결제 전체 조회 메서드 사용
+	 * 멘토 응답 DTO
 	 * paymentHistory 객체 -> PaymentHistoryResponseDto 변환
 	 */
-	public static PaymentHistoryResponseDto from(PaymentHistory paymentHistory) {
-		return PaymentHistoryResponseDto.builder()
+	public static PaymentHistoryMentorResponseDto from(PaymentHistory paymentHistory){
+		//정산 가져오기
+		Settlement settlement = paymentHistory.getSettlement();
+		SettlementStatus settlementStatus = (settlement != null) ? settlement.getSettlementStatus() : SettlementStatus.UNPROCESSED;
+
+		return PaymentHistoryMentorResponseDto.builder()
 			.id(paymentHistory.getId())
 			.paymentId(paymentHistory.getPayment().getId())
 			.mentorId(paymentHistory.getUser().getId())
-			.paymentCost(paymentHistory.getPaymentCost())
-			.paymentCard(paymentHistory.getPaymentCard())
-			.paymentStatus(paymentHistory.getPaymentStatus())
-			.createdAt(paymentHistory.getCreatedAt())
+			.settlementStatus(settlementStatus)//default 값 처리
 			.canceledAt(paymentHistory.getCanceledAt())
+			.mentoringPostId(paymentHistory.getPayment().getMentoringSchedule().getMentoringPost().getId())
 			.userNickname(paymentHistory.getPayment().getUser().getUserNickname())
 			.title(paymentHistory.getPayment().getMentoringSchedule().getMentoringPost().getTitle())
 			.mentoringDate(paymentHistory.getPayment().getMentoringSchedule().getMentoringDate())
 			.mentoringTime(paymentHistory.getPayment().getMentoringSchedule().getMentoringTime())
 			.build();
 	}
+
 }

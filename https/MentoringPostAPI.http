@@ -12,6 +12,20 @@ Content-Type: application/json
   "userRole" : "MENTOR"
 }
 
+### 회원가입 - 멘티
+POST localhost:8080/signup
+Content-Type: application/json
+
+{
+  "email" : "a23@naver.com",
+  "password" : "asdf1234!@",
+  "name" : "박짱구",
+  "nickname" : "개발개발",
+  "phoneNumber" : "010 - 1234 - 6328",
+  "field" : "BACKEND",
+  "userRole" : "MENTEE"
+}
+
 ### 로그인 - 멘토 한철수
 POST localhost:8080/login
 Content-Type: application/json
@@ -21,12 +35,17 @@ Content-Type: application/json
   "password" : "asdf1234!@"
 }
 
-### 로그인 - 멘토
+> {%
+  client.global.set("token",response.body.token);
+  client.log("Token saved: " + client.global.get("token"));
+%}
+
+### 로그인 - 멘티 박짱구
 POST localhost:8080/login
 Content-Type: application/json
 
 {
-  "email" : "asdf132345@naver.com",
+  "email" : "a23@naver.com",
   "password" : "asdf1234!@"
 }
 
@@ -71,17 +90,17 @@ Content-Type: application/json
 }
 
 ### 멘토링 공고 상세 조회하기
-GET localhost:8080/mentoring/8
+GET localhost:8080/mentoring/1
 Content-Type: application/json
 
 
 ### 멘토링 공고 스케쥴 전체 조회하기
-GET localhost:8080/mentoring/16/mentoring-schedule
+GET localhost:8080/mentoring/1/mentoring-schedule
 Content-Type: application/json
 
 
 ### 멘토링 공고 삭제하기
-DELETE localhost:8080/mentoring/12
+DELETE localhost:8080/mentoring/1
 Content-Type: application/json
 Authorization: Bearer {{token}}
 

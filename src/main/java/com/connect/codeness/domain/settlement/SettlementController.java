@@ -21,9 +21,10 @@ public class SettlementController {
 	}
 
 	/**
-	 * 결제내역 정산 신청 API
+	 * TODO : 결제내역 정산 신청 API
 	 * - 멘토
-	 * - 정산상태 변경
+	 * - 정산 상태, 정산 요청일
+	 * - 사용자 계좌, 은행명은 유저 테이블쪽에서 가져오기
 	 */
 	@PatchMapping("/mentors/mentoring/payment-history/settles")
 	public ResponseEntity<CommonResponseDto> requestSettlement(@RequestHeader(AUTHORIZATION) String token){

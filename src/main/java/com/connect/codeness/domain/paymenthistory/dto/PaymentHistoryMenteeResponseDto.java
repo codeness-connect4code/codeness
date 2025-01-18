@@ -3,16 +3,14 @@ package com.connect.codeness.domain.paymenthistory.dto;
 import com.connect.codeness.domain.paymenthistory.PaymentHistory;
 import com.connect.codeness.global.enums.PaymentStatus;
 import com.connect.codeness.global.enums.ReviewStatus;
-import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import lombok.Builder;
 import lombok.Getter;
 
 @Builder
 @Getter
-public class PaymentHistoryResponseDto {
+public class PaymentHistoryMenteeResponseDto {
 
 	private Long id;//결제 내역 고유 식별자
 
@@ -20,15 +18,11 @@ public class PaymentHistoryResponseDto {
 
 	private Long mentorId;//사용자 고유 식별자 (멘토)
 
-	private BigDecimal paymentCost; //결제 금액
-
-	private String paymentCard; //결제 카드 정보
-
 	private PaymentStatus paymentStatus;//결제 상태
 
-	private LocalDateTime createdAt; //멘토링 스케쥴 결제 일시
+	private ReviewStatus reviewStatus; //후기 작성 상태
 
-	private LocalDateTime canceledAt; //결제 취소일
+	private Long mentoringPostId; //멘토링 공고 고유 식별자
 
 	private String userNickname;//멘토 닉네임
 
@@ -39,20 +33,18 @@ public class PaymentHistoryResponseDto {
 	private LocalTime mentoringTime; //멘토링 스케쥴 시간
 
 	/**
-	 * 결제 단건 상세 조회 메서드 사용
-	 * 정적 메서드
+	 * 결제 전체 조회 메서드 사용
+	 * 멘티 응답 DTO
 	 * paymentHistory 객체 -> PaymentHistoryResponseDto 변환
 	 */
-	public static PaymentHistoryResponseDto from(PaymentHistory paymentHistory) {
-		return PaymentHistoryResponseDto.builder()
+	public static PaymentHistoryMenteeResponseDto from(PaymentHistory paymentHistory){
+		return PaymentHistoryMenteeResponseDto.builder()
 			.id(paymentHistory.getId())
 			.paymentId(paymentHistory.getPayment().getId())
 			.mentorId(paymentHistory.getUser().getId())
-			.paymentCost(paymentHistory.getPaymentCost())
-			.paymentCard(paymentHistory.getPaymentCard())
 			.paymentStatus(paymentHistory.getPaymentStatus())
-			.createdAt(paymentHistory.getCreatedAt())
-			.canceledAt(paymentHistory.getCanceledAt())
+			.reviewStatus(paymentHistory.getReviewStatus())
+			.mentoringPostId(paymentHistory.getPayment().getMentoringSchedule().getMentoringPost().getId())
 			.userNickname(paymentHistory.getPayment().getUser().getUserNickname())
 			.title(paymentHistory.getPayment().getMentoringSchedule().getMentoringPost().getTitle())
 			.mentoringDate(paymentHistory.getPayment().getMentoringSchedule().getMentoringDate())
