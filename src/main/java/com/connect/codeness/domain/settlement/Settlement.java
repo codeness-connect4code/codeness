@@ -34,7 +34,6 @@ public class Settlement extends CreateTimeEntity {
 	@JoinColumn(name = "mentor_id")
 	private User user; //멘토 고유 식별자 (외래키)
 
-	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)
 	private SettlementStatus settlementStatus; //정산 상태

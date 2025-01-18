@@ -12,6 +12,20 @@ Content-Type: application/json
   "userRole" : "MENTOR"
 }
 
+### 회원가입 - 멘토
+POST localhost:8080/signup
+Content-Type: application/json
+
+{
+  "email" : "b000@naver.com",
+  "password" : "asdf1234!@",
+  "name" : "김멘토",
+  "nickname" : "프론트김멘토",
+  "phoneNumber" : "010 - 1234 - 6328",
+  "field" : "FRONTEND",
+  "userRole" : "MENTOR"
+}
+
 ### 회원가입 - 멘티
 POST localhost:8080/signup
 Content-Type: application/json
@@ -25,6 +39,20 @@ Content-Type: application/json
   "field" : "BACKEND",
   "userRole" : "MENTEE"
 }
+
+### 로그인 - 멘토 김멘토
+POST localhost:8080/login
+Content-Type: application/json
+
+{
+  "email" : "b000@naver.com",
+  "password" : "asdf1234!@"
+}
+
+> {%
+  client.global.set("token",response.body.token);
+  client.log("Token saved: " + client.global.get("token"));
+%}
 
 ### 로그인 - 멘토 한철수
 POST localhost:8080/login
@@ -100,7 +128,7 @@ Content-Type: application/json
 
 
 ### 멘토링 공고 삭제하기
-DELETE localhost:8080/mentoring/1
+DELETE localhost:8080/mentoring/14
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
