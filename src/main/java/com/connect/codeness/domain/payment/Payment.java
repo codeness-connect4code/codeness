@@ -26,7 +26,7 @@ public class Payment extends CreateTimeEntity {
 	//연관관계 : N:1
 	@ManyToOne
 	@JoinColumn(name = "mentee_id")
-	private User user;//사용자 고유 식별자 (외래키)
+	private User user;//사용자 고유 식별자 (외래키) - 멘티
 
 	//연관관계 : 1:1
 	@OneToOne
@@ -74,5 +74,10 @@ public class Payment extends CreateTimeEntity {
 		this.pgTid = pgTid;
 	}
 
-	
+	/**
+	 * 결제 환불시 취소일 업데이트
+	 */
+	public void updatePaymentCanceledAt() {
+		this.canceledAt = LocalDateTime.now();
+	}
 }

@@ -29,5 +29,9 @@ public class MentoringScheduleController {
 		return new ResponseEntity<>(responseDto, HttpStatus.OK);
 	}
 
+	/**
+	 * TODO : 유효한 멘토링 공고 스케쥴 조회 API
+	 */
+
 
 }

@@ -25,6 +25,7 @@ public class MentoringScheduleServiceImpl implements MentoringScheduleService {
 
 		//멘토링 공고 존재하지 않으면 예외처리
 
+
 		//멘토링 공고 스케쥴 -> dto로 변환
 		List<MentoringScheduleResponseDto> mentoringScheduleResponseDto = mentoringSchedule.stream()
 			.map(mentoringSchedules -> MentoringScheduleResponseDto.builder()
@@ -38,5 +39,12 @@ public class MentoringScheduleServiceImpl implements MentoringScheduleService {
 
 		return CommonResponseDto.<List<MentoringScheduleResponseDto>>builder().msg("멘토링 공고 스케쥴이 조회되었습니다.").data(mentoringScheduleResponseDto).build();
 	}
+
+	/**
+	 * 유효한 멘토링 공고 스케쥴 조회 API
+	 * - TODO : 여기서 스케쥴 검증이 들어가야 한다
+	 */
+
+
 }
 

@@ -1,0 +1,42 @@
+### 로그인 - 멘토
+POST localhost:8080/login
+Content-Type: application/json
+
+{
+  "email" : "asdf132345@naver.com",
+  "password" : "asdf1234!@"
+}
+
+### 로그인 - 멘티
+POST localhost:8080/login
+Content-Type: application/json
+
+{
+  "email" : "abc@naver.com",
+  "password" : "asdf1234!@"
+}
+
+> {%
+  client.global.set("token",response.body.token);
+  client.log("Token saved: " + client.global.get("token"));
+%}
+
+### 결제 내역 전체 조회
+GET localhost:8080/mentoring/payment-history
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+
+}
+
+### 결제 내역 단건 조회
+GET localhost:8080/mentoring/payment-history/3
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+
+}
+
+

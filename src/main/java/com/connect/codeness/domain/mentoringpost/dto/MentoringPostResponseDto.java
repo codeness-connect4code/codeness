@@ -14,7 +14,7 @@ public class MentoringPostResponseDto {
 
 	private Long id;//멘토링 공고 고유 식별자
 
-	private String userNickname;//사용자 고유 식별자 (외래키)
+	private String userNickname;//멘토 닉네임
 
 	private FieldType field; //분야
 

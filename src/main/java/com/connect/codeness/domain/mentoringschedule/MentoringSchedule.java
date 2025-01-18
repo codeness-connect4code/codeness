@@ -16,6 +16,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import lombok.Builder;
 import lombok.Getter;
 
 @Getter
@@ -40,6 +41,10 @@ public class MentoringSchedule extends CreateTimeEntity {
 	@Column(nullable = false)
 	private BookedStatus bookedStatus; //예약 여부
 
+	public MentoringSchedule() {
+
+	}
+
 	/**
 	 * 결제 환불시 스케쥴 상태 변경
 	 * - BOOKED -> EMPTY
@@ -51,11 +56,12 @@ public class MentoringSchedule extends CreateTimeEntity {
 	/**
 	 * 멘토링 공고 생성 - 스케쥴 생성
 	 */
-	public void createMentoringSchedule(MentoringPost mentoringPost, LocalDate date, LocalTime hour, BookedStatus bookedStatus) {
+	@Builder
+	public MentoringSchedule(MentoringPost mentoringPost, LocalDate mentoringDate, LocalTime mentoringTime,
+		BookedStatus bookedStatus) {
 		this.mentoringPost = mentoringPost;
-		this.mentoringDate = date;
-		this.mentoringTime = hour;
+		this.mentoringDate = mentoringDate;
+		this.mentoringTime = mentoringTime;
 		this.bookedStatus = bookedStatus;
 	}
-
 }
