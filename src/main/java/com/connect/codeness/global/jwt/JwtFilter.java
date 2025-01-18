@@ -29,8 +29,8 @@ public class JwtFilter extends OncePerRequestFilter {
 
 	// 제외할 경로
 	private static final List<String> POST_EXCLUDED_PATHS = List.of("/login", "/signup", "/logout");
-	private static final List<String> GET_EXCLUDED_PATHS = List.of("/posts", "/posts/.*", "/news", "/mentoring/\\d+/reviews");
-	private static final List<String> EXCLUDED_PATHS = List.of("/payment", "/mentoring", "/mentoring/.*", "/login-page", "/users", "/loginPage.html", "/payment.html");
+	private static final List<String> GET_EXCLUDED_PATHS = List.of("/posts", "/posts/.*", "/news", "/mentoring/\\d+/reviews", "/mentoring",  "/mentoring.*");
+//	private static final List<String> EXCLUDED_PATHS = List.of("/payment/.*", "/mentoring", "/login-page", "/users", "/loginPage.html", "/payment.html");
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
@@ -97,9 +97,9 @@ public class JwtFilter extends OncePerRequestFilter {
 
 	// 제외된 경로 처리
 	private boolean isExcludedPath(String path, String method) {
-		if (EXCLUDED_PATHS.stream().anyMatch(path::matches)) {
-			return true;
-		}
+//		if (EXCLUDED_PATHS.stream().anyMatch(path::matches)) {
+//			return true;
+//		}
 		if ("GET".equalsIgnoreCase(method) && GET_EXCLUDED_PATHS.stream().anyMatch(path::matches)) {
 			return true;
 		}

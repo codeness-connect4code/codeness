@@ -51,12 +51,16 @@ public class SecurityConfig {
 					"/favicon.ico",
 					"/error",
 					"/posts/**",
-					"/news"
+					"/news",
+					"/mentoring",
+					"/mentoring/**"
 				).permitAll()
 				.requestMatchers("/admin/**").hasAuthority("ADMIN")
-				.requestMatchers(HttpMethod.POST, "/mentoring").hasAuthority("MENTOR")
-				.requestMatchers(HttpMethod.DELETE, "/mentoring/**").hasAuthority("MENTOR")
-				.requestMatchers("/mentoring/payment-history/**").hasAuthority("MENTOR")
+				.requestMatchers(HttpMethod.POST,"/mentoring").hasAuthority("MENTOR")
+				.requestMatchers(HttpMethod.DELETE,"/mentoring").hasAuthority("MENTOR")
+//				.requestMatchers(HttpMethod.POST, "/mentoring").hasAuthority("MENTOR")
+//				.requestMatchers(HttpMethod.DELETE, "/mentoring/**").hasAuthority("MENTOR")
+//				.requestMatchers("/mentoring/payment-history/**").hasAuthority("MENTOR")
 				.requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
 				.anyRequest().authenticated()
 			)

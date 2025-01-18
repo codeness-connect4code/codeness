@@ -1,11 +1,12 @@
 package com.connect.codeness.domain.mentoringpost;
 
 
+import com.connect.codeness.domain.mentoringpost.dto.MentoringPostSearchResponseDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface MentoringPostRepositoryCustom {
 
-	Page<MentoringPost> findAllBySearchParameters(String title, String field, String nickname, Pageable pageable);
+	Page<MentoringPostSearchResponseDto> findAllBySearchParameters(String title, String field, String nickname, Pageable pageable);
 
 }

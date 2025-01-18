@@ -58,6 +58,7 @@ public class PaymentController {
 
 	/**
 	 * 결제 검증 API
+	 * - 검증 완료시 채팅방 생성
 	 */
 	@PostMapping("/payments/{paymentId}/verify")
 	public ResponseEntity<CommonResponseDto> verifyPayment(@PathVariable Long paymentId, @Valid @RequestBody PaymentRequestDto requestDto){
@@ -69,10 +70,13 @@ public class PaymentController {
 
 	/**
 	 * 결제 환불 API
+	 * - 환불 완료시 채팅방 삭제
 	 */
 	@PostMapping("/payments/{paymentId}/refund")
-	public ResponseEntity<CommonResponseDto> refundPayment(@PathVariable Long paymentId, @Valid @RequestBody PaymentRefundRequestDto requestDto){
-	CommonResponseDto responseDto = paymentService.refundPayment(paymentId, requestDto);
+	public ResponseEntity<CommonResponseDto> refundPayment(@RequestHeader(AUTHORIZATION) String token, @PathVariable Long paymentId, @Valid @RequestBody PaymentRefundRequestDto requestDto){
+		Long userId = jwtUtil.extractUserId(token);
+
+		CommonResponseDto responseDto = paymentService.refundPayment(userId, paymentId, requestDto);
 
 	return new ResponseEntity<>(responseDto, HttpStatus.OK);
 	}
