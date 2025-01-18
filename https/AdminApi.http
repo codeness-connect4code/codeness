@@ -27,7 +27,7 @@ Content-Type: application/json
 %}
 
 ### 멘토 정산 처리 API
-PATCH localhost:8080/mentors/1/settlements
+PATCH localhost:8080/admin/mentors/1/settlements
 Authorization: Bearer {{token}}
 
 ### 전체 멘토 리스트 조회 API
@@ -52,7 +52,7 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "isAccepted" : "REJECTED"
+  "isAccepted" : "ACCEPTED"
 }
 
 ### 멘토 정산 내역 조회 API

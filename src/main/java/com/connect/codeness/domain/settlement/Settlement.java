@@ -36,6 +36,7 @@ public class Settlement extends CreateTimeEntity {
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
+	@Enumerated(EnumType.STRING)
 	private SettlementStatus settlementStatus; //정산 상태
 
 	@Column(nullable = true)

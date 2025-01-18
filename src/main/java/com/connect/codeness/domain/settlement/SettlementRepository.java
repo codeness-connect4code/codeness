@@ -9,30 +9,30 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface SettlementRepository extends JpaRepository<Settlement, Long> {
 
-	@Query(
-		"SELECT s "+
-			"FROM Settlement s "+
-			"WHERE s.settlementStatus = :settlementStatus " +
-			"AND s.user.id = :mentorId"
-	)
+	@Query("""
+			SELECT s
+			FROM Settlement s
+			WHERE s.settlementStatus = :settlementStatus
+			AND s.user.id = :mentorId
+			""")
 	List<Settlement> findAllByUserIdAndSettleStatus(Long mentorId, SettlementStatus settlementStatus);
 
-	@Query(
-		"SELECT new com.connect.codeness.domain.admin.dto.AdminSettlementListResponseDto("
-			+ "s.user.id, s.user.name, COUNT(s), SUM(s.paymentHistory.paymentCost), MAX(s.settlementRequestAt)) " +
-			"FROM Settlement s " +
-			"WHERE s.settlementStatus = :settlementStatus "+
-			"GROUP BY s.user.id, s.user.name "+
-			"ORDER BY MAX(s.settlementRequestAt) DESC"
-	)
+	@Query("""
+			SELECT new com.connect.codeness.domain.admin.dto.AdminSettlementListResponseDto(
+			s.user.id, s.user.name, COUNT(s), SUM(s.paymentHistory.paymentCost), MAX(s.settlementRequestAt))
+			FROM Settlement s
+			WHERE s.settlementStatus = :settlementStatus
+			GROUP BY s.user.id, s.user.name 
+			ORDER BY MAX(s.settlementRequestAt) DESC
+			""")
 	List<AdminSettlementListResponseDto> findBySettleStatusMentorGroupList(
 		SettlementStatus settlementStatus);
 
-	@Query(
-		"SELECT new com.connect.codeness.domain.admin.dto.AdminSettlementResponseDto(s) " +
-			"FROM Settlement s " +
-			"WHERE s.settlementStatus = :settlementStatus " +
-			"AND s.user.id = :userId"
-	)
+	@Query("""
+			SELECT new com.connect.codeness.domain.admin.dto.AdminSettlementResponseDto(s)
+			FROM Settlement s
+			WHERE s.settlementStatus = :settlementStatus
+			AND s.user.id = :mentorId
+			""")
 	List<AdminSettlementResponseDto> findByUserIdAndSettleStatus(Long mentorId, SettlementStatus settlementStatus);
 }
