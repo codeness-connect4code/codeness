@@ -24,6 +24,7 @@ public enum ExceptionType {
 	NOT_MENTOR(HttpStatus.BAD_REQUEST,"멘토인 사용자가 아닙니다."),
 	ALREADY_EXIST_CHATROOM(HttpStatus.BAD_REQUEST, "이미 생성된 채팅방입니다."),
 	ALREADY_EXIST_REVIEW(HttpStatus.BAD_REQUEST, "해당 거래내역에 대한 후기가 이미 존재합니다."),
+
 	// 401 Unauthorized
 	UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증이 필요합니다."),
 	UNAUTHORIZED_PASSWORD(HttpStatus.UNAUTHORIZED, "패스워드가 틀렸습니다."),
@@ -38,16 +39,17 @@ public enum ExceptionType {
 	FORBIDDEN_PERMISSION(HttpStatus.FORBIDDEN, "사용자 권한이 없습니다."),
 	FORBIDDEN_LOGIN(HttpStatus.FORBIDDEN, "이미 탈퇴한 유저입니다."),
 	NOT_YOUR_COMMENT(HttpStatus.FORBIDDEN, "해당 댓글의 작성자가 아닙니다."),
-	FORBIDDEN_PAYMENT_ACCESS(HttpStatus.FORBIDDEN, "다른 사용자의 결제 내역을 조회할 수 없습니다."),
+	FORBIDDEN_PAYMENT_HISTORY_ACCESS(HttpStatus.FORBIDDEN, "다른 사용자의 결제 내역을 조회할 수 없습니다."),
 	FORBIDDEN_SETTLEMENT_ACCESS(HttpStatus.FORBIDDEN, "정산 신청을 할 수 있는 권한이 없습니다."),
 	FORBIDDEN_MENTORING_CREATE_ACCESS(HttpStatus.FORBIDDEN, "멘토링 공고를 생성할 수 있는 권한이 없습니다."),
 	FORBIDDEN_ADMIN_ACCESS(HttpStatus.FORBIDDEN,"관리자 권한이 필요합니다."),
+	MENTOR_PAYMENT_NOT_ALLOWED(HttpStatus.FORBIDDEN, "멘토링을 신청할 수 있는 권한이 없습니다."),
 
 	// 404 NOT_FOUND
 	NOT_FOUND(HttpStatus.NOT_FOUND, "리소스를 찾을 수 없습니다."),
 	NOT_FOUND_POST(HttpStatus.NOT_FOUND, "게시글을 찾을 수 없습니다."),
 	NOT_FOUND_COMMENT(HttpStatus.NOT_FOUND, "댓글을 찾을 수 없습니다."),
-	NOT_FOUND_PAYMENTLIST(HttpStatus.NOT_FOUND, "거래 내역을 찾을 수 없습니다."),
+	NOT_FOUND_PAYMENT_HISTORY(HttpStatus.NOT_FOUND, "거래 내역을 찾을 수 없습니다."),
 	NOT_FOUND_NEWS(HttpStatus.NOT_FOUND,"뉴스를 찾을 수 없습니다."),
 	NOT_FOUND_USER(HttpStatus.NOT_FOUND,"유저를 찾을 수 없습니다."),
 	NOT_FOUND_REVIEW(HttpStatus.NOT_FOUND, "후기를 찾을 수 없습니다."),
@@ -66,6 +68,7 @@ public enum ExceptionType {
 	DUPLICATE_VALUE(HttpStatus.CONFLICT, "중복된 정보입니다."),
 	USER_ALREADY_DELETED(HttpStatus.CONFLICT, "이미 탈퇴한 사용자 아이디입니다."),
 	POST_ALREADY_DELETED(HttpStatus.CONFLICT, "이미 삭제된 게시물 입니다."),
+	DUPLICATE_(HttpStatus.CONFLICT, "이미 신청이 완료된 스케쥴입니다."),
 
 	// 500 INTERNAL_SERVER_ERROR
 	LOAD_FAIL_CHATROOMLIST(HttpStatus.INTERNAL_SERVER_ERROR, "채팅방 정보를 가져오기에 실패했습니다."),

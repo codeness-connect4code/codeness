@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.stream.Stream;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -85,6 +86,7 @@ public class MentoringPostServiceImpl implements MentoringPostService {
 			requestDto.getEndTime(),
 			mentoringPost
 		);
+
 		//DB 저장
 		mentoringScheduleRepository.saveAll(schedules);
 
@@ -93,32 +95,54 @@ public class MentoringPostServiceImpl implements MentoringPostService {
 
 	/**
 	 * 멘토링 공고 - 멘토링 스케쥴 생성 서비스 메서드
-	 * - 메서드 분리
+	 * - 시작 날짜, 종료 날짜, 시작 시간, 종료 시간을 기반으로 멘토링 스케쥴 생성
 	 */
 	private List<MentoringSchedule> createMentoringSchedules(LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime,
 		MentoringPost mentoringPost) {
 
-		return startDate.datesUntil(endDate.plusDays(1)) // 날짜 범위 스트림 생성
-			.flatMap(date -> {
-				boolean crossesMidnight = endTime.isBefore(startTime);//시간 하루 넘기는지 확인
-				long hourCount = crossesMidnight
-					? ChronoUnit.HOURS.between(startTime, LocalTime.MAX) + 1 + ChronoUnit.HOURS.between(LocalTime.MIN, endTime.plusHours(1))
-					: ChronoUnit.HOURS.between(startTime, endTime.plusHours(1));
+		return startDate.datesUntil(endDate.plusDays(1)) //시작 날짜 - 종료 날짜 범위 생성
+			.flatMap(date -> createSchedulesForDate(date, startTime, endTime, mentoringPost))
+			.collect(Collectors.toList());
+	}
 
-				return LongStream.range(0, hourCount)
-					.mapToObj(hour -> {
-						LocalDateTime dateTime = date.atTime(startTime).plusHours(hour);
+	/**
+	 * 멘토링 공고 - 멘토링 스케쥴 생성 서비스 메서드
+	 * - 시간 범위가 하루를 넘어가서 날짜가 바뀌는 경우 처리
+	 */
+	private Stream<MentoringSchedule> createSchedulesForDate(LocalDate date, LocalTime startTime, LocalTime endTime,
+		MentoringPost mentoringPost) {
 
-						//날짜 넘어가는 경우
-						if (dateTime.toLocalTime().isBefore(startTime)) {
-							dateTime = dateTime.plusDays(1);
-						}
+		boolean crossesMidnight = endTime.isBefore(startTime);
+		//시작 시간과 종료 시간 사이의 총 시간 개수를 계산
+		long hourCount = crossesMidnight
+			? ChronoUnit.HOURS.between(startTime, LocalTime.MAX) + 1 + ChronoUnit.HOURS.between(LocalTime.MIN, endTime.plusHours(1))
+			: ChronoUnit.HOURS.between(startTime, endTime.plusHours(1));
 
-						MentoringSchedule schedule = new MentoringSchedule();
-						schedule.createMentoringSchedule(mentoringPost, date, startTime.plusHours(hour), BookedStatus.EMPTY);
-						return schedule;
-					});
-			}).collect(Collectors.toList());
+		return LongStream.range(0, hourCount)
+			.mapToObj(hour -> buildMentoringSchedule(date, startTime.plusHours(hour), mentoringPost));//시간별 스케쥴 생성
+	}
+
+	/**
+	 * 멘토링 공고 - 멘토링 스케쥴 생성 서비스 메서드
+	 * - 멘토링 스케쥴 단건 생성
+	 */
+	private MentoringSchedule buildMentoringSchedule(LocalDate date, LocalTime time, MentoringPost mentoringPost) {
+
+		// 날짜 & 시간 합쳐서 LocalDateTime 생성
+		LocalDateTime dateTime = date.atTime(time); 
+
+		//날짜 넘어가는 경우
+		if (dateTime.toLocalTime().isBefore(time)) {
+			dateTime = dateTime.plusDays(1); // 다음 날로 조정
+		}
+
+		// MentoringSchedule 생성, 반환
+		return MentoringSchedule.builder()
+			.mentoringPost(mentoringPost)
+			.mentoringDate(dateTime.toLocalDate())
+			.mentoringTime(dateTime.toLocalTime())
+			.bookedStatus(BookedStatus.EMPTY)
+			.build();
 	}
 
 	/**
@@ -148,28 +172,18 @@ public class MentoringPostServiceImpl implements MentoringPostService {
 	 * - TODO : 평균 별점 추가, 응답 필드 수정
 	 */
 	@Override
-	public CommonResponseDto<PaginationResponseDto<MentoringPostSearchResponseDto>> searchMentoringPosts(int pageNumber, int pageSize,
-		String title, String field,
-		String nickname) {
+	public CommonResponseDto<PaginationResponseDto<MentoringPostSearchResponseDto>> searchMentoringPosts(
+		int pageNumber, int pageSize, String title, String field, String nickname) {
 		//페이징
 		Pageable pageable = PageRequest.of(pageNumber, pageSize);
 
 		//멘토링 공고 조회
-		Page<MentoringPost> mentoringPosts = mentoringPostRepository.findAllBySearchParameters(title, field, nickname, pageable);
-
-		//dto 변환 page -> PaginationResponseDto
-		List<MentoringPostSearchResponseDto> mentoringPostResponseDtos = mentoringPosts.getContent().stream()
-			.map(mentoringPost -> MentoringPostSearchResponseDto.builder()
-				.mentoringPostId(mentoringPost.getId())
-				.userNickname(mentoringPost.getUser().getUserNickname())
-				.field(mentoringPost.getField())
-				.title(mentoringPost.getTitle())
-				.career(mentoringPost.getCareer())
-				.build()).toList();
+		Page<MentoringPostSearchResponseDto> mentoringPosts = mentoringPostRepository.findAllBySearchParameters(title, field, nickname,
+			pageable);
 
 		//PaginationResponseDto 생성
 		PaginationResponseDto<MentoringPostSearchResponseDto> paginationResponseDto = PaginationResponseDto.<MentoringPostSearchResponseDto>builder()
-			.content(mentoringPostResponseDtos)
+			.content(mentoringPosts.getContent())
 			.totalPages(mentoringPosts.getTotalPages())
 			.totalElements(mentoringPosts.getTotalElements())
 			.pageNumber(mentoringPosts.getNumber())

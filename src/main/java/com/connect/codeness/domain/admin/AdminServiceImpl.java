@@ -134,7 +134,7 @@ public class AdminServiceImpl implements AdminService {
 			throw new BusinessException(ExceptionType.NOT_FOUND);
 		}
 		for (Settlement s : settlementList){
-			s.updateSettleStatus(SettlementStatus.COMPLETE);
+			s.updateSettlementStatus(SettlementStatus.COMPLETE);
 		}
 
 		settlementRepository.saveAll(settlementList);

@@ -2,6 +2,7 @@ package com.connect.codeness.domain.paymenthistory;
 
 
 import com.connect.codeness.domain.payment.Payment;
+import com.connect.codeness.domain.settlement.Settlement;
 import com.connect.codeness.domain.user.User;
 import com.connect.codeness.global.entity.CreateTimeEntity;
 import com.connect.codeness.global.enums.PaymentStatus;
@@ -11,6 +12,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -33,12 +35,12 @@ public class PaymentHistory extends CreateTimeEntity {
 	private Long id;//결제 내역 고유 식별자
 
 	//연관관계 : N:1
-	@OneToOne
+	@OneToOne(fetch = FetchType.LAZY)//필요한 시점에만 데이터 로드
 	@JoinColumn(name = "payment_id")
 	private Payment payment;//결제 고유 식별자 (외래키)
 
 	//연관관계 : N:1
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)//필요한 시점에만 데이터 로드
 	@JoinColumn(name = "mentor_id")
 	private User user;//사용자 고유 식별자 (외래키)
 
@@ -55,13 +57,6 @@ public class PaymentHistory extends CreateTimeEntity {
 	@Column(nullable = false)
 	private PaymentStatus paymentStatus;//결제 상태
 
-	@Enumerated(EnumType.STRING)
-	@Column(nullable = false)
-	private SettlementStatus settlementStatus; //정산 상태
-
-	@Column(nullable = true)
-	private LocalDateTime settlementRequestAt; //정산 요청일
-
 	@Column(nullable = true)
 	private LocalDateTime canceledAt; //결제 취소일
 
@@ -69,31 +64,24 @@ public class PaymentHistory extends CreateTimeEntity {
 	@Column(nullable = false)
 	private ReviewStatus reviewStatus; //후기 작성 상태
 
-	@Column(nullable = true)
-	private String account; //사용자 계좌
-
-	@Column(nullable = true)
-	private String bankName; //계좌 은행명
+	@OneToOne(mappedBy = "paymentHistory", fetch = FetchType.LAZY)
+	private Settlement settlement; //양방향 매핑
 
 	public PaymentHistory() {
 
 	}
 
 	@Builder
-	public PaymentHistory(Payment payment, User user, String pgTid, BigDecimal paymentCost,
-		String paymentCard, PaymentStatus paymentStatus, SettlementStatus settlementStatus,
-		LocalDateTime canceledAt, ReviewStatus reviewStatus, String account, String bankName) {
+	public PaymentHistory(Payment payment, User user, String pgTid, BigDecimal paymentCost, String paymentCard, PaymentStatus paymentStatus,
+		LocalDateTime canceledAt, ReviewStatus reviewStatus) {
 		this.payment = payment;
 		this.user = user;
 		this.pgTid = pgTid;
 		this.paymentCost = paymentCost;
 		this.paymentCard = paymentCard;
 		this.paymentStatus = paymentStatus;
-		this.settlementStatus = settlementStatus;
 		this.canceledAt = canceledAt;
 		this.reviewStatus = reviewStatus;
-		this.account = account;
-		this.bankName = bankName;
 	}
 
 	/**
@@ -106,15 +94,9 @@ public class PaymentHistory extends CreateTimeEntity {
 	/**
 	 * paymentList 결제 상태 수정 COMPLETE -> CANCEL
 	 */
-	public void updatePaymentStatus(PaymentStatus paymentStatus) {
+	public void updatePaymentStatus(PaymentStatus paymentStatus, LocalDateTime canceledAt) {
 		this.paymentStatus = paymentStatus;
-	}
-
-	/**
-	 * paymentList 정산 상태 수정 UNPROCESSED -> PROCESSING
-	 */
-	public void updateSettleStatus(SettlementStatus settlementStatus) {
-		this.settlementStatus = settlementStatus;
+		this.canceledAt = LocalDateTime.now();
 	}
 
 }

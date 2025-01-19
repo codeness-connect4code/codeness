@@ -65,7 +65,8 @@ public class MentoringPostController {
 	 * - 모든 유저 가능
 	 */
 	@GetMapping
-	public ResponseEntity<CommonResponseDto<PaginationResponseDto<MentoringPostSearchResponseDto>>> getMentoringPostAll(@RequestParam(defaultValue = PAGE_NUMBER) int pageNumber,
+	public ResponseEntity<CommonResponseDto<PaginationResponseDto<MentoringPostSearchResponseDto>>> getMentoringPostAll(
+		@RequestParam(defaultValue = PAGE_NUMBER) int pageNumber,
 		@RequestParam(defaultValue = PAGE_SIZE) int pageSize,
 		@RequestParam(required = false) String title,
 		@RequestParam(required = false) String field,

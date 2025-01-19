@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -15,7 +16,7 @@ public interface PaymentHistoryRepository extends JpaRepository<PaymentHistory, 
 
 	default PaymentHistory findByIdOrElseThrow(Long paymentHistoryId) {
 		return findById(paymentHistoryId).orElseThrow(
-			() -> new BusinessException(ExceptionType.NOT_FOUND_PAYMENTLIST));
+			() -> new BusinessException(ExceptionType.NOT_FOUND_PAYMENT_HISTORY));
 	}
 
 	Optional<PaymentHistory> findByPaymentId(Long paymentId);
@@ -30,11 +31,20 @@ public interface PaymentHistoryRepository extends JpaRepository<PaymentHistory, 
 	@Query("SELECT p FROM PaymentHistory p WHERE p.id = :paymentHistoryId AND p.payment.user.id = :userId")
 	Optional<PaymentHistory> findByIdAndUserId(Long paymentHistoryId, Long userId);
 
-	/**
-	 * TODO : 사용 안하면 지우기
-	 */
-	Optional<PaymentHistory> findByUserId(Long userId);
+	default PaymentHistory findByIdAndUserIdOrElseThrow(Long userId, Long paymentHistoryId){
+		return findByIdAndUserId(userId, paymentHistoryId).orElseThrow(
+			() -> new BusinessException(ExceptionType.NOT_FOUND_PAYMENT_HISTORY));
+	}
 
-	List<PaymentHistory> findAllByUserIdAndSettlementStatus(Long userId, SettlementStatus settlementStatus);
+	@Query("""
+    SELECT ph FROM PaymentHistory ph
+    JOIN ph.payment p
+    WHERE ph.id = :paymentHistoryId
+      AND p.id = :paymentId
+    """)
+	Optional<PaymentHistory> findByIdAndPaymentId(Long paymentHistoryId, Long paymentId);
+
+	List<PaymentHistory> findAllByUserId(Long userId);
+
 }
 
