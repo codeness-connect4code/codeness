@@ -3,6 +3,7 @@ package com.connect.codeness.global.config;
 import com.connect.codeness.global.jwt.JwtFilter;
 import com.connect.codeness.global.handler.OAuth2SuccessHandler;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.Arrays;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -46,6 +47,7 @@ public class SecurityConfig {
 				.requestMatchers(
 					"/signup",
 					"/login",
+					"/api/login",
 					"/login-page",
 					"/users/**",
 					"/payment",
@@ -118,11 +120,14 @@ public class SecurityConfig {
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.addAllowedOrigin("*"); // 모든 origin 허용 (개발용)
-		configuration.addAllowedMethod("*"); // 모든 HTTP 메서드 허용 (GET, POST, PUT, DELETE 등)
-		configuration.addAllowedHeader("*"); // 모든 헤더 허용
+		configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000")); // 와일드카드(*) 대신 구체적인 출처
+		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+		configuration.setAllowedHeaders(Arrays.asList("*"));
+		configuration.setAllowCredentials(true); // credentials 허용
+		configuration.setExposedHeaders(Arrays.asList("Authorization")); // Authorization 헤더 노출
+
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-		source.registerCorsConfiguration("/**", configuration); // 모든 경로에 대해 CORS 설정 적용
+		source.registerCorsConfiguration("/**", configuration);
 		return source;
 	}
 }
