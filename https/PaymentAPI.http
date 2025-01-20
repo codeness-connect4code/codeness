@@ -21,7 +21,19 @@ Content-Type: application/json
   client.log("Token saved: " + client.global.get("token"));
 %}
 
-### 환불 요청
+### 멘토링 신청 (결제 생성) API
+POST localhost:8080/mentoring/payments
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "mentorScheduleId" : 12,
+  "paymentCost" : 100,
+  "paymentCard" : "신용카드"
+}
+
+
+### 환불 요청 API
 POST localhost:8080/mentoring/payments/103/refund
 Content-Type: application/json
 Authorization: Bearer {{token}}

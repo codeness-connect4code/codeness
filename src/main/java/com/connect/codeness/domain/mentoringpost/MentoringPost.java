@@ -1,10 +1,9 @@
 package com.connect.codeness.domain.mentoringpost;
 
-import com.connect.codeness.domain.mentoringschedule.MentoringSchedule;
 import com.connect.codeness.domain.user.User;
 import com.connect.codeness.global.entity.CreateTimeEntity;
 import com.connect.codeness.global.enums.FieldType;
-import jakarta.persistence.CascadeType;
+import com.connect.codeness.global.enums.MentoringPostStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -13,15 +12,11 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -29,17 +24,19 @@ import lombok.Getter;
 @Entity
 @Table(name = "mentoring_post")
 public class MentoringPost extends CreateTimeEntity {
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;//멘토링 공고 고유 식별자
 
-	//연관관계 : 1:1
-	@OneToOne
+	@ManyToOne
 	@JoinColumn(name = "mentor_id")
 	private User user;//사용자 고유 식별자 (외래키)
 
-	@OneToMany(mappedBy = "mentoringPost", orphanRemoval = true, cascade = CascadeType.REMOVE)
-	private List<MentoringSchedule> mentoringSchedule = new ArrayList<>();//멘토링 공고 삭제시, 멘토링 스케쥴도 삭제
+	//TODO : 멘토링 공고가 소프트 딜리트로 변경 - 스케쥴도 상태 추가 고민
+	//멘토링 공고 삭제시, 멘토링 스케쥴도 삭제
+//	@OneToMany(mappedBy = "mentoringPost", orphanRemoval = true, cascade = CascadeType.REMOVE)
+//	private List<MentoringSchedule> mentoringSchedule = new ArrayList<>();
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
@@ -75,13 +72,18 @@ public class MentoringPost extends CreateTimeEntity {
 	@Column(nullable = false, length = 300)
 	private String description;//설명글
 
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	private MentoringPostStatus mentoringPostStatus; //멘토링 공고 삭제 여부
+
 	public MentoringPost() {
 
 	}
 
 	@Builder
 	public MentoringPost(User user, FieldType field, String title, String company, Integer career, String region,
-		BigDecimal price, LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime, String description, LocalDateTime createdAt) {
+		BigDecimal price, LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime, String description,
+		MentoringPostStatus mentoringPostStatus) {
 		this.user = user;
 		this.field = field;
 		this.title = title;
@@ -94,6 +96,13 @@ public class MentoringPost extends CreateTimeEntity {
 		this.startTime = startTime;
 		this.endTime = endTime;
 		this.description = description;
+		this.mentoringPostStatus = mentoringPostStatus;
 	}
 
+	/**
+	 * 멘토링 공고 삭제시 상태 변경
+	 */
+	public void updateStatus(MentoringPostStatus mentoringPostStatus) {
+		this.mentoringPostStatus = mentoringPostStatus;
+	}
 }

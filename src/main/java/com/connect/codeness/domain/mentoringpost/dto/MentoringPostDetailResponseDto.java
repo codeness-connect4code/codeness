@@ -27,4 +27,6 @@ public class MentoringPostDetailResponseDto {
 	private BigDecimal price;//가격
 
 	private String description;//설명글
+
+	private Double starRating;//평균 별점
 }

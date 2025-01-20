@@ -24,6 +24,9 @@ public enum ExceptionType {
 	NOT_MENTOR(HttpStatus.BAD_REQUEST,"멘토인 사용자가 아닙니다."),
 	ALREADY_EXIST_CHATROOM(HttpStatus.BAD_REQUEST, "이미 생성된 채팅방입니다."),
 	ALREADY_EXIST_REVIEW(HttpStatus.BAD_REQUEST, "해당 거래내역에 대한 후기가 이미 존재합니다."),
+	MENTORING_POST_CREATE_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "멘토링 공고를 생성할 수 없습니다."),
+	INVALID_START_DATE_TIME(HttpStatus.BAD_REQUEST, "시작 날짜와 시간은 현재 날짜 & 시간보다 이후로 설정해야 합니다."),
+	MENTORING_POST_DELETED(HttpStatus.BAD_REQUEST, "삭제된 멘토링 공고입니다."),
 
 	// 401 Unauthorized
 	UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증이 필요합니다."),
@@ -63,6 +66,7 @@ public enum ExceptionType {
 	NOT_FOUND_SETTLEMENT_DATE(HttpStatus.NOT_FOUND, "정산 가능한 결제 내역이 없습니다."),
 	NOT_FOUND_MENTOR_REQUEST(HttpStatus.NOT_FOUND,"멘토 신청 내역이 없습니다."),
 	NOT_FOUND_MENTORING_POST(HttpStatus.NOT_FOUND, "멘토링 공고를 찾을 수 없습니다."),
+	NOT_FOUND_USER_ACCOUNT_AND_BANK_NAME(HttpStatus.NOT_FOUND, "유저의 계좌와 계좌 은행명을 찾을 수 없습니다."),
 
 	// 409 CONFLICT
 	DUPLICATE_VALUE(HttpStatus.CONFLICT, "중복된 정보입니다."),

@@ -82,23 +82,42 @@ Content-Type: application/json
   client.log("Token saved: " + client.global.get("token"));
 %}
 
-### 멘토링 공고 생성하기
+### 멘토링 공고 생성하기 - 프론트
 POST localhost:8080/mentoring
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
     "company" : "테스트회사",
-	"title" : "백엔드 멘토링 진행합니다",
-	"field" : "BACKEND",
-	"career" : 3,
+	"title" : "멘토링 진행합니다",
+	"field" : "FRONTEND",
+	"career" : 10,
 	"region" : "서울, 경기 남부",
-	"price" : 50000,
-	"startDate" : "2025-01-18",
-	"endDate" : "2025-01-19",
-	"startTime" : "23:00",
-	"endTime" : "04:00",
+	"price" : 20000,
+	"startDate" : "2025-01-20",
+	"endDate" : "2025-01-21",
+	"startTime" : "12:00",
+	"endTime" : "14:00",
 	"description" : "멘토링 받으러 오세요~😊"
+}
+
+### 멘토링 공고 생성하기 - 백엔드
+POST localhost:8080/mentoring
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "company" : "테스트회사",
+  "title" : "멘토링 진행합니다",
+  "field" : "BACKEND",
+  "career" : 5,
+  "region" : "서울, 경기 남부",
+  "price" : 20000,
+  "startDate" : "2025-01-20",
+  "endDate" : "2025-01-21",
+  "startTime" : "12:00",
+  "endTime" : "14:00",
+  "description" : "멘토링 받으러 오세요~😊"
 }
 
 ### 멘토링 공고 전체 조회하기
@@ -110,7 +129,7 @@ Content-Type: application/json
 }
 
 ### 멘토링 공고 전체 조회하기 - 조건별 검색
-GET localhost:8080/mentoring?title=제목&userNickname=개발&field=FRONTEND
+GET localhost:8080/mentoring?title=&userNickname=&field=BACKEND
 Content-Type: application/json
 
 {
@@ -118,18 +137,18 @@ Content-Type: application/json
 }
 
 ### 멘토링 공고 상세 조회하기
-GET localhost:8080/mentoring/1
+GET localhost:8080/mentoring/5
 Content-Type: application/json
-
-
-### 멘토링 공고 스케쥴 전체 조회하기
-GET localhost:8080/mentoring/1/mentoring-schedule
-Content-Type: application/json
-
 
 ### 멘토링 공고 삭제하기
-DELETE localhost:8080/mentoring/14
+PATCH localhost:8080/mentoring/4
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
+### 멘토링 공고 스케쥴 전체 조회 API
+GET localhost:8080/mentoring/5/mentoring-schedule
+Content-Type: application/json
 
+### 유효한 멘토링 공고 스케쥴 전체 조회 API
+GET localhost:8080/mentoring/5/mentoring-schedule/empty-status
+Content-Type: application/json

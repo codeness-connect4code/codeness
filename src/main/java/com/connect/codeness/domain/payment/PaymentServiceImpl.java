@@ -77,20 +77,6 @@ public class PaymentServiceImpl implements PaymentService {
 			throw new BusinessException(ExceptionType.MENTOR_PAYMENT_NOT_ALLOWED);
 		}
 
-		// TODO : 스케쥴 검증 결제 생성에서 X -> 결제 테스트 후 코드 정리하기
-//		//멘토링 스케쥴 상태 체크
-//		if (mentoringSchedule.getBookedStatus().equals(BookedStatus.BOOKED)) {
-//			throw new BusinessException(ExceptionType.ALREADY_BOOKED);
-//		}
-//
-//		//현재 날짜, 시간 체크
-//		LocalDateTime now = LocalDateTime.now();
-//		LocalDateTime mentoringDateTime = LocalDateTime.of(mentoringSchedule.getMentoringDate(), mentoringSchedule.getMentoringTime());
-//		//멘토링 스케쥴이 현재보다 이전이면 예외
-//		if (mentoringDateTime.isBefore(now)) {
-//			throw new BusinessException(ExceptionType.MENTORING_SCHEDULE_EXPIRED);
-//		}
-
 		//멘토링 스케쥴 조회
 		MentoringSchedule mentoringSchedule = mentoringScheduleRepository.findByIdOrElseThrow(requestDto.getMentoringScheduleId());
 
@@ -110,6 +96,7 @@ public class PaymentServiceImpl implements PaymentService {
 	/**
 	 * 결제 삭제 메서드
 	 * - 결제 도중 취소하거나 결제가 거절됐을 경우 결제 데이터 삭제
+	 * - TODO : 소프트 딜리트 고려해봐야함
 	 */
 	@Transactional
 	@Override
@@ -220,7 +207,9 @@ public class PaymentServiceImpl implements PaymentService {
 	/**
 	 * 결제 환불 서비스 메서드
 	 * - 결제 완료 후 환불 진행 : 결제 내역 테이블에서 조회 및 진행
+	 * - TODO : 멘토링 스케쥴 상태 확인 후 결제 환불 진행
 	 */
+
 	@Transactional
 	@Override
 	public CommonResponseDto refundPayment(Long userId, Long paymentId, PaymentRefundRequestDto requestDto) {
