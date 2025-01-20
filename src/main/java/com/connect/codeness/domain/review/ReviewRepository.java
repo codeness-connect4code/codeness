@@ -29,4 +29,14 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 	Page<ReviewFindResponseDto> findByMentoringPostId(@Param("postId") Long postId, Pageable pageable);
 
 	Boolean existsByPaymentHistory(PaymentHistory paymentHistory);
+
+	/**
+	 * 평균 별점 조회
+	 */
+	@Query("""
+		SELECT COALESCE(AVG(r.starRating), 0.0)
+		FROM Review r
+		WHERE  r.mentoringPost.id = :mentoringPostId
+	""")
+	Double findAverageStarRatingByMentoringPostId(Long mentoringPostId);
 }

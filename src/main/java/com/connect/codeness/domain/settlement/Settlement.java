@@ -14,6 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
+import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Getter;
@@ -62,9 +63,20 @@ public class Settlement extends CreateTimeEntity {
 	}
 
 	/**
-	 * 정산 상태 수정
+	 * 정산 데이터 업데이트
+	 */
+	public void updateSettlement(SettlementStatus settlementStatus, String account, String bankName, LocalDateTime settlementRequestAt) {
+		this.settlementStatus = settlementStatus;
+		this.account = account;
+		this.bankName = bankName;
+		this.settlementRequestAt = settlementRequestAt;
+	}
+
+	/**
+	 * 정산 상태 업데이트
 	 */
 	public void updateSettlementStatus(SettlementStatus settlementStatus) {
 		this.settlementStatus = settlementStatus;
 	}
+
 }

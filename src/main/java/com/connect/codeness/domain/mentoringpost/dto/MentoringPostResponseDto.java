@@ -12,6 +12,10 @@ import lombok.Getter;
 @Builder
 public class MentoringPostResponseDto {
 
+	/**
+	 * TODO : 사용 안되면 지우기
+	 */
+
 	private Long id;//멘토링 공고 고유 식별자
 
 	private String userNickname;//멘토 닉네임

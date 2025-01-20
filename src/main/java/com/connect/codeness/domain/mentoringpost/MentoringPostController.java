@@ -12,8 +12,8 @@ import com.connect.codeness.global.dto.CommonResponseDto;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -51,8 +51,9 @@ public class MentoringPostController {
 	/**
 	 * 멘토링 공고 삭제 API
 	 * - 자신이 생성한 공고만 삭제 가능
+	 * - 삭제시 상태 DELETED 변경
 	 */
-	@DeleteMapping("/{mentoringPostId}")
+	@PatchMapping("/{mentoringPostId}")
 	public ResponseEntity<CommonResponseDto> deleteMentoringPost(@RequestHeader(AUTHORIZATION) String token, @PathVariable Long mentoringPostId){
 		Long userId = jwtUtil.extractUserId(token);
 		CommonResponseDto responseDto = mentoringPostService.deleteMentoringPost(userId, mentoringPostId);
@@ -63,6 +64,7 @@ public class MentoringPostController {
 	/**
 	 * 멘토링 공고 전체 조회 API
 	 * - 모든 유저 가능
+	 * - 상태가 존재인 것만 조회
 	 */
 	@GetMapping
 	public ResponseEntity<CommonResponseDto<PaginationResponseDto<MentoringPostSearchResponseDto>>> getMentoringPostAll(
@@ -80,6 +82,7 @@ public class MentoringPostController {
 	/**
 	 * 멘토링 공고 상세 조회 API
 	 * - 모든 유저 가능
+	 * - 상태가 존재인 것만 조회
 	 */
 	@GetMapping("/{mentoringPostId}")
 	public ResponseEntity<CommonResponseDto<MentoringPostDetailResponseDto>> getMentoringPostDetail(@PathVariable Long mentoringPostId) {

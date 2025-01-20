@@ -6,6 +6,7 @@ import static com.connect.codeness.domain.review.QReview.review;
 
 import com.connect.codeness.domain.mentoringpost.dto.MentoringPostSearchResponseDto;
 import com.connect.codeness.global.enums.FieldType;
+import com.connect.codeness.global.enums.MentoringPostStatus;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
@@ -33,9 +34,10 @@ public class MentoringPostRepositoryImpl implements MentoringPostRepositoryCusto
 
 		BooleanExpression condition = filterByTitle(title)
 			.and(filterByField(field))
-			.and(filterByNickname(nickname));
+			.and(filterByNickname(nickname))
+			.and(filterByMentoringPostStatus());
 
-		//쿼리 생성 & Projections 사용 &  평균 별점 계산
+		//쿼리 생성 & Projections 사용 &  평균 별점 계산 & 상태가 존재인 것만
 		JPQLQuery<MentoringPostSearchResponseDto> jpqlQuery = jpaQueryFactory.select(
 			//Projections.fields - 필드 이름으로 DTO 매핑
 			Projections.fields(MentoringPostSearchResponseDto.class,
@@ -48,6 +50,7 @@ public class MentoringPostRepositoryImpl implements MentoringPostRepositoryCusto
 			)
 		).from(mentoringPost)
 			.leftJoin(review).on(review.mentoringPost.eq(mentoringPost))
+			.where(condition) //필터
 			.groupBy(
 				mentoringPost.id,
 				mentoringPost.user.userNickname,
@@ -85,6 +88,11 @@ public class MentoringPostRepositoryImpl implements MentoringPostRepositoryCusto
 	private BooleanExpression filterByTitle(String title) {
 		return title != null && !title.isEmpty() ? mentoringPost.title.containsIgnoreCase(title)
 			: Expressions.asBoolean(true).isTrue();
+	}
+
+	//멘토링 상태
+	private BooleanExpression filterByMentoringPostStatus(){
+		return mentoringPost.mentoringPostStatus.eq(MentoringPostStatus.DISPLAYED);
 	}
 
 }
