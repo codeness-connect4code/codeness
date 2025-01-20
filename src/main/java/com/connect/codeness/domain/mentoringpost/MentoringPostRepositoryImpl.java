@@ -35,7 +35,7 @@ public class MentoringPostRepositoryImpl implements MentoringPostRepositoryCusto
 		BooleanExpression condition = filterByTitle(title)
 			.and(filterByField(field))
 			.and(filterByNickname(nickname))
-			.and(filterByMentoringPostStatus());
+			.and(filterByMentoringPostStatus(MentoringPostStatus.DISPLAYED));
 
 		//쿼리 생성 & Projections 사용 &  평균 별점 계산 & 상태가 존재인 것만
 		JPQLQuery<MentoringPostSearchResponseDto> jpqlQuery = jpaQueryFactory.select(
@@ -91,8 +91,8 @@ public class MentoringPostRepositoryImpl implements MentoringPostRepositoryCusto
 	}
 
 	//멘토링 상태
-	private BooleanExpression filterByMentoringPostStatus(){
-		return mentoringPost.mentoringPostStatus.eq(MentoringPostStatus.DISPLAYED);
+	private BooleanExpression filterByMentoringPostStatus(MentoringPostStatus mentoringPostStatus){
+		return mentoringPost.mentoringPostStatus.eq(mentoringPostStatus);
 	}
 
 }
