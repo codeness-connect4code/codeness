@@ -166,7 +166,7 @@ public class MentoringPostServiceImpl implements MentoringPostService {
 
 	/**
 	 * 멘토링 공고 삭제 서비스 메서드
-	 * - 삭제하면 상태 DELETE 변경
+	 * - 삭제하면 상태 DELETED 변경
 	 */
 	@Transactional
 	@Override
