@@ -1,6 +1,9 @@
 package com.connect.codeness.domain.chat;
 
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -12,4 +15,7 @@ interface ChatRoomHistoryRepository extends JpaRepository<ChatRoomHistory, Long>
 	Boolean existsByUserId(Long userId);
 
 	Boolean existsByChatRoomId(String chatRoomId);
+
+	@Query("SELECT c.chatRoomId FROM ChatRoomHistory c WHERE c.user.id = :userId")
+	List<String> findChatRoomIdByUserId(@Param("userId") Long userId);
 }

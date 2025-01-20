@@ -140,6 +140,9 @@ public class ChatServiceImpl implements ChatService {
 		//내가 조회할 권한이 없으면 예외 처리
 		checkAuthorizationOrElseThrow(userId, ExceptionType.UNAUTHORIZED_GET_REQUEST);
 
+		//변경된 프로필과 별명 가져오기
+		updateChatRoomsInfoWhenGet(userId);
+
 		//참조 노드 설정
 		DatabaseReference roomReference = firebaseDatabase.getReference(String.format("chatRooms/%s", userId));
 
@@ -181,7 +184,7 @@ public class ChatServiceImpl implements ChatService {
 
 		try {
 			// 데이터를 기다림 (최대 5초)
-			List<ChatRoomDto> myChatRooms = future.get(5, TimeUnit.SECONDS);
+			List<ChatRoomDto> myChatRooms = future.get(10, TimeUnit.SECONDS);
 
 			log.info("사용자 ID: {}의 채팅방 정보 조회에 성공했습니다.", userId);
 
@@ -322,6 +325,43 @@ public class ChatServiceImpl implements ChatService {
 				}
 			}
 		);
+	}
+
+	//유저 정보 변경 시, 상대방의 프로필 주소와 별명을 다시 세팅(파이어베이스 DB)
+	private void updateChatRoomsInfoWhenGet(Long userId) {
+
+		DatabaseReference Ref = firebaseDatabase.getReference("chatRooms");
+
+		List<String> list = chatRoomHistoryRepository.findChatRoomIdByUserId(userId);
+
+		//채팅방 정보 업데이트
+		Map<String, Object> updates = new HashMap<>();
+
+		for (String chatRoomId : list) {
+			String[] Ids = chatRoomId.split("_");
+
+			String partnerId = Ids[0].equals(String.valueOf(userId)) ? Ids[1] : Ids[0];
+
+			User partner = userRepository.findByIdOrElseThrow(Long.valueOf(partnerId));
+
+			String partnerNick = partner.getUserNickname();
+			String partnerUrl = null;
+
+			ImageFile partnerImage = partner.getImageFiles()
+				.stream()
+				.filter(imageFile -> imageFile.getFileCategory() == FileCategory.PROFILE)
+				.findFirst().orElse(null);
+
+			if(partnerImage != null){
+				partnerUrl = partnerImage.getFilePath();
+			}
+
+			updates.put("partnerProfileUrl",partnerUrl);
+			updates.put("partnerNick",partnerNick);
+
+			Ref.child(String.valueOf(userId)).child(chatRoomId).updateChildrenAsync(updates);
+			updates.clear();
+		}
 	}
 
 	//채팅방을 상세 조회 할 때, 안 읽은 메시지수 -> 0
