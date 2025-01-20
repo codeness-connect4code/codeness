@@ -1,4 +1,79 @@
-### 채팅방 생성
+### 멘티1 회원가입
+POST localhost:8080/signup
+Content-Type: application/json
+
+{
+  "email" : "chat_mentee1@naver.com",
+  "password" : "asdf1234!@",
+  "name" : "챗멘티인 사람1",
+  "nickname" : "챗멘티1",
+  "phoneNumber" : "010 - 1234 - 6328",
+  "field" : "BACKEND",
+  "userRole" : "MENTEE"
+}
+
+
+### 멘토1 회원가입
+POST localhost:8080/signup
+Content-Type: application/json
+
+{
+  "email" : "chat_mentor1@naver.com",
+  "password" : "asdf1234!@",
+  "name" : "챗멘토인 사람1",
+  "nickname" : "챗멘토1",
+  "phoneNumber" : "010 - 1234 - 6328",
+  "field" : "BACKEND",
+  "userRole" : "MENTOR"
+}
+
+
+### 멘티2 회원가입(dummy 데이터)
+POST localhost:8080/signup
+Content-Type: application/json
+
+{
+"email" : "chat_mentee2@naver.com",
+"password" : "asdf1234!@",
+"name" : "챗멘티인 사람2",
+"nickname" : "챗멘티2",
+"phoneNumber" : "010 - 1234 - 6328",
+"field" : "BACKEND",
+"userRole" : "MENTEE"
+}
+
+
+### 멘티1 로그인
+POST localhost:8080/login
+Content-Type: application/json
+
+{
+  "email" : "chat_mentee1@naver.com",
+  "password" : "asdf1234!@"
+}
+
+> {%
+  client.global.set("token",response.body.token);
+  client.log("Token saved: " + client.global.get("token"));
+%}
+
+
+### 멘토1 로그인
+POST localhost:8080/login
+Content-Type: application/json
+
+{
+  "email" : "chat_mentor1@naver.com",
+  "password" : "asdf1234!@"
+}
+
+> {%
+  client.global.set("token",response.body.token);
+  client.log("Token saved: " + client.global.get("token"));
+%}
+
+
+### 채팅방 생성(멘티1 과 멘토1의 채팅방)
 POST localhost:8080/chat-rooms
 Content-Type: application/json
 Authorization: Bearer {{token}}
@@ -6,6 +81,37 @@ Authorization: Bearer {{token}}
 {
   "partnerId" : 2
 }
+
+
+### 멘티2 로그인(외부인이 해당 채팅방 접근 가능하지 검증) -> 채팅 보내기, 채팅 목록/상세 조회/ 채팅방 삭제 시도
+POST localhost:8080/login
+Content-Type: application/json
+
+{
+  "email" : "chat_mentee2@naver.com",
+  "password" : "asdf1234!@"
+}
+
+> {%
+  client.global.set("token",response.body.token);
+  client.log("Token saved: " + client.global.get("token"));
+%}
+
+
+### 다시 멘티1 로그인
+POST localhost:8080/login
+Content-Type: application/json
+
+{
+  "email" : "chat_mentee1@naver.com",
+  "password" : "asdf1234!@"
+}
+
+> {%
+  client.global.set("token",response.body.token);
+  client.log("Token saved: " + client.global.get("token"));
+%}
+
 
 ### 채팅 보내기
 # 채팅을 상대방에게 보낸다.
@@ -21,7 +127,6 @@ Authorization: Bearer {{token}}
 #      content: "hi"
 #      senderId: 1
 #      timestamp: 1732323123(long형태) 로 저장된다.
-
 POST localhost:8080/chat-rooms/chat
 Content-Type: application/json
 Authorization: Bearer {{token}}
@@ -41,13 +146,14 @@ Authorization: Bearer {{token}}
 # 필드 -> lastMessage(채팅방 마지막 메시지)
 # 필드 -> lastMessageTime(마지막 메시지 보낸 시간)
 # 필드 -> unReadCount(내가 안읽은 메시지 개수)
-
 GET localhost:8080/chat-rooms
 Authorization: Bearer {{token}}
+
 
 ### 채팅방 상세 조회
 GET localhost:8080/chat-rooms/1_2
 Authorization: Bearer {{token}}
+
 
 ### 채팅방 삭제
 DELETE localhost:8080/chat-rooms/1_2
