@@ -1,7 +1,6 @@
 package com.connect.codeness.domain.mentoringpost.dto;
 
 
-import com.connect.codeness.domain.review.Review;
 import lombok.Builder;
 import lombok.Getter;
 

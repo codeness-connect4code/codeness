@@ -2,6 +2,8 @@ package com.connect.codeness.domain.mentoringpost.dto;
 
 
 import com.connect.codeness.global.enums.FieldType;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
@@ -26,6 +28,7 @@ public class MentoringPostCreateRequestDto {
 	private final String company;//회사 이름
 
 	@NotNull
+	@Max(value = 70, message = "경력은 숫자 {value} 이내로 작성이 가능합니다.")
 	private final Integer career;//경력
 
 	@NotNull
@@ -33,6 +36,7 @@ public class MentoringPostCreateRequestDto {
 	private final String region;//지역
 
 	@NotNull
+	@DecimalMax(value = "100000", message = "시간당 설정 가능한 최대 가격은 {value}원입니다.")
 	private final BigDecimal price;//가격
 
 	@NotNull
