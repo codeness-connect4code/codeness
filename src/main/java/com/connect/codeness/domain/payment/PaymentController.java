@@ -36,7 +36,7 @@ public class PaymentController {
 	 * - 멘토링 스케쥴 신청
 	 */
 	@PostMapping("/payments")
-	public ResponseEntity<CommonResponseDto> createPayment(@RequestHeader(AUTHORIZATION) String token, @Valid @RequestBody PaymentRequestDto requestDto){
+	public ResponseEntity<CommonResponseDto> createPayment(@RequestHeader(AUTHORIZATION) String token,  @RequestBody PaymentRequestDto requestDto){
 		Long userId = jwtUtil.extractUserId(token);
 
 		CommonResponseDto responseDto = paymentService.createPayment(userId, requestDto);

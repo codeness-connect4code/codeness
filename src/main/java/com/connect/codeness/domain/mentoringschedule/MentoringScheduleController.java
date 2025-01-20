@@ -20,6 +20,7 @@ public class MentoringScheduleController {
 
 	/**
 	 * 멘토링 공고 스케쥴 전체 조회 API
+	 * - 삭제된 공고의 스케쥴은 조회 x
 	 */
 	@GetMapping("/mentoring/{mentoringPostId}/mentoring-schedule")
 	public ResponseEntity<CommonResponseDto<List<MentoringScheduleResponseDto>>> getMentoringSchedule(@PathVariable Long mentoringPostId){
@@ -30,8 +31,16 @@ public class MentoringScheduleController {
 	}
 
 	/**
-	 * TODO : 유효한 멘토링 공고 스케쥴 조회 API
+	 * 유효한 멘토링 공고 스케쥴 조회 API
+	 * - 상태가 EMPTY & 현재 날짜, 현재 시간 이후 스케쥴만 조회
+	 * - 멘토링 신청 페이지에서 호출됨
 	 */
+	@GetMapping("/mentoring/{mentoringPostId}/mentoring-schedule/empty-status")
+	public ResponseEntity<CommonResponseDto<List<MentoringScheduleResponseDto>>> findMentoringSchedulesByEmptyStatus(@PathVariable Long mentoringPostId){
 
+		CommonResponseDto<List<MentoringScheduleResponseDto>> responseDto = mentoringScheduleService.findMentoringSchedulesByEmptyStatus(mentoringPostId);
+
+		return new ResponseEntity<>(responseDto, HttpStatus.OK);
+	}
 
 }

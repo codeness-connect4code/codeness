@@ -3,6 +3,7 @@ package com.connect.codeness.domain.mentoringpost;
 import com.connect.codeness.domain.mentoringpost.dto.MentoringPostCreateRequestDto;
 import com.connect.codeness.domain.mentoringpost.dto.MentoringPostDetailResponseDto;
 import com.connect.codeness.domain.mentoringpost.dto.MentoringPostSearchResponseDto;
+import com.connect.codeness.domain.review.ReviewRepository;
 import com.connect.codeness.global.dto.PaginationResponseDto;
 import com.connect.codeness.domain.mentoringschedule.MentoringSchedule;
 import com.connect.codeness.domain.mentoringschedule.MentoringScheduleRepository;
@@ -11,6 +12,7 @@ import com.connect.codeness.domain.user.UserRepository;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.enums.BookedStatus;
 import com.connect.codeness.global.enums.FieldType;
+import com.connect.codeness.global.enums.MentoringPostStatus;
 import com.connect.codeness.global.enums.UserRole;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
@@ -35,12 +37,14 @@ public class MentoringPostServiceImpl implements MentoringPostService {
 	private final MentoringPostRepository mentoringPostRepository;
 	private final UserRepository userRepository;
 	private final MentoringScheduleRepository mentoringScheduleRepository;
+	private final ReviewRepository reviewRepository;
 
 	public MentoringPostServiceImpl(MentoringPostRepository mentoringPostRepository,
-		UserRepository userRepository, MentoringScheduleRepository mentoringScheduleRepository) {
+		UserRepository userRepository, MentoringScheduleRepository mentoringScheduleRepository, ReviewRepository reviewRepository) {
 		this.mentoringPostRepository = mentoringPostRepository;
 		this.userRepository = userRepository;
 		this.mentoringScheduleRepository = mentoringScheduleRepository;
+		this.reviewRepository = reviewRepository;
 	}
 
 	/**
@@ -55,6 +59,20 @@ public class MentoringPostServiceImpl implements MentoringPostService {
 		//유저가 멘티일 경우 예외처리
 		if (user.getRole().equals(UserRole.MENTEE)) {
 			throw new BusinessException(ExceptionType.FORBIDDEN_MENTORING_CREATE_ACCESS);
+		}
+
+		//로그인한 유저가 멘토 공고를 생성했고, 상태가 DISPLAYED면 예외
+		if(mentoringPostRepository.findMentoringPostStatusByUserId(user.getId())){
+			throw new BusinessException(ExceptionType.MENTORING_POST_CREATE_NOT_ALLOWED);
+		}
+
+		//현재 날짜 & 시간 가져오기
+		LocalDateTime now = LocalDateTime.now();
+
+		//시작 날짜와 시간 검증하기
+		LocalDateTime startDateTime = LocalDateTime.of(requestDto.getStartDate(), requestDto.getStartTime());
+		if(startDateTime.isBefore(now)){
+			throw new BusinessException(ExceptionType.INVALID_START_DATE_TIME);
 		}
 
 		// 분야 타입 변환
@@ -73,6 +91,7 @@ public class MentoringPostServiceImpl implements MentoringPostService {
 			.startTime(requestDto.getStartTime())
 			.endTime(requestDto.getEndTime())
 			.description(requestDto.getDescription())
+			.mentoringPostStatus(MentoringPostStatus.DISPLAYED)
 			.build();
 
 		//db 저장
@@ -147,6 +166,7 @@ public class MentoringPostServiceImpl implements MentoringPostService {
 
 	/**
 	 * 멘토링 공고 삭제 서비스 메서드
+	 * - 삭제하면 상태 DELETED 변경
 	 */
 	@Transactional
 	@Override
@@ -161,15 +181,21 @@ public class MentoringPostServiceImpl implements MentoringPostService {
 			throw new BusinessException(ExceptionType.FORBIDDEN_PERMISSION);
 		}
 
-		//멘토링 공고 삭제
-		mentoringPostRepository.deleteById(mentoringPost.getId());
+		//이미 공고가 삭제 상태라면
+		if(mentoringPost.getMentoringPostStatus().equals(MentoringPostStatus.DELETED)){
+			throw new BusinessException(ExceptionType.MENTORING_POST_DELETED);
+		}
+
+		//멘토링 공고 삭제로 상태 업데이트
+		mentoringPost.updateStatus(MentoringPostStatus.DELETED);
 
 		return CommonResponseDto.builder().msg("멘토링 공고가 삭제되었습니다.").build();
 	}
 
 	/**
 	 * 멘토링 공고 전체 조회 서비스 메서드
-	 * - TODO : 평균 별점 추가, 응답 필드 수정
+	 * - 모든 유저 가능
+	 * - DISPLAYED 상태만 조회
 	 */
 	@Override
 	public CommonResponseDto<PaginationResponseDto<MentoringPostSearchResponseDto>> searchMentoringPosts(
@@ -196,11 +222,21 @@ public class MentoringPostServiceImpl implements MentoringPostService {
 
 	/**
 	 * 멘토링 공고 상세 조회 서비스 메서드
-	 * - 모든 유저 가능 -TODO : 평균 별점 조회 추가
+	 * - 모든 유저 가능
+	 * - DISPLAYED 상태만 조회
 	 */
 	@Override
 	public CommonResponseDto<MentoringPostDetailResponseDto> getMentoringPostDetail(Long mentoringPostId) {
+		//멘토링 공고 조회
 		MentoringPost mentoringPost = mentoringPostRepository.findByIdOrElseThrow(mentoringPostId);
+		
+		//멘토링 공고가 삭제 상태이면
+		if(mentoringPost.getMentoringPostStatus().equals(MentoringPostStatus.DELETED)){
+			throw new BusinessException(ExceptionType.MENTORING_POST_DELETED);
+		}
+
+		//평균 리뷰 조회
+		Double mentoringPostStarRating = reviewRepository.findAverageStarRatingByMentoringPostId(mentoringPostId);
 
 		MentoringPostDetailResponseDto mentoringPostResponseDto = MentoringPostDetailResponseDto.builder()
 			.mentoringPostId(mentoringPost.getId())
@@ -212,6 +248,7 @@ public class MentoringPostServiceImpl implements MentoringPostService {
 			.region(mentoringPost.getRegion())
 			.price(mentoringPost.getPrice())
 			.description(mentoringPost.getDescription())
+			.starRating(mentoringPostStarRating)
 			.build();
 		return CommonResponseDto.<MentoringPostDetailResponseDto>builder().msg("멘토링 공고 상세 조회되었습니다.").data(mentoringPostResponseDto).build();
 	}
