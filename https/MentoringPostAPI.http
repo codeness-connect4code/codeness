@@ -94,10 +94,10 @@ Authorization: Bearer {{token}}
 	"career" : 10,
 	"region" : "서울, 경기 남부",
 	"price" : 20000,
-	"startDate" : "2025-01-20",
-	"endDate" : "2025-01-21",
-	"startTime" : "12:00",
-	"endTime" : "14:00",
+	"startDate" : "2025-01-22",
+	"endDate" : "2025-01-24",
+	"startTime" : "22:00",
+	"endTime" : "23:00",
 	"description" : "멘토링 받으러 오세요~😊"
 }
 
@@ -137,7 +137,7 @@ Content-Type: application/json
 }
 
 ### 멘토링 공고 상세 조회하기
-GET localhost:8080/mentoring/5
+GET localhost:8080/mentoring/1
 Content-Type: application/json
 
 ### 멘토링 공고 삭제하기
@@ -150,5 +150,5 @@ GET localhost:8080/mentoring/5/mentoring-schedule
 Content-Type: application/json
 
 ### 유효한 멘토링 공고 스케쥴 전체 조회 API
-GET localhost:8080/mentoring/5/mentoring-schedule/empty-status
+GET localhost:8080/mentoring/1/mentoring-schedule/empty-status
 Content-Type: application/json
