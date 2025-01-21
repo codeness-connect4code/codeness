@@ -126,7 +126,7 @@ public class MentoringPostServiceImpl implements MentoringPostService {
 			.collect(Collectors.toList());
 	}
 
-	/**
+/**
 	 * 멘토링 공고 - 멘토링 스케쥴 생성 서비스 메서드
 	 * - 시간 범위가 하루를 넘어가서 날짜가 바뀌는 경우 처리
 	 */
@@ -138,7 +138,7 @@ public class MentoringPostServiceImpl implements MentoringPostService {
 			//자정 넘어가는 경우
 			? ChronoUnit.HOURS.between(startTime, LocalTime.MAX) + 1 + ChronoUnit.HOURS.between(LocalTime.MIN, endTime)
 			//자정을 넘지 않는 경우
-			: ChronoUnit.HOURS.between(startTime, endTime) + 1;//종료 시간 포함
+			: ChronoUnit.HOURS.between(startTime, endTime);
 
 		return LongStream.range(0, hourCount)
 			.mapToObj(hour -> buildMentoringSchedule(date, startTime.plusHours(hour), mentoringPost));//시간별 스케쥴 생성
