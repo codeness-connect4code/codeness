@@ -1,6 +1,6 @@
 package com.connect.codeness.domain.user.dto;
 
-import com.connect.codeness.domain.user.User;
+import com.connect.codeness.domain.user.entity.User;
 import com.connect.codeness.global.enums.FieldType;
 import lombok.Builder;
 import lombok.Getter;

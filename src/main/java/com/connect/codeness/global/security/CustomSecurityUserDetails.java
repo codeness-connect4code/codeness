@@ -1,6 +1,6 @@
 package com.connect.codeness.global.security;
 
-import com.connect.codeness.domain.user.User;
+import com.connect.codeness.domain.user.entity.User;
 import com.connect.codeness.global.enums.UserStatus;
 import java.util.Collection;
 import org.springframework.security.core.GrantedAuthority;

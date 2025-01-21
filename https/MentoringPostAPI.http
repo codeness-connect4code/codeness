@@ -94,12 +94,13 @@ Authorization: Bearer {{token}}
 	"career" : 10,
 	"region" : "서울, 경기 남부",
 	"price" : 20000,
-	"startDate" : "2025-01-22",
+	"startDate" : "2025-01-23",
 	"endDate" : "2025-01-24",
-	"startTime" : "22:00",
-	"endTime" : "23:00",
+	"startTime" : "23:00",
+	"endTime" : "00:00",
 	"description" : "멘토링 받으러 오세요~😊"
 }
+
 
 ### 멘토링 공고 생성하기 - 백엔드
 POST localhost:8080/mentoring
@@ -113,10 +114,10 @@ Authorization: Bearer {{token}}
   "career" : 5,
   "region" : "서울, 경기 남부",
   "price" : 20000,
-  "startDate" : "2025-01-20",
-  "endDate" : "2025-01-21",
-  "startTime" : "12:00",
-  "endTime" : "14:00",
+  "startDate" : "2025-01-22",
+  "endDate" : "2025-01-23",
+  "startTime" : "07:00",
+  "endTime" : "23:00",
   "description" : "멘토링 받으러 오세요~😊"
 }
 
@@ -141,7 +142,7 @@ GET localhost:8080/mentoring/1
 Content-Type: application/json
 
 ### 멘토링 공고 삭제하기
-PATCH localhost:8080/mentoring/4
+PATCH localhost:8080/mentoring/1
 Content-Type: application/json
 Authorization: Bearer {{token}}
 

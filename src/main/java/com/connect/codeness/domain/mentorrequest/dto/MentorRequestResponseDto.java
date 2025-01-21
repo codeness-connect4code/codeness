@@ -1,7 +1,6 @@
 package com.connect.codeness.domain.mentorrequest.dto;
 
-import com.connect.codeness.domain.mentorrequest.MentorRequest;
-import com.connect.codeness.global.enums.FieldType;
+import com.connect.codeness.domain.mentorrequest.entity.MentorRequest;
 import java.time.LocalDateTime;
 import lombok.Getter;
 

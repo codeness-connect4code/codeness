@@ -1,6 +1,6 @@
 package com.connect.codeness.domain.admin.dto;
 
-import com.connect.codeness.domain.user.User;
+import com.connect.codeness.domain.user.entity.User;
 import lombok.Getter;
 
 @Getter
