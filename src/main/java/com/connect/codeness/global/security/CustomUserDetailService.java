@@ -1,7 +1,7 @@
 package com.connect.codeness.global.security;
 
-import com.connect.codeness.domain.user.User;
-import com.connect.codeness.domain.user.UserRepository;
+import com.connect.codeness.domain.user.entity.User;
+import com.connect.codeness.domain.user.repository.UserRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +12,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
-import org.springframework.transaction.annotation.Transactional;
 
 
 @Slf4j

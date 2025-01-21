@@ -1,6 +1,6 @@
 package com.connect.codeness.domain.mentoringpost.dto;
 
-import com.connect.codeness.domain.mentoringpost.MentoringPost;
+import com.connect.codeness.domain.mentoringpost.entity.MentoringPost;
 import com.connect.codeness.global.enums.FieldType;
 import lombok.Getter;
 

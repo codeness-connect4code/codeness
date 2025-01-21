@@ -1,7 +1,7 @@
 package com.connect.codeness.global.handler;
 
-import com.connect.codeness.domain.user.User;
-import com.connect.codeness.domain.user.UserRepository;
+import com.connect.codeness.domain.user.entity.User;
+import com.connect.codeness.domain.user.repository.UserRepository;
 import com.connect.codeness.global.jwt.JwtUtil;
 import com.connect.codeness.global.enums.UserRole;
 import jakarta.servlet.http.HttpServletRequest;

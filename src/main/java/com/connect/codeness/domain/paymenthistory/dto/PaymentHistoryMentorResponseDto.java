@@ -1,7 +1,7 @@
 package com.connect.codeness.domain.paymenthistory.dto;
 
-import com.connect.codeness.domain.paymenthistory.PaymentHistory;
-import com.connect.codeness.domain.settlement.Settlement;
+import com.connect.codeness.domain.paymenthistory.entity.PaymentHistory;
+import com.connect.codeness.domain.settlement.entity.Settlement;
 import com.connect.codeness.global.enums.SettlementStatus;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
