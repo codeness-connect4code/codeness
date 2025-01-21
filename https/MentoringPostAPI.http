@@ -101,6 +101,7 @@ Authorization: Bearer {{token}}
 	"description" : "멘토링 받으러 오세요~😊"
 }
 
+
 ### 멘토링 공고 생성하기 - 백엔드
 POST localhost:8080/mentoring
 Content-Type: application/json
