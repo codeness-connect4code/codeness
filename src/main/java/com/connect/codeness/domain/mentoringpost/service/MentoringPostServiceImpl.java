@@ -64,7 +64,7 @@ public class MentoringPostServiceImpl implements MentoringPostService {
 		}
 
 		//로그인한 유저가 멘토 공고를 생성했고, 상태가 DISPLAYED면 예외
-		if(mentoringPostRepository.findMentoringPostStatusByUserId(user.getId())){
+		if (mentoringPostRepository.findMentoringPostStatusByUserId(user.getId())) {
 			throw new BusinessException(ExceptionType.MENTORING_POST_CREATE_NOT_ALLOWED);
 		}
 
@@ -73,7 +73,7 @@ public class MentoringPostServiceImpl implements MentoringPostService {
 
 		//시작 날짜와 시간 검증하기
 		LocalDateTime startDateTime = LocalDateTime.of(requestDto.getStartDate(), requestDto.getStartTime());
-		if(startDateTime.isBefore(now)){
+		if (startDateTime.isBefore(now)) {
 			throw new BusinessException(ExceptionType.INVALID_START_DATE_TIME);
 		}
 
@@ -138,7 +138,7 @@ public class MentoringPostServiceImpl implements MentoringPostService {
 			//자정 넘어가는 경우
 			? ChronoUnit.HOURS.between(startTime, LocalTime.MAX) + 1 + ChronoUnit.HOURS.between(LocalTime.MIN, endTime)
 			//자정을 넘지 않는 경우
-			: ChronoUnit.HOURS.between(startTime, endTime) + 1;//종료 시간 포함
+			: ChronoUnit.HOURS.between(startTime, endTime);
 
 		return LongStream.range(0, hourCount)
 			.mapToObj(hour -> buildMentoringSchedule(date, startTime.plusHours(hour), mentoringPost));//시간별 스케쥴 생성
@@ -151,7 +151,7 @@ public class MentoringPostServiceImpl implements MentoringPostService {
 	private MentoringSchedule buildMentoringSchedule(LocalDate date, LocalTime time, MentoringPost mentoringPost) {
 
 		// 날짜 & 시간 합쳐서 LocalDateTime 생성
-		LocalDateTime dateTime = date.atTime(time); 
+		LocalDateTime dateTime = date.atTime(time);
 
 		//날짜 넘어가는 경우
 		if (dateTime.toLocalTime().isBefore(time)) {
@@ -185,7 +185,7 @@ public class MentoringPostServiceImpl implements MentoringPostService {
 		}
 
 		//이미 공고가 삭제 상태라면
-		if(mentoringPost.getMentoringPostStatus().equals(MentoringPostStatus.DELETED)){
+		if (mentoringPost.getMentoringPostStatus().equals(MentoringPostStatus.DELETED)) {
 			throw new BusinessException(ExceptionType.MENTORING_POST_DELETED);
 		}
 
@@ -232,9 +232,9 @@ public class MentoringPostServiceImpl implements MentoringPostService {
 	public CommonResponseDto<MentoringPostDetailResponseDto> getMentoringPostDetail(Long mentoringPostId) {
 		//멘토링 공고 조회
 		MentoringPost mentoringPost = mentoringPostRepository.findByIdOrElseThrow(mentoringPostId);
-		
+
 		//멘토링 공고가 삭제 상태이면
-		if(mentoringPost.getMentoringPostStatus().equals(MentoringPostStatus.DELETED)){
+		if (mentoringPost.getMentoringPostStatus().equals(MentoringPostStatus.DELETED)) {
 			throw new BusinessException(ExceptionType.MENTORING_POST_DELETED);
 		}
 
