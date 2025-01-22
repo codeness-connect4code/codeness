@@ -1,6 +1,6 @@
 package com.connect.codeness.domain.admin.dto;
 
-import com.connect.codeness.domain.settlement.Settlement;
+import com.connect.codeness.domain.settlement.entity.Settlement;
 import com.connect.codeness.global.enums.SettlementStatus;
 import java.time.LocalDate;
 import java.time.LocalTime;
