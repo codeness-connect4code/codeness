@@ -126,7 +126,7 @@ public class MentoringPostServiceImpl implements MentoringPostService {
 			.collect(Collectors.toList());
 	}
 
-	/**
+/**
 	 * 멘토링 공고 - 멘토링 스케쥴 생성 서비스 메서드
 	 * - 시간 범위가 하루를 넘어가서 날짜가 바뀌는 경우 처리
 	 */

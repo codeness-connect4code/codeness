@@ -106,80 +106,66 @@ public class UserController {
 	 * 유저 정보 수정 API
 	 * @param authorizationHeader
 	 * @param userUpdateRequestDto
-	 * @param userId
 	 * @return
 	 */
-	@PatchMapping("/users/{userId}")
+	@PatchMapping("/users")
 	public ResponseEntity<CommonResponseDto> updateUser(
 		@RequestHeader(AUTHORIZATION) String authorizationHeader,
-		@ModelAttribute UserUpdateRequestDto userUpdateRequestDto,
-		@PathVariable Long userId
+		@ModelAttribute UserUpdateRequestDto userUpdateRequestDto
 	)throws IOException{
 		String token = authorizationHeader.substring("Bearer ".length());
 		Long tokenId = jwtUtil.extractUserId(token);
-		if (userId != tokenId){
-			throw new BusinessException(ExceptionType.FORBIDDEN_PERMISSION);
-		}
 
 		if (
-			fileRepository.findByUserIdAndFileCategory(userId, FileCategory.PROFILE).isPresent()
+			fileRepository.findByUserIdAndFileCategory(tokenId, FileCategory.PROFILE).isPresent()
 		){
-			fileService.deleteFile(userId,FileCategory.PROFILE);
+			fileService.deleteFile(tokenId,FileCategory.PROFILE);
 		}
 
 		CommonResponseDto fileDto =
 			fileService.createFile(
-				userUpdateRequestDto.getMultipartFile(), userId, FileCategory.PROFILE);
-		ImageFile imageFile = fileRepository.findByUserIdAndFileCategoryOrElseThrow(userId, FileCategory.PROFILE);
-		CommonResponseDto dto = userService.updateUser(userId, userUpdateRequestDto, imageFile);
+				userUpdateRequestDto.getMultipartFile(), tokenId, FileCategory.PROFILE);
+		ImageFile imageFile = fileRepository.findByUserIdAndFileCategoryOrElseThrow(tokenId, FileCategory.PROFILE);
+		CommonResponseDto dto = userService.updateUser(tokenId, userUpdateRequestDto, imageFile);
 
 		return new ResponseEntity<>(dto, HttpStatus.OK);
 	}
 
 
-	@PatchMapping("/users/{userId}/password")
+	@PatchMapping("/users/password")
 	public ResponseEntity<CommonResponseDto> updatePassword(
 		@RequestHeader(AUTHORIZATION) String authorizationHeader,
-		@RequestBody UserPasswordUpdateRequestDto userPasswordUpdateRequestDto,
-		@PathVariable Long userId
+		@RequestBody UserPasswordUpdateRequestDto userPasswordUpdateRequestDto
 	){
 		String token = authorizationHeader.substring("Bearer ".length());
 		Long tokenId = jwtUtil.extractUserId(token);
-		if(userId != tokenId){
-			throw new BusinessException(ExceptionType.FORBIDDEN_PERMISSION);
-		}
-		CommonResponseDto commonResponseDto = userService.updatePassword(userId,
+
+		CommonResponseDto commonResponseDto = userService.updatePassword(tokenId,
 			userPasswordUpdateRequestDto);
 		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
 	}
 
-	@PatchMapping("/users/{userId}/bank-account")
+	@PatchMapping("/users/bank-account")
 	public ResponseEntity<CommonResponseDto> updateBankAccount(
 		@RequestHeader(AUTHORIZATION) String authorizationHeader,
-		@RequestBody UserBankUpdateRequestDto userBankUpdateRequestDto,
-		@PathVariable Long userId
+		@RequestBody UserBankUpdateRequestDto userBankUpdateRequestDto
 	){
 		String token = authorizationHeader.substring("Bearer ".length());
 		Long tokenId = jwtUtil.extractUserId(token);
-		if(userId != tokenId){
-			throw new BusinessException(ExceptionType.FORBIDDEN_PERMISSION);
-		}
-		CommonResponseDto commonResponseDto = userService.updateBankAccount(userId,userBankUpdateRequestDto);
+
+		CommonResponseDto commonResponseDto = userService.updateBankAccount(tokenId,userBankUpdateRequestDto);
 		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
 	}
 
-	@DeleteMapping("/users/{userId}")
+	@DeleteMapping("/users")
 	public ResponseEntity<CommonResponseDto> deleteUser(
 		@RequestHeader(AUTHORIZATION) String authorizationHeader,
-		@RequestBody UserDeleteResponseDto userDeleteResponseDto,
-		@PathVariable Long userId
+		@RequestBody UserDeleteResponseDto userDeleteResponseDto
 	){
 		String token = authorizationHeader.substring("Bearer ".length());
 		Long tokenId = jwtUtil.extractUserId(token);
-		if(userId != tokenId){
-			throw new BusinessException(ExceptionType.FORBIDDEN_PERMISSION);
-		}
-		CommonResponseDto commonResponseDto = userService.deleteUser(userId,userDeleteResponseDto);
+
+		CommonResponseDto commonResponseDto = userService.deleteUser(tokenId,userDeleteResponseDto);
 		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
 	}
 
