@@ -63,7 +63,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 			log.info("토큰 생성: {}", token);
 
 			String redirectUrl = UriComponentsBuilder
-				.fromUriString("http://localhost:3000/payment")  // 프론트엔드 기본 주소
+				.fromUriString("http://localhost:3000/user/update")  // 프론트엔드 기본 주소
 				.queryParam("token", token)
 				.build()
 				.toUriString();
