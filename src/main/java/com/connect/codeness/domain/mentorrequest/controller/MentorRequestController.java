@@ -15,6 +15,7 @@ import java.io.IOException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -79,6 +80,15 @@ public class MentorRequestController {
 		Long tokenId = jwtUtil.extractUserId(token);
 
 		CommonResponseDto commonResponseDto = mentorRequestService.deleteMentorRequest(tokenId,mentorRequestId);
+		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
+	}
+
+	@GetMapping("/mentors")
+	public ResponseEntity<CommonResponseDto> getMentorRequest(@RequestHeader(AUTHORIZATION) String authorizationHeader){
+		String token = authorizationHeader.substring("Bearer ".length());
+		Long tokenId = jwtUtil.extractUserId(token);
+
+		CommonResponseDto commonResponseDto = mentorRequestService.getMentorRequest(tokenId);
 		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
 	}
 
