@@ -31,7 +31,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 		"FROM Post p " +
 		"WHERE (:type IS NULL OR p.postType = :type) " +
 		"AND (:keyword IS NULL OR p.title LIKE %:keyword%) " +
-		"AND (:writer IS NULL OR p.writer = :writer) " +
+		"AND (:writer IS NULL OR p.writer LIKE %:writer%) " +
 		"AND p.postStatus != 'DELETED'")
 	Page<PostFindAllResponseDto> findByTypeAndKeyword(
 		@Param("type") PostType type,
