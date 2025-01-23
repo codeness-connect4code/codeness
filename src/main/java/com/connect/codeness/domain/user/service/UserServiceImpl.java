@@ -42,7 +42,6 @@ public class UserServiceImpl implements UserService {
 	private final FileRepository fileRepository;
 	private final FileService fileService;
 	private final MentoringPostRepository mentoringPostRepository;
-	private User user;
 
 	public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder,
 		AuthenticationManager authenticationManager, JwtUtil jwtUtil, FileRepository fileRepository,

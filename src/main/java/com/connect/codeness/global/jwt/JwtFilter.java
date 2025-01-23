@@ -29,7 +29,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
 	// 제외할 경로
 	private static final List<String> POST_EXCLUDED_PATHS = List.of("/login", "/signup", "/logout");
-	private static final List<String> GET_EXCLUDED_PATHS = List.of("/posts", "/posts/.*", "/news", "/mentoring/\\d+/reviews", "/mentoring",  "/mentoring.*");
+	private static final List<String> GET_EXCLUDED_PATHS = List.of("/posts", "/posts/.*", "/news", "/mentoring/\\d+/reviews", "/mentoring",  "/mentoring.*","/users/schedule");
 //	private static final List<String> EXCLUDED_PATHS = List.of("/payment/.*", "/mentoring", "/login-page", "/users", "/loginPage.html", "/payment.html");
 
 	@Override
