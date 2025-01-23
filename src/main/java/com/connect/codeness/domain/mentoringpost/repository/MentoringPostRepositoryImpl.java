@@ -13,11 +13,13 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+@Slf4j
 @Repository
 public class MentoringPostRepositoryImpl implements MentoringPostRepositoryCustom {
 
@@ -31,11 +33,24 @@ public class MentoringPostRepositoryImpl implements MentoringPostRepositoryCusto
 	//QueryDSL 사용
 	@Override
 	public Page<MentoringPostSearchResponseDto> findAllBySearchParameters(String title, String field, String nickname, Pageable pageable) {
+		
+		//조건을 동적으로 추가
+		BooleanExpression condition = Expressions.asBoolean(true).isTrue(); // condition 초기화
 
-		BooleanExpression condition = filterByTitle(title)
-			.and(filterByField(field))
-			.and(filterByNickname(nickname))
-			.and(filterByMentoringPostStatus(MentoringPostStatus.DISPLAYED));
+		//개별 조건 추가
+		if (!(title == null || title.isEmpty())) {
+			condition = condition.and(filterByTitle(title)); //제목
+		}
+		if  (!(field == null || field.isEmpty())) {
+			condition = condition.and(filterByField(field)); //분야
+		}
+		if (!(nickname == null || nickname.isEmpty())) {
+			condition = condition.and(filterByNickname(nickname)); //닉네임
+		}
+		//상태 조건은 항상 추가
+		condition = condition.and(filterByMentoringPostStatus(MentoringPostStatus.DISPLAYED));
+
+		log.debug("Final Query Condition: {}", condition);
 
 		//쿼리 생성 & Projections 사용 &  평균 별점 계산 & 상태가 존재인 것만
 		JPQLQuery<MentoringPostSearchResponseDto> jpqlQuery = jpaQueryFactory.select(
@@ -50,6 +65,7 @@ public class MentoringPostRepositoryImpl implements MentoringPostRepositoryCusto
 			)
 		).from(mentoringPost)
 			.leftJoin(review).on(review.mentoringPost.eq(mentoringPost))
+			.join(mentoringPost.user)
 			.where(condition) //필터
 			.groupBy(
 				mentoringPost.id,
@@ -73,20 +89,24 @@ public class MentoringPostRepositoryImpl implements MentoringPostRepositoryCusto
 
 	//BooleanExpression 사용 - 닉네임
 	private BooleanExpression filterByNickname(String nickname) {
-		return nickname != null && !nickname.isEmpty() ? mentoringPost.user.userNickname.containsIgnoreCase(nickname) 
+		return !(nickname == null || nickname.isEmpty()) ? mentoringPost.user.userNickname.containsIgnoreCase(nickname)
 			: Expressions.asBoolean(true).isTrue(); //기본 조건
 	}
 
 	//분야
 	private BooleanExpression filterByField(String field) {
-		//문자열 입력 받아서 매칭되는 FieldType Enum으로 변환
-		return field != null && !field.isEmpty() ? mentoringPost.field.eq(FieldType.fromString(field))
-			: Expressions.asBoolean(true).isTrue();
+		try {
+			return !(field == null || field.isEmpty())
+				? mentoringPost.field.eq(FieldType.valueOf(field.toUpperCase()))//대문자 변환 후, enum으로 변환
+				: Expressions.asBoolean(true).isTrue(); //조건 없음
+		} catch (IllegalArgumentException e) {
+			return Expressions.asBoolean(false).isFalse();//값이 잘못 되었거나 매칭이 안될 경우, 결과 반환 x
+		}
 	}
 
 	//제목
 	private BooleanExpression filterByTitle(String title) {
-		return title != null && !title.isEmpty() ? mentoringPost.title.containsIgnoreCase(title)
+		return !(title == null || title.isEmpty()) ? mentoringPost.title.containsIgnoreCase(title)
 			: Expressions.asBoolean(true).isTrue();
 	}
 

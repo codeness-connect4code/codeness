@@ -91,6 +91,11 @@ Authorization: Bearer {{token}}
 GET localhost:8080/mentoring/1/reviews
 
 
+### 내 결제내역에서 작성한 후기 조회(단건 조회)
+GET localhost:8080/payment-history/1/reviews
+Authorization: Bearer {{token}}
+
+
 ### 해당 공고에 대한 리뷰 페이징 조회하기
 GET localhost:8080/mentoring/1/reviews?pageSize=&pageNumber=
 
@@ -106,5 +111,5 @@ Content-Type: application/json
 
 
 ### 리뷰 삭제하기
-DELETE localhost:8080//reviews/1
+DELETE localhost:8080/reviews/1
 Authorization: Bearer {{token}}
