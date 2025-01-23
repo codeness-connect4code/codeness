@@ -217,6 +217,7 @@ public class PaymentServiceImpl implements PaymentService {
 	@Override
 	public CommonResponseDto refundPayment(Long userId, Long paymentId, PaymentRefundRequestDto requestDto) {
 
+		//TODO : 결제 내역id가 아니라 결제 id랑 비교해야함
 		//결제 내역 테이블 조회 - 로그인한 유저 ID & 결제 ID
 		PaymentHistory paymentHistory = paymentHistoryRepository.findByIdAndUserIdOrElseThrow(userId, paymentId);
 
