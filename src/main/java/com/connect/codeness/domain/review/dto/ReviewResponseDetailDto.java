@@ -6,11 +6,15 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class ReviewFindResponseDto {
+public class ReviewResponseDetailDto {
 
 	private Long reviewId;
 
-	private Long userId;
+	private String profileUrl;
+
+	private String mentorNick;
+
+	private String mentoringTitle;
 
 	private String content;
 

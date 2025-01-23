@@ -4,10 +4,11 @@ import static com.connect.codeness.global.constants.Constants.AUTHORIZATION;
 import static com.connect.codeness.global.constants.Constants.PAGE_NUMBER;
 import static com.connect.codeness.global.constants.Constants.PAGE_SIZE;
 
+import com.connect.codeness.domain.review.dto.ReviewResponseDetailDto;
 import com.connect.codeness.domain.review.service.ReviewService;
 import com.connect.codeness.global.dto.PaginationResponseDto;
 import com.connect.codeness.domain.review.dto.ReviewCreateRequestDto;
-import com.connect.codeness.domain.review.dto.ReviewFindResponseDto;
+import com.connect.codeness.domain.review.dto.ReviewResponseDto;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.jwt.JwtUtil;
 import jakarta.validation.Valid;
@@ -53,13 +54,26 @@ public class ReviewController {
 	}
 
 	@GetMapping("/mentoring/{mentoringPostId}/reviews")
-	public ResponseEntity<CommonResponseDto<PaginationResponseDto<ReviewFindResponseDto>>> findReviews(
+	public ResponseEntity<CommonResponseDto<PaginationResponseDto<ReviewResponseDto>>> findReviews(
 		@PathVariable Long mentoringPostId,
 		@RequestParam(defaultValue = PAGE_NUMBER) int pageNumber,
 		@RequestParam(defaultValue = PAGE_SIZE) int pageSize
 	) {
-		CommonResponseDto<PaginationResponseDto<ReviewFindResponseDto>> commonResponseDto
+		CommonResponseDto<PaginationResponseDto<ReviewResponseDto>> commonResponseDto
 			= reviewService.findReviews(mentoringPostId, pageNumber, pageSize);
+
+		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
+	}
+
+	@GetMapping("/payment-history/{paymentHistoryId}/reviews")
+	public ResponseEntity<CommonResponseDto<ReviewResponseDetailDto>> findReview(
+		@PathVariable Long paymentHistoryId,
+		@RequestHeader(AUTHORIZATION) String token
+	) {
+		Long userId = jwtUtil.extractUserId(token);
+
+		CommonResponseDto<ReviewResponseDetailDto> commonResponseDto
+			= reviewService.findReview(userId, paymentHistoryId);
 
 		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
 	}

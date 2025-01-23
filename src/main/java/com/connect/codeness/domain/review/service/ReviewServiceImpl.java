@@ -1,7 +1,9 @@
 package com.connect.codeness.domain.review.service;
 
+import com.connect.codeness.domain.file.entity.ImageFile;
 import com.connect.codeness.domain.mentoringpost.entity.MentoringPost;
 import com.connect.codeness.domain.mentoringpost.repository.MentoringPostRepository;
+import com.connect.codeness.domain.review.dto.ReviewResponseDetailDto;
 import com.connect.codeness.domain.review.entity.Review;
 import com.connect.codeness.domain.review.repository.ReviewRepository;
 import com.connect.codeness.global.dto.PaginationResponseDto;
@@ -9,9 +11,10 @@ import com.connect.codeness.domain.mentoringschedule.entity.MentoringSchedule;
 import com.connect.codeness.domain.paymenthistory.entity.PaymentHistory;
 import com.connect.codeness.domain.paymenthistory.repository.PaymentHistoryRepository;
 import com.connect.codeness.domain.review.dto.ReviewCreateRequestDto;
-import com.connect.codeness.domain.review.dto.ReviewFindResponseDto;
+import com.connect.codeness.domain.review.dto.ReviewResponseDto;
 import com.connect.codeness.domain.user.entity.User;
 import com.connect.codeness.global.dto.CommonResponseDto;
+import com.connect.codeness.global.enums.FileCategory;
 import com.connect.codeness.global.enums.ReviewStatus;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
@@ -92,14 +95,14 @@ public class ReviewServiceImpl implements ReviewService {
 	}
 
 	@Override
-	public CommonResponseDto<PaginationResponseDto<ReviewFindResponseDto>> findReviews(Long mentoringPostId,
+	public CommonResponseDto<PaginationResponseDto<ReviewResponseDto>> findReviews(Long mentoringPostId,
 		int pageNumber, int pageSize) {
 
 		Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("createdAt").descending());
 
-		Page<ReviewFindResponseDto> reviews = reviewRepository.findByMentoringPostId(mentoringPostId, pageable);
+		Page<ReviewResponseDto> reviews = reviewRepository.findByMentoringPostId(mentoringPostId, pageable);
 
-		PaginationResponseDto<ReviewFindResponseDto> responseDto = PaginationResponseDto.<ReviewFindResponseDto>builder()
+		PaginationResponseDto<ReviewResponseDto> responseDto = PaginationResponseDto.<ReviewResponseDto>builder()
 			.content(reviews.getContent())
 			.totalPages(reviews.getTotalPages())
 			.totalElements(reviews.getTotalElements())
@@ -107,12 +110,13 @@ public class ReviewServiceImpl implements ReviewService {
 			.pageSize(pageSize)
 			.build();
 
-		return CommonResponseDto.<PaginationResponseDto<ReviewFindResponseDto>>builder()
+		return CommonResponseDto.<PaginationResponseDto<ReviewResponseDto>>builder()
 			.msg("리뷰가 조회되었습니다.")
 			.data(responseDto)
 			.build();
 	}
 
+	@Transactional
 	@Override
 	public CommonResponseDto deleteReview(Long userId, Long reviewId) {
 		Review review = reviewRepository.findByIdOrElseThrow(reviewId);
@@ -122,9 +126,47 @@ public class ReviewServiceImpl implements ReviewService {
 			throw new BusinessException(ExceptionType.UNAUTHORIZED_DELETE_REQUEST);
 		}
 
+		review.getPaymentHistory().updateReviewStatus(ReviewStatus.NOT_YET);
 		reviewRepository.delete(review);
 
 		return CommonResponseDto.builder().msg("리뷰 삭제가 완료되었습니다.").build();
+	}
+
+	//결제내역에서 리뷰 단건 조회
+	@Override
+	public CommonResponseDto<ReviewResponseDetailDto> findReview(Long userId, Long paymentHistoryId) {
+
+		PaymentHistory paymentHistory = paymentHistoryRepository.findByIdOrElseThrow(paymentHistoryId);
+
+		//내가 결제한 리뷰가 아니면 조회 못함!
+		if(!Objects.equals(paymentHistory.getPayment().getUser().getId(), userId)){
+			throw new BusinessException(ExceptionType.UNAUTHORIZED_GET_REQUEST);
+		}
+
+		Review review  = reviewRepository.findByPaymentHistoryId(paymentHistoryId);
+
+		ImageFile profileFile = review.getMentoringPost().getUser().getImageFiles().stream()
+			.filter(imageFile -> imageFile.getFileCategory() == FileCategory.PROFILE).findFirst().orElse(null);
+
+		String profileUrl = null;
+
+		if(profileFile != null){
+			profileUrl = profileFile.getFilePath();
+		}
+
+		ReviewResponseDetailDto responseDto = ReviewResponseDetailDto.builder()
+			.reviewId(review.getId())
+			.profileUrl(profileUrl)
+			.mentorNick(review.getMentoringPost().getUser().getUserNickname())
+			.mentoringTitle(review.getMentoringPost().getTitle())
+			.content(review.getReviewContent())
+			.starRating(review.getStarRating())
+			.createdAt(review.getCreatedAt())
+			.build();
+
+		return CommonResponseDto.<ReviewResponseDetailDto>builder()
+			.msg("리뷰 상세가 조회되었습니다.")
+			.data(responseDto).build();
 	}
 }
 
