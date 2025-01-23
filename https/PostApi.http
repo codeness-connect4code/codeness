@@ -1,5 +1,5 @@
 ### 게시글 생성
-POST localhost:8080/posts/1/comments
+POST localhost:8080/posts
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
@@ -14,12 +14,12 @@ Authorization: Bearer {{token}}
 %}
 
 ### 게시글 목록 조회
-GET localhost:8080/posts
+GET localhost:8080/posts?keyword=1번
 
-### 게시글 목록 조회
+### 게시글 세부 조회
 GET localhost:8080/posts/2
 
-### 댓글 수정
+### 게시글 수정
 PATCH localhost:8080/posts/3
 Content-Type: application/json
 Authorization: Bearer {{token}}
@@ -33,7 +33,7 @@ Authorization: Bearer {{token}}
   client.global.get("auth.token");
 %}
 
-### 댓글 삭제
+### 게시글 삭제
 DELETE localhost:8080/posts/3
 Authorization: Bearer {{token}}
 

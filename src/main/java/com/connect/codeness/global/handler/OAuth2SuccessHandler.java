@@ -1,7 +1,7 @@
 package com.connect.codeness.global.handler;
 
-import com.connect.codeness.domain.user.User;
-import com.connect.codeness.domain.user.UserRepository;
+import com.connect.codeness.domain.user.entity.User;
+import com.connect.codeness.domain.user.repository.UserRepository;
 import com.connect.codeness.global.jwt.JwtUtil;
 import com.connect.codeness.global.enums.UserRole;
 import jakarta.servlet.http.HttpServletRequest;
@@ -63,7 +63,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 			log.info("토큰 생성: {}", token);
 
 			String redirectUrl = UriComponentsBuilder
-				.fromUriString("/payment.html")
+				.fromUriString(System.getenv().getOrDefault("FRONTEND_URL", "http://localhost:3000") + "/payment")
 				.queryParam("token", token)
 				.build()
 				.toUriString();
@@ -74,7 +74,6 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 		} catch (Exception e) {
 			log.error("OAuth2 로그인 처리 중 오류", e);
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			response.setCharacterEncoding("UTF-8");
 			response.getWriter().write("로그인 처리 중 오류가 발생했습니다: " + e.getMessage());
 		}
 	}

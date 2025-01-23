@@ -1,31 +1,36 @@
 package com.connect.codeness.global.jwt;
 
-import com.connect.codeness.global.security.CustomUserDetailService;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.security.SignatureException;
+import java.util.Collections;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 @Component
 public class JwtFilter extends OncePerRequestFilter {
 
+	private static final Logger logger = LoggerFactory.getLogger(JwtFilter.class);
+
 	@Autowired
 	private JwtUtil jwtUtil;
 
-	@Autowired
-	private CustomUserDetailService userDetailService;
-
-	private static final List<String> POST_EXCLUDED_PATHS = List.of("/login","/signup","/logout");
-	private static final List<String> GET_EXCLUDED_PATHS = List.of("/posts", "/posts/.*","/news","/mentoring/\\d+/reviews");
-	private static final List<String> EXCLUDED_PATHS = List.of("/payment", "/mentoring", "/mentoring/.*", "/login-page", "/users", "/loginPage.html", "/payment.html");//TODO : 결제 테스트 - 나중에 지우기
+	// 제외할 경로
+	private static final List<String> POST_EXCLUDED_PATHS = List.of("/login", "/signup", "/logout");
+	private static final List<String> GET_EXCLUDED_PATHS = List.of("/posts", "/posts/.*", "/news", "/mentoring/\\d+/reviews", "/mentoring",  "/mentoring.*","/users/schedule");
+//	private static final List<String> EXCLUDED_PATHS = List.of("/payment/.*", "/mentoring", "/login-page", "/users", "/loginPage.html", "/payment.html");
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
@@ -34,75 +39,73 @@ public class JwtFilter extends OncePerRequestFilter {
 		String requestPath = request.getRequestURI();
 		String method = request.getMethod();
 
-		/**
-		 * TODO : 결제 테스트를 위한 코드 - 나중에 지우기
-		 */
-		if (EXCLUDED_PATHS.stream().anyMatch(requestPath::matches)) {
+		// 제외된 경로 처리
+		if (isExcludedPath(requestPath, method)) {
 			chain.doFilter(request, response);
 			return;
 		}
 
-		// GET 메서드에 대한 화이트리스트 확인
-		if ("GET".equalsIgnoreCase(method) && GET_EXCLUDED_PATHS.stream().anyMatch(requestPath::matches)) {
-			chain.doFilter(request, response);
-			return;
-		}
-
-		// POST 메서드에 대한 화이트리스트 확인
-		if ("POST".equalsIgnoreCase(method) && POST_EXCLUDED_PATHS.stream().anyMatch(requestPath::matches)) {
-			chain.doFilter(request, response);
-			return;
-		}
-
+		// Authorization 헤더에서 JWT 토큰 추출
 		String authorizationHeader = request.getHeader("Authorization");
 
 		if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-			// 인증 헤더가 없거나 잘못된 경우
-			logger.warn("Authorization header is missing or invalid.");
-			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-			response.getWriter().write("Unauthorized: Missing or invalid Authorization header");
-		}
-
-		String token = authorizationHeader.substring(7);
-		String username = null;
-
-		try {
-			username = jwtUtil.extractEmail(token);  // JWT에서 이메일 추출
-			logger.debug("Extracted email from JWT: " + username);
-		} catch (Exception e) {
-			// JWT 이메일 추출 오류 처리
-			logger.error("Error extracting email from JWT", e);
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			response.getWriter().write("Bad Request: Invalid token");
+			chain.doFilter(request, response);
 			return;
 		}
 
-		if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-			try {
-				UserDetails userDetails = userDetailService.loadUserByUsername(username);
+		String token = authorizationHeader.substring(7);
 
-				if (jwtUtil.validateToken(token, userDetails.getUsername())) {
-					UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-						userDetails, null, userDetails.getAuthorities());
-					SecurityContextHolder.getContext().setAuthentication(authToken);
-					logger.debug("Authentication set for user: " + userDetails.getUsername());
-				} else {
-					// 유효하지 않은 토큰 처리
-					logger.warn("Invalid JWT token for user: " + userDetails.getUsername());
-					response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-					response.getWriter().write("Unauthorized: Invalid token");
-					return;
+		try {
+			// 토큰 검증
+			if (jwtUtil.validateToken(token)) {
+				String email = jwtUtil.extractEmail(token);
+				String role = jwtUtil.extractRole(token);
+				Long userId = jwtUtil.extractUserId(token);
+
+				// 인증 객체 생성
+				if (role != null) {
+					// ROLE_ADMIN이면 어드민 권한 부여
+					if (role.equals("ROLE_ADMIN")) {
+						logger.debug("Admin access granted for user: {}", email);
+					} else {
+						logger.debug("User access granted for user: {}", email);
+					}
+
+					// 인증 객체 설정
+					UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+						email, null, Collections.singletonList(new SimpleGrantedAuthority(role)));
+
+					authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+					SecurityContextHolder.getContext().setAuthentication(authentication);
+
+					logger.debug("Authentication set for user: {}", email);
+
+					// 토큰 갱신 처리
+					if (jwtUtil.needsRefresh(token)) {
+						String newToken = jwtUtil.refreshToken(token);
+						response.setHeader("New-Token", newToken);
+						logger.debug("Token refreshed for user: {}", email);
+					}
 				}
-			} catch (Exception e) {
-				// 인증 처리 중 오류가 발생한 경우
-				logger.error("Error during authentication", e);
-				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-				response.getWriter().write("Unauthorized: Authentication failed");
-				return;
 			}
+		} catch (Exception e) {
+			logger.error("Cannot set user authentication: {}", e.getMessage());
 		}
 
 		chain.doFilter(request, response);
 	}
-}
 
+	// 제외된 경로 처리
+	private boolean isExcludedPath(String path, String method) {
+//		if (EXCLUDED_PATHS.stream().anyMatch(path::matches)) {
+//			return true;
+//		}
+		if ("GET".equalsIgnoreCase(method) && GET_EXCLUDED_PATHS.stream().anyMatch(path::matches)) {
+			return true;
+		}
+		if ("POST".equalsIgnoreCase(method) && POST_EXCLUDED_PATHS.stream().anyMatch(path::matches)) {
+			return true;
+		}
+		return false;
+	}
+}

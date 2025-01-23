@@ -1,6 +1,6 @@
 package com.connect.codeness.global.security;
 
-import com.connect.codeness.domain.user.User;
+import com.connect.codeness.domain.user.entity.User;
 import com.connect.codeness.global.enums.UserStatus;
 import java.util.Collection;
 import org.springframework.security.core.GrantedAuthority;
@@ -66,10 +66,6 @@ public class CustomSecurityUserDetails implements UserDetails {
 	// 추가적인 사용자 정보를 필요한 경우 반환할 수 있는 메소드들 (예: phoneNumber, firebaseUserId 등)
 	public String getPhoneNumber() {
 		return user.getPhoneNumber();
-	}
-
-	public String getFirebaseUserId() {
-		return user.getFirebaseUserId();
 	}
 
 	public String getUserNickname() {
