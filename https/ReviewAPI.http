@@ -111,5 +111,5 @@ Content-Type: application/json
 
 
 ### 리뷰 삭제하기
-DELETE localhost:8080//reviews/1
+DELETE localhost:8080/reviews/1
 Authorization: Bearer {{token}}
