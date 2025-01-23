@@ -60,7 +60,8 @@ public class SecurityConfig {
 					"/posts/**",
 					"/news",
 					"/mentoring",
-					"/mentoring/**"
+					"/mentoring/**",
+					"/users/schedule"
 				).permitAll()
 				.requestMatchers("/admin/**").hasAuthority("ADMIN")
 				.requestMatchers(HttpMethod.POST,"/mentoring").hasAuthority("MENTOR")
