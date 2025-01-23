@@ -2,6 +2,7 @@ package com.connect.codeness.domain.mentorrequest.service;
 
 import com.connect.codeness.domain.file.service.FileService;
 import com.connect.codeness.domain.file.entity.ImageFile;
+import com.connect.codeness.domain.mentorrequest.dto.MentorRequestGetResponseDto;
 import com.connect.codeness.domain.mentorrequest.entity.MentorRequest;
 import com.connect.codeness.domain.mentorrequest.repository.MentorRequestRepository;
 import com.connect.codeness.domain.mentorrequest.dto.MentorRequestCreateRequestDto;
@@ -11,6 +12,7 @@ import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.enums.MentorRequestStatus;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
+import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,7 +39,8 @@ public class MentorRequestServiceImpl implements MentorRequestService {
 
 		User user = userRepository.findByIdOrElseThrow(userId);
 
-		if (mentorRequestRepository.existsByUserId(user.getId())){
+		if (mentorRequestRepository.existsByUserIdAndIsAccepted(user.getId(), MentorRequestStatus.WAITING)
+			|| mentorRequestRepository.existsByUserIdAndIsAccepted(user.getId(), MentorRequestStatus.ACCEPTED)) {
 			throw new BusinessException(ExceptionType.MENTOR_REQUEST_LIMIT_EXCEEDED);
 		}
 
@@ -76,6 +79,14 @@ public class MentorRequestServiceImpl implements MentorRequestService {
 
 		mentorRequestRepository.delete(mentorRequest);
 		return CommonResponseDto.builder().msg("멘토 신청 요청이 삭제되었습니다.").build();
+	}
+
+	@Override
+	public CommonResponseDto getMentorRequest(Long tokenId) {
+		List<MentorRequestGetResponseDto> mentorRequests =
+			mentorRequestRepository.findAllByUserId(tokenId);
+
+		return CommonResponseDto.builder().msg("멘토 신청이 조회되었습니다.").data(mentorRequests).build();
 	}
 }
 
