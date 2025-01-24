@@ -30,6 +30,9 @@ public interface PaymentHistoryRepository extends JpaRepository<PaymentHistory, 
 	@Query("SELECT p FROM PaymentHistory p WHERE p.id = :paymentHistoryId AND p.payment.user.id = :userId")
 	Optional<PaymentHistory> findByIdAndUserId(Long paymentHistoryId, Long userId);
 
+	/**
+	 * TODO : 사용 안하면 지우기
+	 */
 	default PaymentHistory findByIdAndUserIdOrElseThrow(Long userId, Long paymentHistoryId){
 		return findByIdAndUserId(userId, paymentHistoryId).orElseThrow(
 			() -> new BusinessException(ExceptionType.NOT_FOUND_PAYMENT_HISTORY));

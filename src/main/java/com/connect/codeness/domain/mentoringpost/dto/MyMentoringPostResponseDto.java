@@ -2,14 +2,12 @@ package com.connect.codeness.domain.mentoringpost.dto;
 
 
 import com.connect.codeness.global.enums.FieldType;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Getter;
 
 @Getter
 @Builder
-public class MentoringPostDetailResponseDto {
+public class MyMentoringPostResponseDto {
 
 	private Long mentoringPostId;//멘토링 공고 고유 식별자
 
@@ -19,17 +17,19 @@ public class MentoringPostDetailResponseDto {
 
 	private String title;//공고 제목
 
-	private String company;//회사 이름
-
 	private Integer career;//경력
-
-	private String region;//지역
-
-	private BigDecimal price;//가격
-
-	private String description;//설명글
 
 	private Double starRating;//평균 별점
 
-	private LocalDateTime createdAt; //공고 생성일
+	public MyMentoringPostResponseDto() {
+	}
+
+	public MyMentoringPostResponseDto(Long mentoringPostId, String userNickname, FieldType field, String title, Integer career, Double starRating) {
+		this.mentoringPostId = mentoringPostId;
+		this.userNickname = userNickname;
+		this.field = field;
+		this.title = title;
+		this.career = career;
+		this.starRating = starRating;
+	}
 }

@@ -3,12 +3,11 @@ package com.connect.codeness.domain.mentoringpost.repository;
 import com.connect.codeness.domain.mentoringpost.entity.MentoringPost;
 import com.connect.codeness.domain.mentoringpost.dto.MentoringPostRecommendResponseDto;
 import com.connect.codeness.global.enums.FieldType;
+import com.connect.codeness.global.enums.MentoringPostStatus;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -51,5 +50,12 @@ public interface MentoringPostRepository extends JpaRepository<MentoringPost, Lo
 		      WHERE mp.user.id = :userId AND mp.mentoringPostStatus = 'DISPLAYED'
 		""")
 	boolean findMentoringPostStatusByUserId(long userId);
+
+	/**
+	 * TODO : 필요없으면 삭제
+	 */
+	Optional<MentoringPost> findByUserId(Long userId);
+
+	Optional<MentoringPost> findByUserIdAndMentoringPostStatus(Long userId, MentoringPostStatus mentoringPostStatus);
 
 }

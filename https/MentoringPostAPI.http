@@ -153,3 +153,14 @@ Content-Type: application/json
 ### 유효한 멘토링 공고 스케쥴 전체 조회 API
 GET localhost:8080/mentoring/1/mentoring-schedule/empty-status
 Content-Type: application/json
+
+### 멘티가 결제한 멘토링 공고 조회 API
+GET localhost:8080/mentees/mentoring
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+### 멘토가 생성한 멘토링 공고 조회 API
+GET localhost:8080/mentors/mentoring
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
