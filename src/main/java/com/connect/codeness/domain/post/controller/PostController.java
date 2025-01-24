@@ -14,6 +14,7 @@ import com.connect.codeness.global.jwt.JwtUtil;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.enums.PostType;
 import jakarta.validation.Valid;
+import java.util.List;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -64,9 +65,19 @@ public class PostController {
 		@RequestParam(required = false, defaultValue = PAGE_NUMBER) int pageNumber,
 		@RequestParam(required = false, defaultValue = PAGE_SIZE) int pageSize) {
 
-		Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("createdAt").descending());
+		Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "createdAt"));
 
 		CommonResponseDto<PaginationResponseDto<PostFindAllResponseDto>> responseDto = postService.findAllPost(postType, keyword, writer, pageable);
+
+		return new ResponseEntity<>(responseDto, HttpStatus.OK);
+	}
+
+	// 게시글 인기순 조회
+	@GetMapping("/popular")
+	public ResponseEntity<CommonResponseDto<List<PostFindAllResponseDto>>> findPopularPost(
+	) {
+
+		CommonResponseDto<List<PostFindAllResponseDto>> responseDto = postService.findPopularPost();
 
 		return new ResponseEntity<>(responseDto, HttpStatus.OK);
 	}

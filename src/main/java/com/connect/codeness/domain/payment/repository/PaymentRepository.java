@@ -7,6 +7,7 @@ import com.connect.codeness.global.exception.ExceptionType;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -29,4 +30,19 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 	default Payment findByUserIdOrElseThrow(Long userId){
 		return findByUserId(userId).orElseThrow(() -> new BusinessException(ExceptionType.NOT_FOUND_PAYMENT));
 	}
+
+	@Query("""
+		SELECT p.mentoringSchedule.id
+		FROM Payment p
+		WHERE p.user.id = :userId
+	""")
+	List<Long> findMentoringScheduleByUserId(Long userId);
+
+
+	@Query("""
+		SELECT p
+		FROM Payment p 
+		WHERE p.id = :paymentId AND p.user.id = :userId
+		""")
+	Optional<Payment> findByIdAndUserId(Long userId, Long paymentId);
 }

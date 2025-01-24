@@ -12,7 +12,7 @@ POST localhost:8080/login
 Content-Type: application/json
 
 {
-  "email" : "abc@naver.com",
+  "email" : "a23@naver.com",
   "password" : "asdf1234!@"
 }
 
@@ -34,11 +34,11 @@ Authorization: Bearer {{token}}
 
 
 ### 환불 요청 API
-POST localhost:8080/mentoring/payments/103/refund
+POST localhost:8080/mentoring/payments/2/refund
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "pgTid" : "StdpayCARDINIpayTest2025123891238",
-  "impUid" : "imp_63103396112234"
+  "pgTid" : "StdpayCARDINIpayTest20250123200137302125",
+  "impUid" : "imp_116073023009"
 }

@@ -59,7 +59,7 @@ public class CommentController {
 		@RequestParam(required = false, defaultValue = PAGE_NUMBER) int pageNumber,
 		@RequestParam(required = false, defaultValue = PAGE_SIZE) int pageSize) {
 
-		Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("createdAt").descending());
+		Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "createdAt"));
 
 		CommonResponseDto<PaginationResponseDto<CommentFindAllResponseDto>> responseDto = commentService.findAllComment(postId, pageable);
 
