@@ -9,6 +9,7 @@ import lombok.Getter;
 @Getter
 @Builder
 public class MentoringPostDetailResponseDto {
+	//TODO : 공고 올린 멘토 닉네임, 공고 생성일도 응답해줘야 함
 
 	private Long mentoringPostId;//멘토링 공고 고유 식별자
 

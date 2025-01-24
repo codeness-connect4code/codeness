@@ -49,7 +49,7 @@ public class ReviewServiceImpl implements ReviewService {
 	public CommonResponseDto createReview(Long userId, Long paymentHistoryId,
 		ReviewCreateRequestDto dto) {
 		//리뷰를 생성할 거래 내역 가져오기
-		PaymentHistory paymentHistory = paymentHistoryRepository.findByPaymentIdOrElseThrow(paymentHistoryId);
+		PaymentHistory paymentHistory = paymentHistoryRepository.findByIdOrElseThrow(paymentHistoryId);
 
 		//이미 생성된 리뷰인지 확인
 		if(reviewRepository.existsByPaymentHistory(paymentHistory)){

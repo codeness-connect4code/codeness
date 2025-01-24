@@ -130,7 +130,7 @@ Content-Type: application/json
 }
 
 ### 멘토링 공고 전체 조회하기 - 조건별 검색
-GET localhost:8080/mentoring?title=커리어&nickname=&field=FRONTEND
+GET localhost:8080/mentoring?title=&nickname=&field=&pageNumber=1
 Content-Type: application/json
 
 {
@@ -138,7 +138,7 @@ Content-Type: application/json
 }
 
 ### 멘토링 공고 상세 조회하기
-GET localhost:8080/mentoring/1
+GET localhost:8080/mentoring/10
 Content-Type: application/json
 
 ### 멘토링 공고 삭제하기
