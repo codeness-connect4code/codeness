@@ -47,10 +47,17 @@ public class AdminServiceImpl implements AdminService {
 
 	/* -----------------멘토 신청 관련 로직------------------ */
 
+	/**
+	 * 전체 멘토 리스트 페이지 조회
+	 * @param pageNumber
+	 * @param pageSize
+	 * @return
+	 */
 	@Override
 	public CommonResponseDto<PaginationResponseDto<AdminMentorListResponseDto>> getMentorList(int pageNumber, int pageSize) {
 		Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("createdAt").descending());
 
+		//멘토인 사용자만 조회
 		Page<AdminMentorListResponseDto> userResponseDtoPage = userRepository.findByRole(UserRole.MENTOR, pageable);
 
 		PaginationResponseDto<AdminMentorListResponseDto> pageUserResponseList =
@@ -68,9 +75,15 @@ public class AdminServiceImpl implements AdminService {
 			.build();
 	}
 
+	/**
+	 * 멘토 상세(단건) 정보 조회
+	 * @param mentorId
+	 * @return
+	 */
 	@Override
 	public CommonResponseDto getMentor(Long mentorId) {
 		User user = userRepository.findByIdOrElseThrow(mentorId);
+		//멘토일시만 조회
 		if (user.getRole() != UserRole.MENTOR) {
 			throw new BusinessException(ExceptionType.NOT_MENTOR);
 		}
@@ -79,8 +92,13 @@ public class AdminServiceImpl implements AdminService {
 			.data(new UserResponseDto(user)).build();
 	}
 
+	/**
+	 * 멘토 신청 리스트 조회
+	 * @return
+	 */
 	@Override
 	public CommonResponseDto<List<MentorRequestResponseDto>> getMentorRequestList() {
+		//멘토 신청이 대기중인 데이터만 조회
 		List<MentorRequestResponseDto> mentorRequestResponseDto
 			= mentorRequestRepository.findByIsAccepted(MentorRequestStatus.WAITING);
 
@@ -90,6 +108,11 @@ public class AdminServiceImpl implements AdminService {
 			.build();
 	}
 
+	/**
+	 * 멘토 신청 상세(단건) 조회
+	 * @param mentoringRequestId
+	 * @return
+	 */
 	@Override
 	public CommonResponseDto<MentorRequestResponseDto> getMentorRequest(Long mentoringRequestId) {
 		MentorRequest mentorRequest = mentorRequestRepository.findByIdOrElseThrow(mentoringRequestId);
@@ -99,18 +122,28 @@ public class AdminServiceImpl implements AdminService {
 			.data(new MentorRequestResponseDto(mentorRequest)).build();
 	}
 
+	/**
+	 * 멘토 신청 수락/거절
+	 * @param mentorRequestId
+	 * @param dto
+	 * @return
+	 */
 	@Override
 	@Transactional
 	public CommonResponseDto updateMentor(Long mentorRequestId,
 		AdminUpdateMentorRequestDto dto) {
 		MentorRequest mentorRequest = mentorRequestRepository.findByIdOrElseThrow(mentorRequestId);
 		User user = userRepository.findByIdOrElseThrow(mentorRequest.getUser().getId());
+
+		//멘토 신청 상태가 대기중일 때만 변경 가능
 		if (
 			mentorRequest.getIsAccepted().equals(MentorRequestStatus.REJECTED)
 				|| mentorRequest.getIsAccepted().equals(MentorRequestStatus.ACCEPTED)
 		) {
 			throw new BusinessException(ExceptionType.ALREADY_CLOSED_MENTOR_REQUEST);
 		}
+
+		//멘토 신청 수락시 신청한 유저의 Role 변경
 		if (dto.getIsAccepted().equals(MentorRequestStatus.ACCEPTED)) {
 			user.updateRole(UserRole.MENTOR);
 		}
@@ -124,6 +157,11 @@ public class AdminServiceImpl implements AdminService {
 
 	/* -----------------멘토 정산 처리 관련 로직------------------ */
 
+	/**
+	 * 멘토 정산 요청 수락
+	 * @param mentorId
+	 * @return
+	 */
 	@Override
 	@Transactional
 	public CommonResponseDto updateSettlements(Long mentorId) {
@@ -133,6 +171,7 @@ public class AdminServiceImpl implements AdminService {
 		if (settlementList.isEmpty()) {
 			throw new BusinessException(ExceptionType.NOT_FOUND);
 		}
+		//todo : 멘토가 정산 요청한 리스트의 정산건들을 전부 COMPLETE로 변경(후에 최적화)
 		for (Settlement s : settlementList){
 			s.updateSettlementStatus(SettlementStatus.COMPLETE);
 		}
@@ -142,8 +181,13 @@ public class AdminServiceImpl implements AdminService {
 			.msg("정산 처리가 완료되었습니다.").build();
 	}
 
+	/**
+	 * 멘토들의 정산 신청 리스트 조회
+	 * @return
+	 */
 	@Override
 	public CommonResponseDto<List<AdminSettlementListResponseDto>> getSettlementList() {
+		//대기중(processing)인 정산 요청만 조회
 		List<AdminSettlementListResponseDto> adminSettlementGetResponseDto =
 			settlementRepository.findBySettleStatusMentorGroupList(SettlementStatus.PROCESSING);
 
@@ -152,8 +196,16 @@ public class AdminServiceImpl implements AdminService {
 			.data(adminSettlementGetResponseDto).build();
 	}
 
+	/**
+	 * 한 명의 멘토의 정산 리스트 조회
+	 * @param mentorId
+	 * @param pageNumber
+	 * @param pageSize
+	 * @return
+	 */
 	@Override
 	public CommonResponseDto getSettlement(Long mentorId, int pageNumber, int pageSize) {
+		//processing(대기중) 인 정산 요청만 조회
 		List<AdminSettlementResponseDto> adminSettlementResponseDto =
 			settlementRepository.findByUserIdAndSettleStatus(mentorId, SettlementStatus.PROCESSING);
 

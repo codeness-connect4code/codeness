@@ -28,6 +28,13 @@ public class CalendarController {
 		this.jwtUtil = jwtUtil;
 	}
 
+	/**
+	 * CalendarService에서 구글 캘린더 일정을 리스트로 받아옴
+	 * @param authorizationHeader
+	 * @param startDate
+	 * @param endDate
+	 * @return
+	 */
 	@GetMapping("/schedule")
 	public ResponseEntity<CommonResponseDto> getEvents(
 		@RequestHeader(AUTHORIZATION) String authorizationHeader,
@@ -37,7 +44,10 @@ public class CalendarController {
 		String token = authorizationHeader.substring("Bearer ".length());
 		Long tokenId = jwtUtil.extractUserId(token);
 
+		//캘린더 서비스에서 특정 기간 일정 조회
 		List<CalendarEventDto> events = calendarService.getEvents(tokenId, startDate, endDate);
+
+		//응답 객체로 반환
 		List<CalendarEventResponseDto> responses = events.stream()
 			.map(CalendarEventResponseDto::from)
 			.collect(Collectors.toList());

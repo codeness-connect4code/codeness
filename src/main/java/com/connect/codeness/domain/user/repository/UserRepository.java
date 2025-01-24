@@ -16,11 +16,12 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-
+	//이메일 중복여부 확인
 	boolean existsByEmail(String email);
 	Optional<User> findByEmail(String email);
 	Optional<User> findById(Long id);
 
+	//유저 고유 식별자 조회 예외처리
 	default User findByIdOrElseThrow(Long id) {
 		User user = findById(id).orElseThrow(
 			() -> new BusinessException(ExceptionType.NOT_FOUND_USER)
@@ -32,6 +33,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 		return user;
 	}
 
+	//유저 이메일 조회 예외처리
 	default User findByEmailOrElseThrow(String email) {
 		User user = findByEmail(email).orElseThrow(
 			() -> new BusinessException(ExceptionType.NOT_FOUND_USER)
@@ -43,6 +45,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 		return user;
 	}
 
+	//유저 role 조회, 리스트 반환
 	@Query("SELECT new com.connect.codeness.domain.admin.dto.AdminMentorListResponseDto(u) FROM user u WHERE u.role = :userRole")
 	Page<AdminMentorListResponseDto> findByRole(UserRole userRole, Pageable pageable);
 }
