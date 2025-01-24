@@ -75,7 +75,7 @@ public class PaymentServiceImpl implements PaymentService {
 		//유저 조회
 		User user = userRepository.findByIdOrElseThrow(userId);
 		//멘토는 멘토링 신청이 불가함
-		if(user.getRole().equals(UserRole.MENTOR)){
+		if (user.getRole().equals(UserRole.MENTOR)) {
 			throw new BusinessException(ExceptionType.MENTOR_PAYMENT_NOT_ALLOWED);
 		}
 
@@ -91,7 +91,7 @@ public class PaymentServiceImpl implements PaymentService {
 
 		//결제(멘토링 신청) db 저장
 		paymentRepository.save(payment);
-		
+
 		return CommonResponseDto.builder().msg("멘토링 스케쥴이 신청 되었습니다.").data(payment.getId()).build();
 	}
 
@@ -184,7 +184,7 @@ public class PaymentServiceImpl implements PaymentService {
 		//멘토링 스케쥴 상태 변경
 		MentoringSchedule mentoringSchedule = mentoringScheduleRepository.findByIdOrElseThrow(requestDto.getMentoringScheduleId());
 		mentoringSchedule.updateBookedStatus(BookedStatus.BOOKED);
-		
+
 		//정산 생성
 		Settlement settlement = Settlement.builder()
 			.paymentHistory(paymentHistory)
@@ -217,14 +217,19 @@ public class PaymentServiceImpl implements PaymentService {
 	@Override
 	public CommonResponseDto refundPayment(Long userId, Long paymentId, PaymentRefundRequestDto requestDto) {
 
+		//TODO : 결제 내역id가 아니라 결제 id랑 비교해야함
 		//결제 내역 테이블 조회 - 로그인한 유저 ID & 결제 ID
-		PaymentHistory paymentHistory = paymentHistoryRepository.findByIdAndUserIdOrElseThrow(userId, paymentId);
+//		PaymentHistory paymentHistory = paymentHistoryRepository.findByIdAndUserIdOrElseThrow(userId, paymentId);
+		Payment payment = paymentRepository.findByIdAndUserId(userId, paymentId)
+			.orElseThrow(() -> new BusinessException(ExceptionType.NOT_FOUND_PAYMENT));
 
 		//pgTid 유효성 검사
-		if (paymentHistory.getPgTid() == null || paymentHistory.getPgTid().isEmpty()) {
+		if (payment.getPgTid() == null || payment.getPgTid().isEmpty()) {
 			throw new BusinessException(ExceptionType.NOT_FOUND_PGTID);
 		}
 
+		//결제 내역 조회
+		PaymentHistory paymentHistory = paymentHistoryRepository.findByPaymentIdOrElseThrow(payment.getId());
 		//상태가 결제 취소일 경우
 		if (paymentHistory.getPaymentStatus().equals("CANCEL")) {
 			throw new BusinessException(ExceptionType.ALREADY_CANCEL);
@@ -260,7 +265,6 @@ public class PaymentServiceImpl implements PaymentService {
 		//결제 내역 업데이트 : 상태, 취소일
 		paymentHistory.updatePaymentStatus(PaymentStatus.CANCEL, paymentHistory.getCanceledAt());
 		//결제 업데이트 : 취소일
-		Payment payment = paymentHistory.getPayment();
 		payment.updatePaymentCanceledAt();
 
 		//채팅방 삭제 - 채팅방 id는 로그인한 유저 id랑 상대 멘토 id 조합 -> ex) 1_2

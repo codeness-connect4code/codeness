@@ -2,7 +2,9 @@ package com.connect.codeness.domain.mentoringpost.service;
 
 
 import com.connect.codeness.domain.mentoringpost.dto.MentoringPostCreateRequestDto;
+import com.connect.codeness.domain.mentoringpost.dto.MyMentoringPostResponseDto;
 import com.connect.codeness.global.dto.CommonResponseDto;
+import com.connect.codeness.global.dto.PaginationResponseDto;
 
 public interface MentoringPostService {
 
@@ -26,5 +28,14 @@ public interface MentoringPostService {
 	 */
 	CommonResponseDto getMentoringPostDetail(Long mentoringPostId);
 
+	/**
+	 * 멘토가 생성한 멘토링 공고 조회 API
+	 */
+	CommonResponseDto<MyMentoringPostResponseDto> findMentoringPostByMentorId(Long userId);
+
+	/**
+	 * 멘티가 결제한 멘토링 공고 조회 API
+	 */
+	CommonResponseDto<PaginationResponseDto<MyMentoringPostResponseDto>> findMentoringPostByMenteeId(Long userId, int pageNumber, int pageSize);
 }
 

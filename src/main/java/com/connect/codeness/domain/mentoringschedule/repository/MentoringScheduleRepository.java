@@ -1,5 +1,6 @@
 package com.connect.codeness.domain.mentoringschedule.repository;
 
+import com.connect.codeness.domain.mentoringpost.dto.MyMentoringPostResponseDto;
 import com.connect.codeness.domain.mentoringschedule.entity.MentoringSchedule;
 import com.connect.codeness.domain.user.entity.User;
 import com.connect.codeness.global.enums.BookedStatus;
@@ -8,6 +9,8 @@ import com.connect.codeness.global.exception.ExceptionType;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -34,4 +37,22 @@ public interface MentoringScheduleRepository extends JpaRepository<MentoringSche
 	""")
 	List<MentoringSchedule> findValidMentoringSchedules(Long mentoringPostId, BookedStatus bookedStatus, LocalDate currentDate, LocalTime currentTime);
 
+	@Query("""
+		SELECT DISTINCT new com.connect.codeness.domain.mentoringpost.dto.MyMentoringPostResponseDto(
+			mp.id,
+			u.userNickname,
+			mp.field,
+			mp.title,
+			mp.career,
+			CAST(COALESCE(AVG(r.starRating), 0.0) AS double)
+			)
+		FROM MentoringSchedule ms
+		JOIN ms.mentoringPost mp
+		JOIN mp.user u
+		LEFT JOIN Review r ON r.mentoringPost.id = mp.id 
+		WHERE ms.id IN :mentoringScheduleIds
+		GROUP BY mp.id, u.userNickname, mp.field, mp.title, mp.career
+		ORDER BY mp.createdAt DESC
+	""")
+	Page<MyMentoringPostResponseDto> findMentoringPostById(List<Long> mentoringScheduleIds,  Pageable pageable);
 }
