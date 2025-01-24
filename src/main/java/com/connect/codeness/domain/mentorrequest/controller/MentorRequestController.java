@@ -15,6 +15,7 @@ import java.io.IOException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -70,6 +71,12 @@ public class MentorRequestController {
 		return new ResponseEntity<>(response, HttpStatus.CREATED);
 	}
 
+	/**
+	 * 멘토 신청 삭제 API
+	 * @param authorizationHeader
+	 * @param mentorRequestId
+	 * @return
+	 */
 	@DeleteMapping("/mentors/{mentorRequestId}")
 	public ResponseEntity<CommonResponseDto> deleteMentorRequest(
 		@RequestHeader(AUTHORIZATION) String authorizationHeader,
@@ -79,6 +86,20 @@ public class MentorRequestController {
 		Long tokenId = jwtUtil.extractUserId(token);
 
 		CommonResponseDto commonResponseDto = mentorRequestService.deleteMentorRequest(tokenId,mentorRequestId);
+		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
+	}
+
+	/**
+	 * 멘토 신청 조회 API
+	 * @param authorizationHeader
+	 * @return
+	 */
+	@GetMapping("/mentors")
+	public ResponseEntity<CommonResponseDto> getMentorRequest(@RequestHeader(AUTHORIZATION) String authorizationHeader){
+		String token = authorizationHeader.substring("Bearer ".length());
+		Long tokenId = jwtUtil.extractUserId(token);
+
+		CommonResponseDto commonResponseDto = mentorRequestService.getMentorRequest(tokenId);
 		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
 	}
 

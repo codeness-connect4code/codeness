@@ -21,6 +21,7 @@ import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
 import jakarta.validation.Valid;
 import java.io.IOException;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +36,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import retrofit2.http.GET;
 
 @RestController
 @RequestMapping
@@ -131,7 +133,12 @@ public class UserController {
 		return new ResponseEntity<>(dto, HttpStatus.OK);
 	}
 
-
+	/**
+	 * 유저 비밀번호 수정 API
+	 * @param authorizationHeader
+	 * @param userPasswordUpdateRequestDto
+	 * @return
+	 */
 	@PatchMapping("/users/password")
 	public ResponseEntity<CommonResponseDto> updatePassword(
 		@RequestHeader(AUTHORIZATION) String authorizationHeader,
@@ -145,6 +152,12 @@ public class UserController {
 		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
 	}
 
+	/**
+	 * 유저 계좌번호 수정 API
+	 * @param authorizationHeader
+	 * @param userBankUpdateRequestDto
+	 * @return
+	 */
 	@PatchMapping("/users/bank-account")
 	public ResponseEntity<CommonResponseDto> updateBankAccount(
 		@RequestHeader(AUTHORIZATION) String authorizationHeader,
@@ -157,6 +170,12 @@ public class UserController {
 		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
 	}
 
+	/**
+	 * 유저 탈퇴 API
+	 * @param authorizationHeader
+	 * @param userDeleteResponseDto
+	 * @return
+	 */
 	@DeleteMapping("/users")
 	public ResponseEntity<CommonResponseDto> deleteUser(
 		@RequestHeader(AUTHORIZATION) String authorizationHeader,
@@ -169,6 +188,11 @@ public class UserController {
 		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
 	}
 
+	/**
+	 * 유저 추천 멘토링 공고 조회 API
+	 * @param authorizationHeader
+	 * @return
+	 */
 	 @GetMapping("/users/mentoring")
 	public ResponseEntity<CommonResponseDto> getRecommendMentor(
 		@RequestHeader(AUTHORIZATION) String authorizationHeader
