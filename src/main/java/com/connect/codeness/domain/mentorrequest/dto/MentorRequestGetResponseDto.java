@@ -7,12 +7,14 @@ import lombok.Getter;
 
 @Getter
 public class MentorRequestGetResponseDto {
+	private Long requestId;
 	private String position;
 	private Integer career;
 	private FieldType field;
 	private MentorRequestStatus isAccepted;
 
 	public MentorRequestGetResponseDto(MentorRequest mentorRequest) {
+		this.requestId = mentorRequest.getId();
 		this.position = mentorRequest.getPosition();
 		this.career = mentorRequest.getCareer();
 		this.field = mentorRequest.getField();

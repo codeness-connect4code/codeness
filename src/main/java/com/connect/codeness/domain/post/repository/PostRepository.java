@@ -6,6 +6,8 @@ import com.connect.codeness.global.enums.PostStatus;
 import com.connect.codeness.global.enums.PostType;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
+import java.time.LocalDateTime;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -39,4 +41,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 		@Param("writer") String writer,
 		Pageable pageable
 	);
+
+	List<PostFindAllResponseDto> findTop10ByCreatedAtAfterOrderByViewDesc(LocalDateTime createdAt);
 }
