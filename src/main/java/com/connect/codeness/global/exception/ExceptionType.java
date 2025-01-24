@@ -36,6 +36,7 @@ public enum ExceptionType {
 	UNAUTHORIZED_UPDATE_REQUEST(HttpStatus.UNAUTHORIZED, "권한이 없는 수정 요청입니다."),
 	UNAUTHORIZED_GET_REQUEST(HttpStatus.UNAUTHORIZED, "권한이 없는 조회 요청입니다."),
 	INVALID_TOKEN(HttpStatus.UNAUTHORIZED,"유효하지 않은 토큰입니다."),
+	NOT_FOUND_GOOGLE_TOKEN(HttpStatus.UNAUTHORIZED, "구글 토큰이 존재하지 않습니다."),
 
 	// 403 Forbidden
 	FORBIDDEN_ACCESS(HttpStatus.FORBIDDEN, "접근이 거부됐습니다."),
