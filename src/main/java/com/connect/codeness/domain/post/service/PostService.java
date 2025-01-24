@@ -8,6 +8,7 @@ import com.connect.codeness.domain.post.dto.PostUpdateRequestDto;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.dto.PaginationResponseDto;
 import com.connect.codeness.global.enums.PostType;
+import java.util.List;
 import org.springframework.data.domain.Pageable;
 
 public interface PostService {
@@ -17,6 +18,9 @@ public interface PostService {
 
 	// 게시글 목록 조회
 	CommonResponseDto<PaginationResponseDto<PostFindAllResponseDto>> findAllPost(PostType postType, String keyword, String writer, Pageable pageable);
+
+	// 게시글 인기순 조회
+	CommonResponseDto<List<PostFindAllResponseDto>> findPopularPost();
 
 	// 게시글 상세 조회
 	CommonResponseDto<PostFindResponseDto> findPost(Long postId);
