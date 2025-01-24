@@ -38,7 +38,7 @@ public interface MentoringScheduleRepository extends JpaRepository<MentoringSche
 	List<MentoringSchedule> findValidMentoringSchedules(Long mentoringPostId, BookedStatus bookedStatus, LocalDate currentDate, LocalTime currentTime);
 
 	@Query("""
-		SELECT new com.connect.codeness.domain.mentoringpost.dto.MyMentoringPostResponseDto(
+		SELECT DISTINCT new com.connect.codeness.domain.mentoringpost.dto.MyMentoringPostResponseDto(
 			mp.id,
 			u.userNickname,
 			mp.field,

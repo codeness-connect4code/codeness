@@ -301,6 +301,7 @@ public class MentoringPostServiceImpl implements MentoringPostService {
 	/**
 	 * 멘티가 결제한 멘토링 공고 조회 서비스 메서드
 	 * - 멘티가 결제한 스케쥴의 멘토링 공고를 조회
+	 * - 같은 멘토링 공고가 조회될 시, 중복 제거 후 단건만 조회
 	 */
 	@Override
 	public CommonResponseDto<PaginationResponseDto<MyMentoringPostResponseDto>> findMentoringPostByMenteeId(Long userId, int pageNumber,
