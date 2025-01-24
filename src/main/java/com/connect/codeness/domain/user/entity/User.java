@@ -78,10 +78,14 @@ public class User extends BaseEntity {
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<ImageFile> imageFiles = new ArrayList<>();
 
+	//소셜 로그인 프로바이더 (현재는 구글만 존재)
 	private String provider;
 
+	//구글 토큰 저장하는 필드
+	private String googleToken;
+
 	@Builder
-	public User(String email, String password,String name, String userNickname, String phoneNumber, FieldType field, UserRole role, String provider) {
+	public User(String email, String password,String name, String userNickname, String phoneNumber, FieldType field, UserRole role, String provider, String googleToken) {
 		this.email = email;
 		this.password = password;
 		this.name = name;
@@ -91,6 +95,7 @@ public class User extends BaseEntity {
 		this.role = role;
 		this.userStatus = UserStatus.ACTIVE;
 		this.provider = provider;
+		this.googleToken = googleToken;
 	}
 
 	public User() {}
@@ -126,4 +131,6 @@ public class User extends BaseEntity {
 	public void updateRole(UserRole userRole) {
 		this.role = userRole;
 	}
+
+	public void updateGoogleToken(String googleToken) {this.googleToken = googleToken;}
 }

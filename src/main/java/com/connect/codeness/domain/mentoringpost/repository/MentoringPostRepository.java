@@ -5,6 +5,7 @@ import com.connect.codeness.domain.mentoringpost.dto.MentoringPostRecommendRespo
 import com.connect.codeness.global.enums.FieldType;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,10 +25,9 @@ public interface MentoringPostRepository extends JpaRepository<MentoringPost, Lo
 			"WHERE (:field IS NULL OR m.field = :field) " +
 			"AND (:region IS NULL OR m.region LIKE %:region%)"
 	)
-	Page<MentoringPostRecommendResponseDto> findByFilter(
+	List<MentoringPostRecommendResponseDto> findByFilter(
 		@Param("field") FieldType field,
-		@Param("region") String region,
-		Pageable pageable
+		@Param("region") String region
 	);
 
 	Optional<MentoringPost> findByIdAndUserId(Long mentoringPostId, Long userId);

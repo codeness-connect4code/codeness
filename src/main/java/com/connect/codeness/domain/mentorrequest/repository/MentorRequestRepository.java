@@ -15,6 +15,7 @@ import org.springframework.stereotype.Repository;
 public interface MentorRequestRepository extends JpaRepository<MentorRequest, Long> {
 	boolean existsByUserIdAndIsAccepted(Long userId, MentorRequestStatus status);
 
+	//멘토 신청을 status로 조회
 	@Query("""
 			SELECT mr
 			FROM MentorRequest mr WHERE mr.isAccepted = :status
@@ -28,6 +29,7 @@ public interface MentorRequestRepository extends JpaRepository<MentorRequest, Lo
 		);
 	}
 
+	//멘토 신청을 유저 고유 식별자로 조회
 	@Query("""
 			SELECT mr
 			FROM MentorRequest mr WHERE mr.user.id = :userId

@@ -71,6 +71,12 @@ public class MentorRequestController {
 		return new ResponseEntity<>(response, HttpStatus.CREATED);
 	}
 
+	/**
+	 * 멘토 신청 삭제 API
+	 * @param authorizationHeader
+	 * @param mentorRequestId
+	 * @return
+	 */
 	@DeleteMapping("/mentors/{mentorRequestId}")
 	public ResponseEntity<CommonResponseDto> deleteMentorRequest(
 		@RequestHeader(AUTHORIZATION) String authorizationHeader,
@@ -83,6 +89,11 @@ public class MentorRequestController {
 		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
 	}
 
+	/**
+	 * 멘토 신청 조회 API
+	 * @param authorizationHeader
+	 * @return
+	 */
 	@GetMapping("/mentors")
 	public ResponseEntity<CommonResponseDto> getMentorRequest(@RequestHeader(AUTHORIZATION) String authorizationHeader){
 		String token = authorizationHeader.substring("Bearer ".length());
