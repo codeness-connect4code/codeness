@@ -83,7 +83,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
 			//일련의 과정 완료시 리다이렉트
 			String redirectUrl = UriComponentsBuilder
-				.fromUriString(System.getenv().getOrDefault("FRONTEND_URL", "http://localhost:3000") + "/payment")
+				.fromUriString(System.getenv().getOrDefault("FRONTEND_URL", "http://localhost:3000"))
 				.queryParam("token", token)
 				.build()
 				.toUriString();
