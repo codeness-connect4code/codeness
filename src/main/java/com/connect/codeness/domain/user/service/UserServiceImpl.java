@@ -84,7 +84,7 @@ public class UserServiceImpl implements UserService {
 			.phoneNumber(dto.getPhoneNumber())
 			.field(dto.getField())
 			.role(dto.getUserRole())
-			.provider("local")
+			.provider("LOCAL")
 			.build();
 
 		userRepository.save(user);
@@ -112,7 +112,7 @@ public class UserServiceImpl implements UserService {
 		}
 
 		//로그인 성공시 토큰 생성 후 반환
-		String token = jwtUtil.generateToken(user.getEmail(),user.getId(),user.getRole().toString(), user.getProvider(), user.isProfileComplete());
+		String token = jwtUtil.generateToken(user.getEmail(),user.getId(),user.getRole().toString(), user.getProvider());
 
 		return token;
 	}
@@ -161,7 +161,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	/**
-	 * 유저 정보 수정
+	 *  구글 유저 정보 수정
 	 * @param userId
 	 * @param dto
 	 * @param imageFile
@@ -174,7 +174,7 @@ public class UserServiceImpl implements UserService {
 		throws IOException {
 		User user = userRepository.findByIdOrElseThrow(userId);
 
-		if (!user.getProvider().equals("google")){
+		if (!user.getProvider().equals("GOOGLE")){
 			throw new BusinessException(ExceptionType.BAD_REQUEST);
 		}
 

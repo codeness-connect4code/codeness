@@ -78,8 +78,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 				user.getEmail(),
 				user.getId(),
 				user.getRole().toString(),
-				user.getProvider(),
-				user.isProfileComplete()
+				user.getProvider()
 			);
 
 			//일련의 과정 완료시 리다이렉트
