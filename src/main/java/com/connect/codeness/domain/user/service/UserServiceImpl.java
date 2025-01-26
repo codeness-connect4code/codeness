@@ -112,7 +112,7 @@ public class UserServiceImpl implements UserService {
 		}
 
 		//로그인 성공시 토큰 생성 후 반환
-		String token = jwtUtil.generateToken(user.getEmail(),user.getId(),user.getRole().toString(), user.getProvider());
+		String token = jwtUtil.generateToken(user.getEmail(),user.getId(),user.getRole().toString(), user.getProvider(), user.isProfileComplete());
 
 		return token;
 	}

@@ -87,6 +87,9 @@ public class User extends BaseEntity {
 	//구글 토큰 저장하는 필드
 	private String googleToken;
 
+	//정보수정 확인 필드
+	private boolean isProfileComplete = false;
+
 	@Builder
 	public User(String email, String password,String name, String userNickname, String phoneNumber, FieldType field, UserRole role, String provider, String googleToken) {
 		this.email = email;
