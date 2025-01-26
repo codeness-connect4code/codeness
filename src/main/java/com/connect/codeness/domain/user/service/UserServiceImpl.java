@@ -105,6 +105,11 @@ public class UserServiceImpl implements UserService {
 
 		User user = userRepository.findByEmailOrElseThrow(dto.getEmail());
 
+		//구글 회원가입 유저일시 예외반환
+		if (user.getProvider().equals("google")){
+			throw new BusinessException(ExceptionType.GOOGLE_PROVIDER);
+		}
+
 		//로그인 성공시 토큰 생성 후 반환
 		String token = jwtUtil.generateToken(user.getEmail(),user.getId(),user.getRole().toString(), user.getProvider());
 
@@ -165,6 +170,12 @@ public class UserServiceImpl implements UserService {
 	public CommonResponseDto updatePassword(Long userId,
 		UserPasswordUpdateRequestDto dto) {
 		User user = userRepository.findByIdOrElseThrow(userId);
+
+		//구글 로그인시 비밀번호 변경 x
+		if (user.getProvider().equals("google")){
+			throw new BusinessException(ExceptionType.GOOGLE_PROVIDER);
+		}
+
 		//패스워드 확인
 		if(!passwordEncoder.matches(dto.getCurrentPassword(),user.getPassword())){
 			throw new BusinessException(ExceptionType.UNAUTHORIZED_PASSWORD);

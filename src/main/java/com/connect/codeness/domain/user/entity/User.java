@@ -45,6 +45,7 @@ public class User extends BaseEntity {
 	private String name;
 
 	@Size(max = 30, message = "이 필드는 최대 {max}자까지 가능합니다.")
+	@Column(nullable = false)
 	private String userNickname;
 
 	@Enumerated(EnumType.STRING)
