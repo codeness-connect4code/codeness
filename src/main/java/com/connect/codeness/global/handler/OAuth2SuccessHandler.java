@@ -76,7 +76,8 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 			String token = jwtUtil.generateToken(
 				user.getEmail(),
 				user.getId(),
-				user.getRole().toString()
+				user.getRole().toString(),
+				user.getProvider()
 			);
 
 			//일련의 과정 완료시 리다이렉트

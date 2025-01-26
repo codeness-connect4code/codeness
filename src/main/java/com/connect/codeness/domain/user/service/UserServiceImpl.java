@@ -83,6 +83,7 @@ public class UserServiceImpl implements UserService {
 			.phoneNumber(dto.getPhoneNumber())
 			.field(dto.getField())
 			.role(dto.getUserRole())
+			.provider("local")
 			.build();
 
 		userRepository.save(user);
@@ -105,7 +106,7 @@ public class UserServiceImpl implements UserService {
 		User user = userRepository.findByEmailOrElseThrow(dto.getEmail());
 
 		//로그인 성공시 토큰 생성 후 반환
-		String token = jwtUtil.generateToken(user.getEmail(),user.getId(),user.getRole().toString());
+		String token = jwtUtil.generateToken(user.getEmail(),user.getId(),user.getRole().toString(), user.getProvider());
 
 		return token;
 	}
