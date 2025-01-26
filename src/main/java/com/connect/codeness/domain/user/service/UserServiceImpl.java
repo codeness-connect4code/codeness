@@ -6,6 +6,7 @@ import com.connect.codeness.domain.file.service.FileServiceImpl;
 import com.connect.codeness.domain.file.entity.ImageFile;
 import com.connect.codeness.domain.mentoringpost.repository.MentoringPostRepository;
 import com.connect.codeness.domain.mentoringpost.dto.MentoringPostRecommendResponseDto;
+import com.connect.codeness.domain.user.dto.GoogleUserUpdateRequestDto;
 import com.connect.codeness.domain.user.dto.LoginRequestDto;
 import com.connect.codeness.domain.user.dto.UserBankUpdateRequestDto;
 import com.connect.codeness.domain.user.dto.UserCreateRequestDto;
@@ -154,6 +155,29 @@ public class UserServiceImpl implements UserService {
 	public CommonResponseDto updateUser(Long userId, UserUpdateRequestDto dto, ImageFile imageFile)
 		throws IOException {
 		User user = userRepository.findByIdOrElseThrow(userId);
+		user.update(dto, imageFile);
+		userRepository.save(user);
+		return CommonResponseDto.builder().msg("유저 수정 완료").build();
+	}
+
+	/**
+	 * 유저 정보 수정
+	 * @param userId
+	 * @param dto
+	 * @param imageFile
+	 * @return
+	 * @throws IOException
+	 */
+	@Override
+	@Transactional
+	public CommonResponseDto updateGoogleUser(Long userId, GoogleUserUpdateRequestDto dto, ImageFile imageFile)
+		throws IOException {
+		User user = userRepository.findByIdOrElseThrow(userId);
+
+		if (!user.getProvider().equals("google")){
+			throw new BusinessException(ExceptionType.BAD_REQUEST);
+		}
+
 		user.update(dto, imageFile);
 		userRepository.save(user);
 		return CommonResponseDto.builder().msg("유저 수정 완료").build();

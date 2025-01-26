@@ -61,6 +61,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 					User newUser = User.builder()
 						.email(email)
 						.name(name)
+						.userNickname(name)
 						.provider("GOOGLE")    //provider - 구글 로그인 의미
 						.role(UserRole.MENTEE)
 						.googleToken(accessToken)  //OAuth2 액세스 토큰도 함께 저장

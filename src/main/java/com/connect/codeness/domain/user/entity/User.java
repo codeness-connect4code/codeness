@@ -2,6 +2,7 @@ package com.connect.codeness.domain.user.entity;
 
 
 import com.connect.codeness.domain.file.entity.ImageFile;
+import com.connect.codeness.domain.user.dto.GoogleUserUpdateRequestDto;
 import com.connect.codeness.domain.user.dto.UserUpdateRequestDto;
 import com.connect.codeness.global.entity.BaseEntity;
 import com.connect.codeness.global.enums.FieldType;
@@ -80,6 +81,7 @@ public class User extends BaseEntity {
 	private List<ImageFile> imageFiles = new ArrayList<>();
 
 	//소셜 로그인 프로바이더 (현재는 구글만 존재)
+	@Column(nullable = false)
 	private String provider;
 
 	//구글 토큰 저장하는 필드
@@ -102,6 +104,18 @@ public class User extends BaseEntity {
 	public User() {}
 
 	public void update(UserUpdateRequestDto dto, ImageFile imageFile) {
+		this.userNickname = dto.getNickname();
+		this.phoneNumber = dto.getPhoneNumber();
+		this.region = dto.getRegion();
+		this.career = dto.getCareer();
+		this.mbti = dto.getMbti();
+		this.siteLink = dto.getSiteLink();
+		this.field = dto.getField();
+		updateImageFiles(imageFile);
+	}
+
+	public void update(GoogleUserUpdateRequestDto dto, ImageFile imageFile) {
+		this.name = dto.getName();
 		this.userNickname = dto.getNickname();
 		this.phoneNumber = dto.getPhoneNumber();
 		this.region = dto.getRegion();
