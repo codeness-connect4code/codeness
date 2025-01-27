@@ -52,7 +52,7 @@ public class ReviewServiceImpl implements ReviewService {
 		PaymentHistory paymentHistory = paymentHistoryRepository.findByIdOrElseThrow(paymentHistoryId);
 
 		//이미 생성된 리뷰인지 확인
-		if(reviewRepository.existsByPaymentHistory(paymentHistory)){
+		if(reviewRepository.existsByPaymentHistoryAndReviewStatus(paymentHistory, ReviewStatus.COMPLETE)){
 			throw new BusinessException(ExceptionType.ALREADY_EXIST_REVIEW);
 		}
 
@@ -127,7 +127,7 @@ public class ReviewServiceImpl implements ReviewService {
 		}
 
 		review.getPaymentHistory().updateReviewStatus(ReviewStatus.NOT_YET);
-		reviewRepository.delete(review);
+		review.updateReviewStatus(ReviewStatus.NOT_YET);
 
 		return CommonResponseDto.builder().msg("리뷰 삭제가 완료되었습니다.").build();
 	}
@@ -143,7 +143,7 @@ public class ReviewServiceImpl implements ReviewService {
 			throw new BusinessException(ExceptionType.UNAUTHORIZED_GET_REQUEST);
 		}
 
-		Review review  = reviewRepository.findByPaymentHistoryId(paymentHistoryId);
+		Review review  = reviewRepository.findByPaymentHistoryIdOrElseThrow(paymentHistoryId, ReviewStatus.COMPLETE);
 
 		ImageFile profileFile = review.getMentoringPost().getUser().getImageFiles().stream()
 			.filter(imageFile -> imageFile.getFileCategory() == FileCategory.PROFILE).findFirst().orElse(null);
