@@ -97,8 +97,10 @@ public class PaymentServiceImpl implements PaymentService {
 
 	/**
 	 * 결제 삭제 메서드
-	 * - 결제 도중 취소하거나 결제가 거절됐을 경우 결제 데이터 삭제
-	 * - TODO : 소프트 딜리트 고려해봐야함
+	 * - 클라이언트에서 결제 도중 취소하거나 결제 창을 빠져나갔을 경우
+	 * - paymentId만 가지고 데이터 삭제를 진행 - 데이터 저장해 둘 필요가 없음
+	 * - TODO : 소프트 딜리트 고려해봐야함, 결제가 거절됐을 경우 결제 데이터 삭제 api 따로 만들어야 함
+	 * -
 	 */
 	@Transactional
 	@Override
@@ -106,19 +108,22 @@ public class PaymentServiceImpl implements PaymentService {
 		//결제(멘토링 신청 내역) 확인
 		Payment payment = paymentRepository.findByIdOrElseThrow(paymentId);
 
+		//해당 결제 삭제
+		paymentRepository.deleteById(paymentId);
+
 		//Iamport api 호출해서 결제 검증
-		IamportResponse<com.siot.IamportRestClient.response.Payment> iamportResponse;
-		try {
-			iamportResponse = iamportClient.paymentByImpUid(requestDto.getImpUid());
-		} catch (Exception e) {
-			throw new BusinessException(ExceptionType.NOT_FOUND_IMPUID);
-		}
+//		IamportResponse<com.siot.IamportRestClient.response.Payment> iamportResponse;
+//		try {
+//			iamportResponse = iamportClient.paymentByImpUid(requestDto.getImpUid());
+//		} catch (Exception e) {
+//			throw new BusinessException(ExceptionType.NOT_FOUND_IMPUID);
+//		}
 
 		//결제 상태 확인
-		if (iamportResponse.getResponse().getPgTid() == null || !"paid".equals(iamportResponse.getResponse().getStatus())) {
-			//결제 실패시 해당 결제 삭제
-			paymentRepository.deleteById(paymentId);
-		}
+//		if (iamportResponse.getResponse().getPgTid() == null || !"paid".equals(iamportResponse.getResponse().getStatus())) {
+//			//결제 실패시 해당 결제 삭제
+//			paymentRepository.deleteById(paymentId);
+//		}
 
 		return CommonResponseDto.builder().msg("결제 데이터가 삭제 되었습니다.").build();
 	}
