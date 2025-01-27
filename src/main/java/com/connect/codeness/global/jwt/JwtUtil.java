@@ -20,11 +20,12 @@ public class JwtUtil {
 	private final long refreshThreshold = 3600000L; // 1시간 (갱신 필요 여부를 판단하는 임계값)
 
 	// JWT 토큰 생성
-	public String generateToken(String email, Long userId, String role) {
+	public String generateToken(String email, Long userId, String role, String provider) {
 		return Jwts.builder()
 			.setSubject(email)
 			.claim("userId", userId)
 			.claim("role", role)
+			.claim("provider",provider)
 			.setIssuedAt(new Date())
 			.setExpiration(new Date(System.currentTimeMillis() + expirationTime))
 			.signWith(SignatureAlgorithm.HS256, secretKey)

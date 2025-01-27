@@ -6,6 +6,7 @@ import com.connect.codeness.domain.file.service.FileServiceImpl;
 import com.connect.codeness.domain.file.entity.ImageFile;
 import com.connect.codeness.domain.mentoringpost.repository.MentoringPostRepository;
 import com.connect.codeness.domain.mentoringpost.dto.MentoringPostRecommendResponseDto;
+import com.connect.codeness.domain.user.dto.GoogleUserUpdateRequestDto;
 import com.connect.codeness.domain.user.dto.LoginRequestDto;
 import com.connect.codeness.domain.user.dto.UserBankUpdateRequestDto;
 import com.connect.codeness.domain.user.dto.UserCreateRequestDto;
@@ -83,6 +84,7 @@ public class UserServiceImpl implements UserService {
 			.phoneNumber(dto.getPhoneNumber())
 			.field(dto.getField())
 			.role(dto.getUserRole())
+			.provider("LOCAL")
 			.build();
 
 		userRepository.save(user);
@@ -104,8 +106,13 @@ public class UserServiceImpl implements UserService {
 
 		User user = userRepository.findByEmailOrElseThrow(dto.getEmail());
 
+		//구글 회원가입 유저일시 예외반환
+		if (user.getProvider().equals("google")){
+			throw new BusinessException(ExceptionType.GOOGLE_PROVIDER);
+		}
+
 		//로그인 성공시 토큰 생성 후 반환
-		String token = jwtUtil.generateToken(user.getEmail(),user.getId(),user.getRole().toString());
+		String token = jwtUtil.generateToken(user.getEmail(),user.getId(),user.getRole().toString(), user.getProvider());
 
 		return token;
 	}
@@ -154,6 +161,29 @@ public class UserServiceImpl implements UserService {
 	}
 
 	/**
+	 *  구글 유저 정보 수정
+	 * @param userId
+	 * @param dto
+	 * @param imageFile
+	 * @return
+	 * @throws IOException
+	 */
+	@Override
+	@Transactional
+	public CommonResponseDto updateGoogleUser(Long userId, GoogleUserUpdateRequestDto dto, ImageFile imageFile)
+		throws IOException {
+		User user = userRepository.findByIdOrElseThrow(userId);
+
+		if (!user.getProvider().equals("GOOGLE")){
+			throw new BusinessException(ExceptionType.BAD_REQUEST);
+		}
+
+		user.update(dto, imageFile);
+		userRepository.save(user);
+		return CommonResponseDto.builder().msg("유저 수정 완료").build();
+	}
+
+	/**
 	 * 유저 비밀번호 변경
 	 * @param userId
 	 * @param dto
@@ -164,6 +194,12 @@ public class UserServiceImpl implements UserService {
 	public CommonResponseDto updatePassword(Long userId,
 		UserPasswordUpdateRequestDto dto) {
 		User user = userRepository.findByIdOrElseThrow(userId);
+
+		//구글 로그인시 비밀번호 변경 x
+		if (user.getProvider().equals("google")){
+			throw new BusinessException(ExceptionType.GOOGLE_PROVIDER);
+		}
+
 		//패스워드 확인
 		if(!passwordEncoder.matches(dto.getCurrentPassword(),user.getPassword())){
 			throw new BusinessException(ExceptionType.UNAUTHORIZED_PASSWORD);

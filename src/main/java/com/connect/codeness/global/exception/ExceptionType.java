@@ -27,6 +27,7 @@ public enum ExceptionType {
 	MENTORING_POST_CREATE_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "멘토링 공고를 생성할 수 없습니다."),
 	INVALID_START_DATE_TIME(HttpStatus.BAD_REQUEST, "시작 날짜와 시간은 현재 날짜 & 시간보다 이후로 설정해야 합니다."),
 	MENTORING_POST_DELETED(HttpStatus.BAD_REQUEST, "삭제된 멘토링 공고입니다."),
+	GOOGLE_PROVIDER(HttpStatus.BAD_REQUEST, "구글 회원가입은 로컬로 로그인이 불가능합니다."),
 
 	// 401 Unauthorized
 	UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증이 필요합니다."),

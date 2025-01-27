@@ -5,6 +5,7 @@ import static com.connect.codeness.global.constants.Constants.AUTHORIZATION;
 import com.connect.codeness.domain.file.repository.FileRepository;
 import com.connect.codeness.domain.file.service.FileService;
 import com.connect.codeness.domain.file.entity.ImageFile;
+import com.connect.codeness.domain.user.dto.GoogleUserUpdateRequestDto;
 import com.connect.codeness.domain.user.repository.UserRepository;
 import com.connect.codeness.domain.user.dto.JwtResponseDto;
 import com.connect.codeness.domain.user.dto.LoginRequestDto;
@@ -17,11 +18,8 @@ import com.connect.codeness.domain.user.service.UserService;
 import com.connect.codeness.global.jwt.JwtUtil;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.enums.FileCategory;
-import com.connect.codeness.global.exception.BusinessException;
-import com.connect.codeness.global.exception.ExceptionType;
 import jakarta.validation.Valid;
 import java.io.IOException;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,13 +28,11 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import retrofit2.http.GET;
 
 @RestController
 @RequestMapping
@@ -134,6 +130,35 @@ public class UserController {
 	}
 
 	/**
+	 * 구글 로그인 유저 전용 회원 정보 수정
+	 * @param authorizationHeader
+	 * @param googleUserUpdateRequestDto
+	 * @return
+	 * @throws IOException
+	 */
+	@PatchMapping("/google/users")
+	public ResponseEntity<CommonResponseDto> updateGoogleUser(
+		@RequestHeader(AUTHORIZATION) String authorizationHeader, @ModelAttribute GoogleUserUpdateRequestDto googleUserUpdateRequestDto
+	)throws IOException{
+		String token = authorizationHeader.substring("Bearer ".length());
+		Long tokenId = jwtUtil.extractUserId(token);
+
+		if (
+			fileRepository.findByUserIdAndFileCategory(tokenId, FileCategory.PROFILE).isPresent()
+		){
+			fileService.deleteFile(tokenId,FileCategory.PROFILE);
+		}
+
+		CommonResponseDto fileDto =
+			fileService.createFile(
+				googleUserUpdateRequestDto.getMultipartFile(), tokenId, FileCategory.PROFILE);
+		ImageFile imageFile = fileRepository.findByUserIdAndFileCategoryOrElseThrow(tokenId, FileCategory.PROFILE);
+		CommonResponseDto dto = userService.updateGoogleUser(tokenId, googleUserUpdateRequestDto, imageFile);
+
+		return new ResponseEntity<>(dto, HttpStatus.OK);
+	}
+
+	/**
 	 * 유저 비밀번호 수정 API
 	 * @param authorizationHeader
 	 * @param userPasswordUpdateRequestDto
@@ -203,4 +228,6 @@ public class UserController {
 		CommonResponseDto commonResponseDto = userService.getMentoring(tokenId);
 		return new ResponseEntity<>(commonResponseDto,HttpStatus.OK);
 	 }
+
+
 }
