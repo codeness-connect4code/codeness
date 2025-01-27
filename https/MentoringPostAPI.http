@@ -40,6 +40,35 @@ Content-Type: application/json
   "userRole" : "MENTEE"
 }
 
+### 회원가입 - 어드민
+POST localhost:8080/signup
+Content-Type: application/json
+
+{
+  "email" : "a123@naver.com",
+  "password" : "asdf1234!@",
+  "name" : "김어드민",
+  "nickname" : "어드민닉네임",
+  "phoneNumber" : "010 - 1234 - 6328",
+  "field" : "FRONTEND",
+  "userRole" : "ADMIN"
+}
+
+### 로그인 - 멘토 어드민
+POST localhost:8080/login
+Content-Type: application/json
+
+{
+  "email" : "a123@naver.com",
+  "password" : "asdf1234!@"
+}
+
+> {%
+  client.global.set("token",response.body.token);
+  client.log("Token saved: " + client.global.get("token"));
+%}
+
+
 ### 로그인 - 멘토 김멘토
 POST localhost:8080/login
 Content-Type: application/json
@@ -93,9 +122,9 @@ Authorization: Bearer {{token}}
 	"field" : "FRONTEND",
 	"career" : 10,
 	"region" : "서울, 경기 남부",
-	"price" : 20000,
-	"startDate" : "2025-01-25",
-	"endDate" : "2025-01-26",
+	"price" : 1,
+	"startDate" : "2025-01-28",
+	"endDate" : "2025-01-29",
 	"startTime" : "11:00",
 	"endTime" : "13:00",
 	"description" : "멘토링 받으러 오세요~😊"
@@ -113,11 +142,11 @@ Authorization: Bearer {{token}}
   "field" : "BACKEND",
   "career" : 5,
   "region" : "서울, 경기 남부",
-  "price" : 20000,
-  "startDate" : "2025-01-24",
-  "endDate" : "2025-01-25",
+  "price" : 1,
+  "startDate" : "2025-01-28",
+  "endDate" : "2025-01-29",
   "startTime" : "20:00",
-  "endTime" : "23:00",
+  "endTime" : "22:00",
   "description" : "멘토링 받으러 오세요~😊"
 }
 

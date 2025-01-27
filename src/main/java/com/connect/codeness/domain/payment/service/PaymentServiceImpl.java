@@ -202,7 +202,7 @@ public class PaymentServiceImpl implements PaymentService {
 
 		//TODO : 멘티가 동일한 멘토의 스케쥴을 여러번 구매할 수 없다 -> 이미 생성된 채팅방이라는 예외가 뜸 -
 		//채팅방 생성 - 로그인한 id, 멘토의 id
-		chatService.createChatRoom(payment.getUser().getId(), chatRoomCreateRequestDto);
+//		chatService.createChatRoom(payment.getUser().getId(), chatRoomCreateRequestDto);
 
 		return CommonResponseDto.builder().msg("결제가 완료되었습니다.").data(payment.getId()).build();
 	}
@@ -268,8 +268,9 @@ public class PaymentServiceImpl implements PaymentService {
 		payment.updatePaymentCanceledAt();
 
 		//채팅방 삭제 - 채팅방 id는 로그인한 유저 id랑 상대 멘토 id 조합 -> ex) 1_2
-		String chatRoomId = chatService.generateChatRoomId(userId, payment.getUser().getId());
-		chatService.deleteChatRoom(userId, chatRoomId);
+		//TODO : 로직 분리
+//		String chatRoomId = chatService.generateChatRoomId(userId, payment.getUser().getId());
+//		chatService.deleteChatRoom(userId, chatRoomId);
 
 		return CommonResponseDto.builder().msg("결제가 환불되었습니다.").build();
 	}
