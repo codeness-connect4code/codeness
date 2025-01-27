@@ -56,9 +56,8 @@ public class Review extends BaseEntity {
 	@Column(nullable = false, length = 300)
 	private String reviewContent;
 
-	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
-	private ReviewStatus reviewStatus;
+	private boolean isDeleted;
 
 	public Review() {
 	}
@@ -71,10 +70,10 @@ public class Review extends BaseEntity {
 		this.user = user;
 		this.starRating = starRating;
 		this.reviewContent = reviewContent;
-		this.reviewStatus = ReviewStatus.COMPLETE;
+		this.isDeleted = false;
 	}
 
-	public void updateReviewStatus(ReviewStatus reviewStatus){
-		this.reviewStatus = reviewStatus;
+	public void delete(){
+		this.isDeleted = true;
 	}
 }

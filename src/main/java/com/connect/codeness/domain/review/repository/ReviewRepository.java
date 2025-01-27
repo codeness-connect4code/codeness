@@ -27,11 +27,24 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 		    SELECT new com.connect.codeness.domain.review.dto.ReviewResponseDto(
 		    r.id, r.user.id, r.reviewContent, r.starRating, r.createdAt)
 		    FROM Review r
-		    WHERE r.mentoringPost.id = :postId AND r.reviewStatus = 'COMPLETE'
+		    WHERE r.mentoringPost.id = :postId AND r.isDeleted = false
 		""")
 	Page<ReviewResponseDto> findByMentoringPostId(@Param("postId") Long postId, Pageable pageable);
 
-	Boolean existsByPaymentHistoryAndReviewStatus(PaymentHistory paymentHistory, ReviewStatus status);
+	@Query("""
+		SELECT r
+		FROM Review r
+		WHERE r.paymentHistory.id = :paymentHistoryId AND r.isDeleted = false
+	""")
+	Optional<Review> findByPaymentHistoryId(@Param("paymentHistoryId") Long  paymentHistoryId);
+
+
+	default Review findByPaymentHistoryIdOrElseThrow(Long paymentHistoryId){
+
+		return findByPaymentHistoryId(paymentHistoryId).orElseThrow(
+			() -> new BusinessException(ExceptionType.NOT_FOUND_REVIEW)
+		);
+	}
 
 	/**
 	 * 평균 별점 조회
@@ -39,17 +52,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 	@Query("""
 		SELECT COALESCE(AVG(r.starRating), 0.0)
 		FROM Review r
-		WHERE  r.mentoringPost.id = :mentoringPostId
+		WHERE  r.mentoringPost.id = :mentoringPostId AND r.isDeleted = false
 	""")
 	Double findAverageStarRatingByMentoringPostId(Long mentoringPostId);
-
-	Optional<Review> findByPaymentHistoryIdAndReviewStatus(Long paymentHistoryId, ReviewStatus status);
-
-	default Review findByPaymentHistoryIdOrElseThrow(Long paymentHistoryId, ReviewStatus status){
-		Review review = findByPaymentHistoryIdAndReviewStatus(paymentHistoryId, status).orElseThrow(
-			() -> new BusinessException(ExceptionType.NOT_FOUND_REVIEW)
-		);
-
-		return review;
-	}
 }
