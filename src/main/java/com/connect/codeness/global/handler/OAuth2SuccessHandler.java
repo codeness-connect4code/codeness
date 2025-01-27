@@ -61,6 +61,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 					User newUser = User.builder()
 						.email(email)
 						.name(name)
+						.userNickname(name)
 						.provider("GOOGLE")    //provider - 구글 로그인 의미
 						.role(UserRole.MENTEE)
 						.googleToken(accessToken)  //OAuth2 액세스 토큰도 함께 저장
@@ -76,12 +77,13 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 			String token = jwtUtil.generateToken(
 				user.getEmail(),
 				user.getId(),
-				user.getRole().toString()
+				user.getRole().toString(),
+				user.getProvider()
 			);
 
 			//일련의 과정 완료시 리다이렉트
 			String redirectUrl = UriComponentsBuilder
-				.fromUriString(System.getenv().getOrDefault("FRONTEND_URL", "http://localhost:3000") + "/payment")
+				.fromUriString(System.getenv().getOrDefault("FRONTEND_URL", "http://localhost:3000"))
 				.queryParam("token", token)
 				.build()
 				.toUriString();

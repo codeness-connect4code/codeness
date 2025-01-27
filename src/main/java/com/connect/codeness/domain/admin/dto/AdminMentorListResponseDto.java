@@ -6,9 +6,11 @@ import lombok.Getter;
 @Getter
 public class AdminMentorListResponseDto {
 
+	private Long userId;
 	private String name;
 
 	public AdminMentorListResponseDto(User user) {
 		this.name = user.getName();
+		this.userId = user.getId();
 	}
 }
