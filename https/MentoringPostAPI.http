@@ -142,11 +142,11 @@ Authorization: Bearer {{token}}
   "field" : "BACKEND",
   "career" : 5,
   "region" : "서울, 경기 남부",
-  "price" : 20000,
-  "startDate" : "2025-01-24",
-  "endDate" : "2025-01-25",
+  "price" : 1,
+  "startDate" : "2025-01-28",
+  "endDate" : "2025-01-29",
   "startTime" : "20:00",
-  "endTime" : "23:00",
+  "endTime" : "22:00",
   "description" : "멘토링 받으러 오세요~😊"
 }
 
