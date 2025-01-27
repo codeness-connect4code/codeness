@@ -92,7 +92,7 @@ public class PostController {
 	}
 
 	// 게시글 수정
-	@PatchMapping("/{postId}")
+	@PatchMapping("/{postId}/update")
 	public ResponseEntity<CommonResponseDto> updatePost(
 		@Valid @RequestBody PostUpdateRequestDto dto,
 		@PathVariable Long postId,
