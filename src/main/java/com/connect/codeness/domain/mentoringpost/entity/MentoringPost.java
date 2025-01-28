@@ -31,7 +31,7 @@ public class MentoringPost extends CreateTimeEntity {
 
 	@ManyToOne
 	@JoinColumn(name = "mentor_id")
-	private User user;//사용자 고유 식별자 (외래키)
+	private User user;//멘토 id
 
 	//TODO : 멘토링 공고가 소프트 딜리트로 변경 - 스케쥴도 상태 추가 고민
 	//멘토링 공고 삭제시, 멘토링 스케쥴도 삭제
