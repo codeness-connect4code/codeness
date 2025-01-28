@@ -1,6 +1,7 @@
 package com.connect.codeness.domain.payment.controller;
 
 
+import static com.connect.codeness.global.constants.Constants.ACCESS_TOKEN;
 import static com.connect.codeness.global.constants.Constants.AUTHORIZATION;
 import com.connect.codeness.domain.payment.dto.PaymentDeleteRequestDto;
 import com.connect.codeness.domain.payment.dto.PaymentRefundRequestDto;
@@ -10,6 +11,7 @@ import com.connect.codeness.domain.payment.service.PaymentService;
 import com.connect.codeness.domain.paymenthistory.service.PaymentHistoryService;
 import com.connect.codeness.global.jwt.JwtProvider;
 import com.connect.codeness.global.dto.CommonResponseDto;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,8 +40,8 @@ public class PaymentController {
 	 * - 멘토링 스케쥴 신청
 	 */
 	@PostMapping("/payments")
-	public ResponseEntity<CommonResponseDto<?>> createPayment(@RequestHeader(AUTHORIZATION) String token,  @RequestBody PaymentRequestDto requestDto){
-		Long userId = jwtProvider.extractUserId(token);
+	public ResponseEntity<CommonResponseDto<?>> createPayment(HttpServletRequest request,  @RequestBody PaymentRequestDto requestDto){
+		Long userId = jwtProvider.getCookieReturnUserId(request, ACCESS_TOKEN);
 
 		CommonResponseDto<?> responseDto = paymentService.createPayment(userId, requestDto);
 
@@ -87,8 +89,8 @@ public class PaymentController {
 	 * - 환불 완료시 채팅방 삭제
 	 */
 	@PostMapping("/payments/{paymentId}/refund")
-	public ResponseEntity<CommonResponseDto<PaymentResponseDto>> refundPayment(@RequestHeader(AUTHORIZATION) String token, @PathVariable Long paymentId, @Valid @RequestBody PaymentRefundRequestDto requestDto){
-		Long userId = jwtProvider.extractUserId(token);
+	public ResponseEntity<CommonResponseDto<PaymentResponseDto>> refundPayment(HttpServletRequest request, @PathVariable Long paymentId, @Valid @RequestBody PaymentRefundRequestDto requestDto){
+		Long userId = jwtProvider.getCookieReturnUserId(request, ACCESS_TOKEN);
 
 		CommonResponseDto<PaymentResponseDto> responseDto = paymentService.refundPayment(userId, paymentId, requestDto);
 
