@@ -19,4 +19,6 @@ public interface ChatRoomHistoryRepository extends JpaRepository<ChatRoomHistory
 
 	@Query("SELECT c.chatRoomId FROM ChatRoomHistory c WHERE c.user.id = :userId")
 	List<String> findChatRoomIdByUserId(@Param("userId") Long userId);
+
+	List<ChatRoomHistory> findByChatRoomId(String chatRoomId);
 }

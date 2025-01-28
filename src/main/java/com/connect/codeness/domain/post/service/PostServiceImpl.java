@@ -18,6 +18,8 @@ import com.connect.codeness.global.enums.UserRole;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
 import jakarta.transaction.Transactional;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -88,6 +90,19 @@ public class PostServiceImpl implements PostService {
 			.build();
 	}
 
+	// 게시글 인기순 조회
+	@Override
+	public CommonResponseDto<List<PostFindAllResponseDto>> findPopularPost() {
+
+		List<PostFindAllResponseDto> postList = postRepository.findTop10ByCreatedAtAfterOrderByViewDesc(
+			LocalDateTime.now().minusDays(14));
+
+		return CommonResponseDto.<List<PostFindAllResponseDto>>builder()
+			.data(postList)
+			.msg("게시글 인기순 조회가 완료되었습니다.")
+			.build();
+	}
+
 	// 게시글 상세 조회
 	@Override
 	@Transactional
@@ -95,12 +110,15 @@ public class PostServiceImpl implements PostService {
 
 		Post post = postRepository.findByIdOrElseThrow(postId);
 
-		ImageFile writerProfile = fileRepository.findByUserId(post.getUser().getId());
+		Long userId = post.getUser().getId();
+
+		ImageFile writerProfile = fileRepository.findByUserId(userId);
 
 		post.increaseView(post.getView());
 
 		PostFindResponseDto postFindResult= PostFindResponseDto.builder()
 			.postId(post.getId())
+			.userId(userId)
 			.title(post.getTitle())
 			.writer(post.getWriter())
 			.view(post.getView())

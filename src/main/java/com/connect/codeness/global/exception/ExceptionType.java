@@ -27,6 +27,7 @@ public enum ExceptionType {
 	MENTORING_POST_CREATE_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "멘토링 공고를 생성할 수 없습니다."),
 	INVALID_START_DATE_TIME(HttpStatus.BAD_REQUEST, "시작 날짜와 시간은 현재 날짜 & 시간보다 이후로 설정해야 합니다."),
 	MENTORING_POST_DELETED(HttpStatus.BAD_REQUEST, "삭제된 멘토링 공고입니다."),
+	GOOGLE_PROVIDER(HttpStatus.BAD_REQUEST, "구글 회원가입은 로컬로 로그인이 불가능합니다."),
 
 	// 401 Unauthorized
 	UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증이 필요합니다."),
@@ -36,6 +37,7 @@ public enum ExceptionType {
 	UNAUTHORIZED_UPDATE_REQUEST(HttpStatus.UNAUTHORIZED, "권한이 없는 수정 요청입니다."),
 	UNAUTHORIZED_GET_REQUEST(HttpStatus.UNAUTHORIZED, "권한이 없는 조회 요청입니다."),
 	INVALID_TOKEN(HttpStatus.UNAUTHORIZED,"유효하지 않은 토큰입니다."),
+	NOT_FOUND_GOOGLE_TOKEN(HttpStatus.UNAUTHORIZED, "구글 토큰이 존재하지 않습니다."),
 
 	// 403 Forbidden
 	FORBIDDEN_ACCESS(HttpStatus.FORBIDDEN, "접근이 거부됐습니다."),

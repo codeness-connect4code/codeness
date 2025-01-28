@@ -1,10 +1,13 @@
 package com.connect.codeness.domain.mentoringpost.service;
 
+import com.connect.codeness.domain.mentoringpost.dto.MyMentoringPostResponseDto;
 import com.connect.codeness.domain.mentoringpost.entity.MentoringPost;
 import com.connect.codeness.domain.mentoringpost.repository.MentoringPostRepository;
 import com.connect.codeness.domain.mentoringpost.dto.MentoringPostCreateRequestDto;
 import com.connect.codeness.domain.mentoringpost.dto.MentoringPostDetailResponseDto;
 import com.connect.codeness.domain.mentoringpost.dto.MentoringPostSearchResponseDto;
+import com.connect.codeness.domain.payment.entity.Payment;
+import com.connect.codeness.domain.payment.repository.PaymentRepository;
 import com.connect.codeness.domain.review.repository.ReviewRepository;
 import com.connect.codeness.global.dto.PaginationResponseDto;
 import com.connect.codeness.domain.mentoringschedule.entity.MentoringSchedule;
@@ -15,6 +18,7 @@ import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.enums.BookedStatus;
 import com.connect.codeness.global.enums.FieldType;
 import com.connect.codeness.global.enums.MentoringPostStatus;
+import com.connect.codeness.global.enums.MentoringScheduleStatus;
 import com.connect.codeness.global.enums.UserRole;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
@@ -40,13 +44,16 @@ public class MentoringPostServiceImpl implements MentoringPostService {
 	private final UserRepository userRepository;
 	private final MentoringScheduleRepository mentoringScheduleRepository;
 	private final ReviewRepository reviewRepository;
+	private final PaymentRepository paymentRepository;
 
 	public MentoringPostServiceImpl(MentoringPostRepository mentoringPostRepository,
-		UserRepository userRepository, MentoringScheduleRepository mentoringScheduleRepository, ReviewRepository reviewRepository) {
+		UserRepository userRepository, MentoringScheduleRepository mentoringScheduleRepository, ReviewRepository reviewRepository,
+		PaymentRepository paymentRepository) {
 		this.mentoringPostRepository = mentoringPostRepository;
 		this.userRepository = userRepository;
 		this.mentoringScheduleRepository = mentoringScheduleRepository;
 		this.reviewRepository = reviewRepository;
+		this.paymentRepository = paymentRepository;
 	}
 
 	/**
@@ -64,7 +71,7 @@ public class MentoringPostServiceImpl implements MentoringPostService {
 		}
 
 		//로그인한 유저가 멘토 공고를 생성했고, 상태가 DISPLAYED면 예외
-		if(mentoringPostRepository.findMentoringPostStatusByUserId(user.getId())){
+		if (mentoringPostRepository.findMentoringPostStatusByUserId(user.getId())) {
 			throw new BusinessException(ExceptionType.MENTORING_POST_CREATE_NOT_ALLOWED);
 		}
 
@@ -72,8 +79,14 @@ public class MentoringPostServiceImpl implements MentoringPostService {
 		LocalDateTime now = LocalDateTime.now();
 
 		//시작 날짜와 시간 검증하기
-		LocalDateTime startDateTime = LocalDateTime.of(requestDto.getStartDate(), requestDto.getStartTime());
-		if(startDateTime.isBefore(now)){
+		LocalDate startDate = requestDto.getStartDate();
+		LocalTime startTime = requestDto.getStartTime();
+		//현재 날짜이면서 현재 시간보다 이전일 경우
+		if (startDate.isEqual(now.toLocalDate()) && startTime.isBefore(now.toLocalTime())) {
+			throw new BusinessException(ExceptionType.INVALID_START_DATE_TIME);
+		}
+		//과거 날짜일 경우
+		if(startDate.isBefore(now.toLocalDate())){
 			throw new BusinessException(ExceptionType.INVALID_START_DATE_TIME);
 		}
 
@@ -126,7 +139,7 @@ public class MentoringPostServiceImpl implements MentoringPostService {
 			.collect(Collectors.toList());
 	}
 
-/**
+	/**
 	 * 멘토링 공고 - 멘토링 스케쥴 생성 서비스 메서드
 	 * - 시간 범위가 하루를 넘어가서 날짜가 바뀌는 경우 처리
 	 */
@@ -147,11 +160,12 @@ public class MentoringPostServiceImpl implements MentoringPostService {
 	/**
 	 * 멘토링 공고 - 멘토링 스케쥴 생성 서비스 메서드
 	 * - 멘토링 스케쥴 단건 생성
+	 * - 멘토링 스케쥴 상태 DISPLAYED
 	 */
 	private MentoringSchedule buildMentoringSchedule(LocalDate date, LocalTime time, MentoringPost mentoringPost) {
 
 		// 날짜 & 시간 합쳐서 LocalDateTime 생성
-		LocalDateTime dateTime = date.atTime(time); 
+		LocalDateTime dateTime = date.atTime(time);
 
 		//날짜 넘어가는 경우
 		if (dateTime.toLocalTime().isBefore(time)) {
@@ -164,6 +178,7 @@ public class MentoringPostServiceImpl implements MentoringPostService {
 			.mentoringDate(dateTime.toLocalDate())
 			.mentoringTime(dateTime.toLocalTime())
 			.bookedStatus(BookedStatus.EMPTY)
+			.mentoringScheduleStatus(MentoringScheduleStatus.DISPLAYED)
 			.build();
 	}
 
@@ -185,12 +200,16 @@ public class MentoringPostServiceImpl implements MentoringPostService {
 		}
 
 		//이미 공고가 삭제 상태라면
-		if(mentoringPost.getMentoringPostStatus().equals(MentoringPostStatus.DELETED)){
+		if (mentoringPost.getMentoringPostStatus().equals(MentoringPostStatus.DELETED)) {
 			throw new BusinessException(ExceptionType.MENTORING_POST_DELETED);
 		}
 
 		//멘토링 공고 삭제로 상태 업데이트
 		mentoringPost.updateStatus(MentoringPostStatus.DELETED);
+
+		//멘토링 스케쥴 조회 & 업데이트
+		List<MentoringSchedule> mentoringSchedules = mentoringScheduleRepository.findByMentoringPostId(mentoringPost.getId());
+		mentoringSchedules.forEach(schedules -> schedules.updateStatus(MentoringScheduleStatus.DELETED));
 
 		return CommonResponseDto.builder().msg("멘토링 공고가 삭제되었습니다.").build();
 	}
@@ -232,9 +251,9 @@ public class MentoringPostServiceImpl implements MentoringPostService {
 	public CommonResponseDto<MentoringPostDetailResponseDto> getMentoringPostDetail(Long mentoringPostId) {
 		//멘토링 공고 조회
 		MentoringPost mentoringPost = mentoringPostRepository.findByIdOrElseThrow(mentoringPostId);
-		
+
 		//멘토링 공고가 삭제 상태이면
-		if(mentoringPost.getMentoringPostStatus().equals(MentoringPostStatus.DELETED)){
+		if (mentoringPost.getMentoringPostStatus().equals(MentoringPostStatus.DELETED)) {
 			throw new BusinessException(ExceptionType.MENTORING_POST_DELETED);
 		}
 
@@ -252,9 +271,82 @@ public class MentoringPostServiceImpl implements MentoringPostService {
 			.price(mentoringPost.getPrice())
 			.description(mentoringPost.getDescription())
 			.starRating(mentoringPostStarRating)
+			.createdAt(mentoringPost.getCreatedAt())
 			.build();
 		return CommonResponseDto.<MentoringPostDetailResponseDto>builder().msg("멘토링 공고 상세 조회되었습니다.").data(mentoringPostResponseDto).build();
 	}
 
+	/**
+	 * 멘토가 생성한 멘토링 공고 조회 서비스 메서드
+	 * - 멘토가 생성한 멘토링 공고 단건 조회
+	 */
+	@Override
+	public CommonResponseDto<MyMentoringPostResponseDto> findMentoringPostByMentorId(Long userId) {
+
+		//유저 조회
+		User user = userRepository.findByIdOrElseThrow(userId);
+		//멘토인지 검증
+		if (user.getRole().equals(UserRole.MENTEE)) {
+			throw new BusinessException(ExceptionType.UNAUTHORIZED_GET_REQUEST);
+		}
+
+		//삭제되지 않은 멘토링 공고 조회
+		MentoringPost mentoringPost = mentoringPostRepository.findByUserIdAndMentoringPostStatus(user.getId(),
+			MentoringPostStatus.DISPLAYED).orElseThrow(() -> new BusinessException(ExceptionType.NOT_FOUND_MENTORING_POST));
+
+		//평균 리뷰 조회
+		Double mentoringPostStarRating = reviewRepository.findAverageStarRatingByMentoringPostId(mentoringPost.getId());
+
+		//DTO 생성
+		MyMentoringPostResponseDto myMentoringPostResponseDto = MyMentoringPostResponseDto.builder()
+			.mentoringPostId(mentoringPost.getId())
+			.userNickname(mentoringPost.getUser().getUserNickname())
+			.field(mentoringPost.getField())
+			.title(mentoringPost.getTitle())
+			.career(mentoringPost.getCareer())
+			.starRating(mentoringPostStarRating)
+			.build();
+
+		return CommonResponseDto.<MyMentoringPostResponseDto>builder().msg("멘토가 생성한 멘토링 공고가 조회되었습니다.").data(myMentoringPostResponseDto)
+			.build();
+	}
+
+	/**
+	 * 멘티가 결제한 멘토링 공고 조회 서비스 메서드
+	 * - 멘티가 결제한 스케쥴의 멘토링 공고를 조회
+	 * - 같은 멘토링 공고가 조회될 시, 중복 제거 후 단건만 조회
+	 */
+	@Override
+	public CommonResponseDto<PaginationResponseDto<MyMentoringPostResponseDto>> findMentoringPostByMenteeId(Long userId, int pageNumber,
+		int pageSize) {
+		//페이징
+		Pageable pageable = PageRequest.of(pageNumber, pageSize);
+
+		//유저 조회
+		User user = userRepository.findByIdOrElseThrow(userId);
+		//멘티인지 검증
+		if (user.getRole().equals(UserRole.MENTOR)) {
+			throw new BusinessException(ExceptionType.UNAUTHORIZED_GET_REQUEST);
+		}
+
+		//결제한 스케쥴 조회
+		List<Long> mentoringScheduleIds = paymentRepository.findMentoringScheduleByUserId(user.getId());
+
+		//스케쥴에 해당하는 멘토링 공고 조회
+		Page<MyMentoringPostResponseDto> myMentoringPostResponseDto = mentoringScheduleRepository.findMentoringPostById(
+			mentoringScheduleIds, pageable);
+
+		//PaginationResponseDto 생성
+		PaginationResponseDto<MyMentoringPostResponseDto> paginationResponseDto = PaginationResponseDto.<MyMentoringPostResponseDto>builder()
+			.content(myMentoringPostResponseDto.getContent())
+			.totalPages(myMentoringPostResponseDto.getTotalPages())
+			.totalElements(myMentoringPostResponseDto.getTotalElements())
+			.pageNumber(myMentoringPostResponseDto.getNumber())
+			.pageSize(myMentoringPostResponseDto.getSize())
+			.build();
+
+		return CommonResponseDto.<PaginationResponseDto<MyMentoringPostResponseDto>>builder().msg("멘티가 결제한 멘토링 공고가 조회되었습니다.")
+			.data(paginationResponseDto).build();
+	}
 
 }

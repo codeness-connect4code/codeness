@@ -10,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -30,13 +31,22 @@ public class ChatRoomHistory extends CreateTimeEntity {
 	@JoinColumn(name = "user_id")
 	private User user;
 
+	@NotNull
+	@Column(nullable = false)
+	private LocalDateTime expireAt;
+
 
 	public ChatRoomHistory() {
 	}
 
 	@Builder
-	public ChatRoomHistory(User user, String chatRoomId) {
+	public ChatRoomHistory(User user, LocalDateTime expireAt, String chatRoomId) {
 		this.user = user;
+		this.expireAt = expireAt;
 		this.chatRoomId = chatRoomId;
+	}
+
+	public void updateExpireAt(LocalDateTime expireAt){
+		this.expireAt = expireAt;
 	}
 }

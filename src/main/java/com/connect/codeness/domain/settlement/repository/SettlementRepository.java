@@ -20,10 +20,10 @@ public interface SettlementRepository extends JpaRepository<Settlement, Long> {
 
 	@Query("""
 			SELECT new com.connect.codeness.domain.admin.dto.AdminSettlementListResponseDto(
-			s.user.id, s.user.name, COUNT(s), SUM(s.paymentHistory.paymentCost), MAX(s.settlementRequestAt))
+			s.user.id, s.user.name, COUNT(s), SUM(s.paymentHistory.paymentCost), MAX(s.settlementRequestAt), s.user.account)
 			FROM Settlement s
 			WHERE s.settlementStatus = :settlementStatus
-			GROUP BY s.user.id, s.user.name 
+			GROUP BY s.user.id, s.user.name
 			ORDER BY MAX(s.settlementRequestAt) DESC
 			""")
 	List<AdminSettlementListResponseDto> findBySettleStatusMentorGroupList(

@@ -30,7 +30,8 @@ public class MentoringScheduleServiceImpl implements MentoringScheduleService {
 	/**
 	 * 멘토링 공고 스케쥴 전체 조회 메서드
 	 * - 상태 & 현재 날짜, 시간은 거르지 않고 조회
-	 * - TODO : 멘토링 공고 스케쥴 상태 추가 고민 (멘토링 공고가 삭제 상태일 경우 중복되는 데이터가 계속 쌓임)
+	 * - DISPLAYED 상태만 조회
+	 * -멘토링 공고 스케쥴 상태 추가 완료 (멘토링 공고가 삭제 상태일 경우 중복되는 데이터가 계속 쌓임)
 	 */
 	@Override
 	public CommonResponseDto<List<MentoringScheduleResponseDto>> getMentoringSchedule(Long mentoringPostId) {
@@ -64,6 +65,7 @@ public class MentoringScheduleServiceImpl implements MentoringScheduleService {
 	/**
 	 * 유효한 멘토링 공고 스케쥴 조회 API
 	 * - 상태 empty & 현재 날짜, 시간 이후의 스케쥴
+	 * - DISPLAYED 상태만 조회 - 멘토링 공고에서 걸러지긴 함
 	 */
 	@Override
 	public CommonResponseDto<List<MentoringScheduleResponseDto>> findMentoringSchedulesByEmptyStatus(Long mentoringPostId) {
@@ -80,7 +82,7 @@ public class MentoringScheduleServiceImpl implements MentoringScheduleService {
 		LocalDate currentDate = LocalDate.now();
 		LocalTime currentTime = LocalTime.now();
 
-		//멘토링 공고 스케쥴 list 조회 - 상태가 empty이고, 현재 날짜 & 시간 이후의 스케쥴만 조회
+		//유효한 멘토링 공고 스케쥴 list 조회 - 상태가 empty이고, 현재 날짜 & 시간 이후의 스케쥴만 조회
 		List<MentoringSchedule> validMentoringSchedules = mentoringScheduleRepository.findValidMentoringSchedules(mentoringPostId,
 			BookedStatus.EMPTY, currentDate, currentTime);
 

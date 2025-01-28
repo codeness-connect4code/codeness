@@ -1,24 +1,24 @@
 package com.connect.codeness.domain.settlement.controller;
 
-import static com.connect.codeness.global.constants.Constants.AUTHORIZATION;
+import static com.connect.codeness.global.constants.Constants.ACCESS_TOKEN;
 
 import com.connect.codeness.domain.settlement.service.SettlementService;
 import com.connect.codeness.global.dto.CommonResponseDto;
+import com.connect.codeness.global.jwt.JwtProvider;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
-import com.connect.codeness.global.jwt.JwtUtil;
 
 @RestController
 public class SettlementController {
 
-	private final JwtUtil jwtUtil;
+	private final JwtProvider jwtProvider;
 	private final SettlementService settlementService;
 
-	public SettlementController(JwtUtil jwtUtil, SettlementService settlementService) {
-		this.jwtUtil = jwtUtil;
+	public SettlementController(JwtProvider jwtProvider, SettlementService settlementService) {
+		this.jwtProvider = jwtProvider;
 		this.settlementService = settlementService;
 	}
 
@@ -29,10 +29,10 @@ public class SettlementController {
 	 * - 사용자 계좌, 은행명은 유저 테이블쪽에서 가져오기
 	 */
 	@PatchMapping("/mentors/mentoring/payment-history/settles")
-	public ResponseEntity<CommonResponseDto> requestSettlement(@RequestHeader(AUTHORIZATION) String token){
-		Long userId = jwtUtil.extractUserId(token);
+	public ResponseEntity<CommonResponseDto<?>> requestSettlement(HttpServletRequest request){
+		Long userId = jwtProvider.getCookieReturnUserId(request, ACCESS_TOKEN);
 
-		CommonResponseDto responseDto = settlementService.requestSettlement(userId);
+		CommonResponseDto<?> responseDto = settlementService.requestSettlement(userId);
 		return new ResponseEntity<>(responseDto, HttpStatus.OK);
 	}
 

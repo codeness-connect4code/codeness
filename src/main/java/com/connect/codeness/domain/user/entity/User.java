@@ -2,9 +2,11 @@ package com.connect.codeness.domain.user.entity;
 
 
 import com.connect.codeness.domain.file.entity.ImageFile;
+import com.connect.codeness.domain.user.dto.GoogleUserUpdateRequestDto;
 import com.connect.codeness.domain.user.dto.UserUpdateRequestDto;
 import com.connect.codeness.global.entity.BaseEntity;
 import com.connect.codeness.global.enums.FieldType;
+import com.connect.codeness.global.enums.UserProvider;
 import com.connect.codeness.global.enums.UserRole;
 import com.connect.codeness.global.enums.UserStatus;
 import jakarta.persistence.CascadeType;
@@ -45,6 +47,7 @@ public class User extends BaseEntity {
 	private String name;
 
 	@Size(max = 30, message = "이 필드는 최대 {max}자까지 가능합니다.")
+	@Column(nullable = false)
 	private String userNickname;
 
 	@Enumerated(EnumType.STRING)
@@ -78,10 +81,15 @@ public class User extends BaseEntity {
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<ImageFile> imageFiles = new ArrayList<>();
 
-	private String provider;
+	//소셜 로그인 프로바이더 (현재는 구글만 존재)
+	@Column(nullable = false)
+	private UserProvider provider;
+
+	//구글 토큰 저장하는 필드
+	private String googleToken;
 
 	@Builder
-	public User(String email, String password,String name, String userNickname, String phoneNumber, FieldType field, UserRole role, String provider) {
+	public User(String email, String password,String name, String userNickname, String phoneNumber, FieldType field, UserRole role, UserProvider provider, String googleToken) {
 		this.email = email;
 		this.password = password;
 		this.name = name;
@@ -91,11 +99,24 @@ public class User extends BaseEntity {
 		this.role = role;
 		this.userStatus = UserStatus.ACTIVE;
 		this.provider = provider;
+		this.googleToken = googleToken;
 	}
 
 	public User() {}
 
 	public void update(UserUpdateRequestDto dto, ImageFile imageFile) {
+		this.userNickname = dto.getNickname();
+		this.phoneNumber = dto.getPhoneNumber();
+		this.region = dto.getRegion();
+		this.career = dto.getCareer();
+		this.mbti = dto.getMbti();
+		this.siteLink = dto.getSiteLink();
+		this.field = dto.getField();
+		updateImageFiles(imageFile);
+	}
+
+	public void update(GoogleUserUpdateRequestDto dto, ImageFile imageFile) {
+		this.name = dto.getName();
 		this.userNickname = dto.getNickname();
 		this.phoneNumber = dto.getPhoneNumber();
 		this.region = dto.getRegion();
@@ -126,4 +147,6 @@ public class User extends BaseEntity {
 	public void updateRole(UserRole userRole) {
 		this.role = userRole;
 	}
+
+	public void updateGoogleToken(String googleToken) {this.googleToken = googleToken;}
 }
