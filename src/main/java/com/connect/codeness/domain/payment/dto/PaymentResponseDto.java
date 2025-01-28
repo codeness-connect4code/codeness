@@ -1,8 +1,15 @@
 package com.connect.codeness.domain.payment.dto;
 
-/**
- * TODO : 필요없으면 지우기
- */
+import lombok.Builder;
+import lombok.Getter;
+
+@Getter
+@Builder
 public class PaymentResponseDto {
 
+		private final Long paymentHistoryId; //결제내역 id
+
+	public PaymentResponseDto(Long paymentHistoryId) {
+		this.paymentHistoryId = paymentHistoryId;
+	}
 }

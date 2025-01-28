@@ -29,10 +29,10 @@ public class SettlementController {
 	 * - 사용자 계좌, 은행명은 유저 테이블쪽에서 가져오기
 	 */
 	@PatchMapping("/mentors/mentoring/payment-history/settles")
-	public ResponseEntity<CommonResponseDto> requestSettlement(@RequestHeader(AUTHORIZATION) String token){
+	public ResponseEntity<CommonResponseDto<?>> requestSettlement(@RequestHeader(AUTHORIZATION) String token){
 		Long userId = jwtUtil.extractUserId(token);
 
-		CommonResponseDto responseDto = settlementService.requestSettlement(userId);
+		CommonResponseDto<?> responseDto = settlementService.requestSettlement(userId);
 		return new ResponseEntity<>(responseDto, HttpStatus.OK);
 	}
 
