@@ -11,6 +11,8 @@ public class PostFindResponseDto {
 
 	private Long postId;
 
+	private Long userId;
+
 	private String writer;
 
 	private String writerProfileUrl;

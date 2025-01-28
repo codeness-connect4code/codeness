@@ -60,7 +60,7 @@ public class PaymentHistoryServiceImpl implements PaymentHistoryService {
 			return CommonResponseDto.<List<PaymentHistoryMenteeResponseDto>>builder()
 				.msg("멘티 결제 내역이 전체 조회 되었습니다.").data(paymentHistoryMenteeResponseDtos).build();
 		}
-		//멘토의 경우 TODO : 멘토의 경우에는 자신이 올린 멘토링 공고에 대한 결제 내역이 조회되어야 함
+		//멘토의 경우
 		if(user.getRole().equals(UserRole.MENTOR)){
 			//로그인한 userId로 결제내역 list를 조회
 			List<PaymentHistory> paymentHistoryList =  paymentHistoryRepository.findAllByUserId(userId);
