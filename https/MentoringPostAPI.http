@@ -171,7 +171,7 @@ GET localhost:8080/mentoring/10
 Content-Type: application/json
 
 ### 멘토링 공고 삭제하기
-PATCH localhost:8080/mentoring/1
+PATCH localhost:8080/mentoring/3
 Content-Type: application/json
 Authorization: Bearer {{token}}
 

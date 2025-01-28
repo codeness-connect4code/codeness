@@ -79,7 +79,9 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "partnerId" : 2
+  "partnerId" : 2,
+  "mentoringDate": "2025-01-29",
+  "mentoringTime": "23:00"
 }
 
 
