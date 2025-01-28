@@ -1,6 +1,7 @@
 package com.connect.codeness.domain.comment.controller;
 
 
+import static com.connect.codeness.global.constants.Constants.ACCESS_TOKEN;
 import static com.connect.codeness.global.constants.Constants.AUTHORIZATION;
 import static com.connect.codeness.global.constants.Constants.PAGE_NUMBER;
 import static com.connect.codeness.global.constants.Constants.PAGE_SIZE;
@@ -11,6 +12,7 @@ import com.connect.codeness.domain.comment.service.CommentService;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.dto.PaginationResponseDto;
 import com.connect.codeness.global.jwt.JwtProvider;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -44,9 +46,9 @@ public class CommentController {
 	public ResponseEntity<CommonResponseDto> createComment(
 		@PathVariable("postId") Long postId,
 		@Valid @RequestBody CommentCreateRequestDto dto,
-		@RequestHeader(AUTHORIZATION) String token){
+		HttpServletRequest request){
 
-		Long userId = jwtProvider.extractUserId(token);
+		Long userId = jwtProvider.getCookieReturnUserId(request,ACCESS_TOKEN);
 
 		CommonResponseDto responseDto = commentService.createComment(postId, userId, dto);
 
@@ -70,9 +72,9 @@ public class CommentController {
 	public ResponseEntity updateComment(
 		@PathVariable("commentId") Long commentId,
 		@Valid @RequestBody CommentCreateRequestDto dto,
-		@RequestHeader(AUTHORIZATION) String token) {
+		HttpServletRequest request){
 
-		Long userId = jwtProvider.extractUserId(token);
+		Long userId = jwtProvider.getCookieReturnUserId(request,ACCESS_TOKEN);
 
 		CommonResponseDto responseDto = commentService.updateComment(commentId, userId, dto);
 
@@ -82,9 +84,9 @@ public class CommentController {
 	@DeleteMapping("comments/{commentId}")
 	public ResponseEntity deleteComment(
 		@PathVariable("commentId") Long commentId,
-		@RequestHeader(AUTHORIZATION) String token) {
+		HttpServletRequest request) {
 
-		Long userId = jwtProvider.extractUserId(token);
+		Long userId = jwtProvider.getCookieReturnUserId(request,ACCESS_TOKEN);
 
 		CommonResponseDto responseDto = commentService.deleteComment(commentId, userId);
 
