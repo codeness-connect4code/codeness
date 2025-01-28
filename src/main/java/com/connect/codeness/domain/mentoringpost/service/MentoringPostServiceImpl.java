@@ -18,6 +18,7 @@ import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.enums.BookedStatus;
 import com.connect.codeness.global.enums.FieldType;
 import com.connect.codeness.global.enums.MentoringPostStatus;
+import com.connect.codeness.global.enums.MentoringScheduleStatus;
 import com.connect.codeness.global.enums.UserRole;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
@@ -78,8 +79,14 @@ public class MentoringPostServiceImpl implements MentoringPostService {
 		LocalDateTime now = LocalDateTime.now();
 
 		//시작 날짜와 시간 검증하기
-		LocalDateTime startDateTime = LocalDateTime.of(requestDto.getStartDate(), requestDto.getStartTime());
-		if (startDateTime.isBefore(now)) {
+		LocalDate startDate = requestDto.getStartDate();
+		LocalTime startTime = requestDto.getStartTime();
+		//현재 날짜이면서 현재 시간보다 이전일 경우
+		if (startDate.isEqual(now.toLocalDate()) && startTime.isBefore(now.toLocalTime())) {
+			throw new BusinessException(ExceptionType.INVALID_START_DATE_TIME);
+		}
+		//과거 날짜일 경우
+		if(startDate.isBefore(now.toLocalDate())){
 			throw new BusinessException(ExceptionType.INVALID_START_DATE_TIME);
 		}
 
@@ -153,6 +160,7 @@ public class MentoringPostServiceImpl implements MentoringPostService {
 	/**
 	 * 멘토링 공고 - 멘토링 스케쥴 생성 서비스 메서드
 	 * - 멘토링 스케쥴 단건 생성
+	 * - 멘토링 스케쥴 상태 DISPLAYED
 	 */
 	private MentoringSchedule buildMentoringSchedule(LocalDate date, LocalTime time, MentoringPost mentoringPost) {
 
@@ -170,6 +178,7 @@ public class MentoringPostServiceImpl implements MentoringPostService {
 			.mentoringDate(dateTime.toLocalDate())
 			.mentoringTime(dateTime.toLocalTime())
 			.bookedStatus(BookedStatus.EMPTY)
+			.mentoringScheduleStatus(MentoringScheduleStatus.DISPLAYED)
 			.build();
 	}
 
@@ -197,6 +206,10 @@ public class MentoringPostServiceImpl implements MentoringPostService {
 
 		//멘토링 공고 삭제로 상태 업데이트
 		mentoringPost.updateStatus(MentoringPostStatus.DELETED);
+
+		//멘토링 스케쥴 조회 & 업데이트
+		List<MentoringSchedule> mentoringSchedules = mentoringScheduleRepository.findByMentoringPostId(mentoringPost.getId());
+		mentoringSchedules.forEach(schedules -> schedules.updateStatus(MentoringScheduleStatus.DELETED));
 
 		return CommonResponseDto.builder().msg("멘토링 공고가 삭제되었습니다.").build();
 	}

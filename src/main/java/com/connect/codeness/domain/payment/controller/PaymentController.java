@@ -5,6 +5,7 @@ import static com.connect.codeness.global.constants.Constants.AUTHORIZATION;
 import com.connect.codeness.domain.payment.dto.PaymentDeleteRequestDto;
 import com.connect.codeness.domain.payment.dto.PaymentRefundRequestDto;
 import com.connect.codeness.domain.payment.dto.PaymentRequestDto;
+import com.connect.codeness.domain.payment.dto.PaymentResponseDto;
 import com.connect.codeness.domain.payment.service.PaymentService;
 import com.connect.codeness.domain.paymenthistory.service.PaymentHistoryService;
 import com.connect.codeness.global.jwt.JwtUtil;
@@ -37,22 +38,34 @@ public class PaymentController {
 	 * - 멘토링 스케쥴 신청
 	 */
 	@PostMapping("/payments")
-	public ResponseEntity<CommonResponseDto> createPayment(@RequestHeader(AUTHORIZATION) String token,  @RequestBody PaymentRequestDto requestDto){
+	public ResponseEntity<CommonResponseDto<?>> createPayment(@RequestHeader(AUTHORIZATION) String token,  @RequestBody PaymentRequestDto requestDto){
 		Long userId = jwtUtil.extractUserId(token);
 
-		CommonResponseDto responseDto = paymentService.createPayment(userId, requestDto);
+		CommonResponseDto<?> responseDto = paymentService.createPayment(userId, requestDto);
 
 		return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
 	}
 
 	/**
-	 * 결제 삭제 API
-	 * - 결제 거절시 결제 데이터 삭제 메서드
+	 * 결제 취소시 삭제 API
+	 * - 클라이언트에서 결제 도중 취소하거나 결제 창을 빠져나가 결제가 중단 되었을 경우
 	 */
-	@DeleteMapping("/payments/{paymentId}")
-	public ResponseEntity<CommonResponseDto> deletePayment(@PathVariable Long paymentId, @Valid @RequestBody PaymentDeleteRequestDto requestDto){
+	@DeleteMapping("/payments/{paymentId}/cancel")
+	public ResponseEntity<CommonResponseDto<?>> deletePaymentOnCancel(@PathVariable Long paymentId){
 
-		CommonResponseDto responseDto = paymentService.deletePayment(paymentId, requestDto);
+		CommonResponseDto<?> responseDto = paymentService.deletePaymentOnCancel(paymentId);
+
+		return new ResponseEntity<>(responseDto, HttpStatus.OK);
+	}
+
+	/**
+	 * 결제 거절시 삭제 API
+	 * - 결제 진행시, 잔액 부족 등으로 결제가 거절되었을 경우 결제 데이터 삭제
+	 */
+	@DeleteMapping("/payments/{paymentId}/rejection")
+	public ResponseEntity<CommonResponseDto<?>> deletePaymentOnRejection(@PathVariable Long paymentId, @Valid @RequestBody PaymentDeleteRequestDto requestDto){
+
+		CommonResponseDto<?> responseDto = paymentService.deletePaymentOnRejection(paymentId, requestDto);
 
 		return new ResponseEntity<>(responseDto, HttpStatus.OK);
 	}
@@ -62,9 +75,9 @@ public class PaymentController {
 	 * - 검증 완료시 채팅방 생성
 	 */
 	@PostMapping("/payments/{paymentId}/verify")
-	public ResponseEntity<CommonResponseDto> verifyPayment(@PathVariable Long paymentId, @Valid @RequestBody PaymentRequestDto requestDto){
+	public ResponseEntity<CommonResponseDto<PaymentResponseDto>> verifyPayment(@PathVariable Long paymentId, @Valid @RequestBody PaymentRequestDto requestDto){
 
-		CommonResponseDto responseDto = paymentService.verifyPayment(paymentId, requestDto);
+		CommonResponseDto<PaymentResponseDto> responseDto = paymentService.verifyPayment(paymentId, requestDto);
 
 		return new ResponseEntity<>(responseDto, HttpStatus.OK);
 	}
@@ -74,10 +87,10 @@ public class PaymentController {
 	 * - 환불 완료시 채팅방 삭제
 	 */
 	@PostMapping("/payments/{paymentId}/refund")
-	public ResponseEntity<CommonResponseDto> refundPayment(@RequestHeader(AUTHORIZATION) String token, @PathVariable Long paymentId, @Valid @RequestBody PaymentRefundRequestDto requestDto){
+	public ResponseEntity<CommonResponseDto<PaymentResponseDto>> refundPayment(@RequestHeader(AUTHORIZATION) String token, @PathVariable Long paymentId, @Valid @RequestBody PaymentRefundRequestDto requestDto){
 		Long userId = jwtUtil.extractUserId(token);
 
-		CommonResponseDto responseDto = paymentService.refundPayment(userId, paymentId, requestDto);
+		CommonResponseDto<PaymentResponseDto> responseDto = paymentService.refundPayment(userId, paymentId, requestDto);
 
 	return new ResponseEntity<>(responseDto, HttpStatus.OK);
 	}
