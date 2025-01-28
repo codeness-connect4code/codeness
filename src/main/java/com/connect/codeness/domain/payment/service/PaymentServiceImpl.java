@@ -280,7 +280,7 @@ public class PaymentServiceImpl implements PaymentService {
 
 		//dto 생성
 		PaymentResponseDto paymentResponseDto = PaymentResponseDto.builder()
-			.partnerId(mentoringSchedule.getMentoringPost().getUser().getId())
+			.partnerId(paymentHistory.getUser().getId())
 			.mentoringDate(payment.getMentoringSchedule().getMentoringDate())
 			.mentoringTime(payment.getMentoringSchedule().getMentoringTime())
 			.build();
