@@ -1,7 +1,10 @@
 package com.connect.codeness.domain.user.service;
 
+import static com.connect.codeness.global.constants.Constants.ACCESS_TOKEN;
 import static com.connect.codeness.global.constants.Constants.ACCESS_TOKEN_EXPIRATION;
+import static com.connect.codeness.global.constants.Constants.REFRESH_TOKEN;
 import static com.connect.codeness.global.constants.Constants.REFRESH_TOKEN_EXPIRATION;
+import static com.connect.codeness.global.enums.UserProvider.GOOGLE;
 
 import com.connect.codeness.domain.file.entity.ImageFile;
 import com.connect.codeness.domain.file.repository.FileRepository;
@@ -80,9 +83,15 @@ public class UserServiceImpl implements UserService {
 
 		//user 객체 생성 후 DB에 저장
 		new User();
-		User user = User.builder().email(dto.getEmail()).password(encodedPassword)
-			.name(dto.getName()).userNickname(dto.getNickname()).phoneNumber(dto.getPhoneNumber())
-			.field(dto.getField()).role(dto.getUserRole()).provider("LOCAL").build();
+		User user = User.builder()
+			.email(dto.getEmail())
+			.password(encodedPassword)
+			.name(dto.getName())
+			.userNickname(dto.getNickname())
+			.phoneNumber(dto.getPhoneNumber())
+			.field(dto.getField())
+			.role(dto.getUserRole())
+			.provider(UserProvider.LOCAL).build();
 
 		userRepository.save(user);
 
@@ -104,7 +113,7 @@ public class UserServiceImpl implements UserService {
 		User user = userRepository.findByEmailOrElseThrow(dto.getEmail());
 
 		//구글 회원가입 유저일시 예외반환
-		if (user.getProvider().equals(UserProvider.GOOGLE)) {
+		if (user.getProvider().equals(GOOGLE)) {
 			throw new BusinessException(ExceptionType.GOOGLE_PROVIDER);
 		}
 
@@ -115,8 +124,8 @@ public class UserServiceImpl implements UserService {
 
 		// 두 토큰을 각각 HTTP-Only 쿠키에 저장
 		response.addCookie(
-			jwtProvider.createHttpOnlyCookie("access_token", accessToken, ACCESS_TOKEN_EXPIRATION));
-		response.addCookie(jwtProvider.createHttpOnlyCookie("refresh_token", refreshToken,
+			jwtProvider.createHttpOnlyCookie(ACCESS_TOKEN, accessToken, ACCESS_TOKEN_EXPIRATION));
+		response.addCookie(jwtProvider.createHttpOnlyCookie(REFRESH_TOKEN, refreshToken,
 			REFRESH_TOKEN_EXPIRATION));
 
 		return accessToken;
@@ -151,8 +160,8 @@ public class UserServiceImpl implements UserService {
 	 */
 	@Override
 	@Transactional
-	public CommonResponseDto<?> updateUser(Long userId, UserUpdateRequestDto dto, ImageFile imageFile)
-		throws IOException {
+	public CommonResponseDto<?> updateUser(Long userId, UserUpdateRequestDto dto,
+		ImageFile imageFile) throws IOException {
 		User user = userRepository.findByIdOrElseThrow(userId);
 		user.update(dto, imageFile);
 		userRepository.save(user);
@@ -174,7 +183,7 @@ public class UserServiceImpl implements UserService {
 		ImageFile imageFile) throws IOException {
 		User user = userRepository.findByIdOrElseThrow(userId);
 
-		if (!user.getProvider().equals("GOOGLE")) {
+		if (!user.getProvider().equals(UserProvider.GOOGLE)) {
 			throw new BusinessException(ExceptionType.BAD_REQUEST);
 		}
 
@@ -196,7 +205,7 @@ public class UserServiceImpl implements UserService {
 		User user = userRepository.findByIdOrElseThrow(userId);
 
 		//구글 로그인시 비밀번호 변경 x
-		if (user.getProvider().equals("google")) {
+		if (user.getProvider().equals(UserProvider.GOOGLE)) {
 			throw new BusinessException(ExceptionType.GOOGLE_PROVIDER);
 		}
 

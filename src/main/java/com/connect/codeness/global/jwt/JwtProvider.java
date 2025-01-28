@@ -11,6 +11,8 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Date;
 import javax.crypto.SecretKey;
 import org.springframework.stereotype.Component;
@@ -180,6 +182,24 @@ public class JwtProvider {
 		cookie.setPath("/");
 		cookie.setMaxAge(maxAge);
 		return cookie;
+	}
+
+	public Long getCookieReturnUserId(HttpServletRequest request, String name) {
+		String token = null;
+		Cookie[] cookies = request.getCookies();
+		if (cookies != null) {
+			for (Cookie cookie : cookies) {
+				if (cookie.getName().equals(name)) {
+					token = cookie.getValue();
+					break;
+				}
+			}
+		}
+
+		if (token == null) {
+			throw new BusinessException(ExceptionType.INVALID_TOKEN);
+		}
+		return extractUserId(token);
 	}
 
 //	// JWT 토큰 만료 여부 체크
