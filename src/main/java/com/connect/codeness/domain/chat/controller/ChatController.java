@@ -1,5 +1,6 @@
 package com.connect.codeness.domain.chat.controller;
 
+import static com.connect.codeness.global.constants.Constants.ACCESS_TOKEN;
 import static com.connect.codeness.global.constants.Constants.AUTHORIZATION;
 
 import com.connect.codeness.domain.chat.dto.ChatCreateRequestDto;
@@ -9,6 +10,7 @@ import com.connect.codeness.domain.chat.dto.ChatRoomDto;
 import com.connect.codeness.domain.chat.service.ChatService;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.jwt.JwtProvider;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,10 +39,10 @@ public class ChatController {
 	//채팅방 생성
 	@PostMapping
 	public ResponseEntity<CommonResponseDto> createChatRoom(
-		@RequestHeader(AUTHORIZATION) String token,
+		HttpServletRequest request,
 		@RequestBody ChatRoomCreateRequestDto dto
 	) {
-		Long userId = jwtProvider.extractUserId(token);
+		Long userId = jwtProvider.getCookieReturnUserId(request,ACCESS_TOKEN);
 		CommonResponseDto responseDto = chatService.createChatRoom(userId, dto);
 
 		return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
@@ -49,10 +51,10 @@ public class ChatController {
 	//채팅 보내기
 	@PostMapping("/chat")
 	public ResponseEntity<CommonResponseDto> sendMessage(
-		@RequestHeader(AUTHORIZATION) String token,
+		HttpServletRequest request,
 		@RequestBody ChatCreateRequestDto dto
 	) {
-		Long userId = jwtProvider.extractUserId(token);
+		Long userId = jwtProvider.getCookieReturnUserId(request,ACCESS_TOKEN);
 
 		CommonResponseDto commonResponseDto = chatService.sendMessage(userId, dto);
 
@@ -63,9 +65,9 @@ public class ChatController {
 	//채팅방 목록 보여주기
 	@GetMapping
 	public ResponseEntity<CommonResponseDto<List<ChatRoomDto>>> getChatRooms(
-		@RequestHeader(AUTHORIZATION) String token
+		HttpServletRequest request
 	) {
-		Long userId = jwtProvider.extractUserId(token);
+		Long userId = jwtProvider.getCookieReturnUserId(request,ACCESS_TOKEN);
 
 		CommonResponseDto<List<ChatRoomDto>> responseDto
 			= chatService.getChatRooms(userId);
@@ -76,10 +78,10 @@ public class ChatController {
 	//채팅방 상세 조회
 	@GetMapping("/{chatRoomId}")
 	public ResponseEntity<CommonResponseDto<List<ChatMessageDto>>> getChats(
-		@RequestHeader(AUTHORIZATION) String token,
+		HttpServletRequest request,
 		@PathVariable String chatRoomId
 	) {
-		Long userId = jwtProvider.extractUserId(token);
+		Long userId = jwtProvider.getCookieReturnUserId(request,ACCESS_TOKEN);
 
 		CommonResponseDto<List<ChatMessageDto>> responseDto
 			= chatService.getChats(userId, chatRoomId);
@@ -89,11 +91,11 @@ public class ChatController {
 
 	@DeleteMapping("/{chatRoomId}")
 	public ResponseEntity<CommonResponseDto> deleteChatRoom(
-		@RequestHeader(AUTHORIZATION) String token,
+		HttpServletRequest request,
 		@PathVariable String chatRoomId
 	) {
 
-		Long userId = jwtProvider.extractUserId(token);
+		Long userId = jwtProvider.getCookieReturnUserId(request,ACCESS_TOKEN);
 
 		CommonResponseDto responseDto = chatService.deleteChatRoom(userId, chatRoomId);
 

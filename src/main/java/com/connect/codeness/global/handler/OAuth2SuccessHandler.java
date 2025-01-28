@@ -4,6 +4,7 @@ import static com.connect.codeness.global.constants.Constants.FRONTEND_URL;
 
 import com.connect.codeness.domain.user.entity.User;
 import com.connect.codeness.domain.user.repository.UserRepository;
+import com.connect.codeness.global.enums.UserProvider;
 import com.connect.codeness.global.enums.UserRole;
 import com.connect.codeness.global.jwt.JwtProvider;
 import jakarta.servlet.http.Cookie;
@@ -57,7 +58,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 					.email(email)
 					.name(name)
 					.userNickname(name)
-					.provider("GOOGLE")
+					.provider(UserProvider.GOOGLE)
 					.role(UserRole.MENTEE)
 					.googleToken(accessToken).build();
 				return userRepository.save(newUser);
@@ -68,7 +69,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
 			// JWT 생성
 			String jwtAccessToken = jwtProvider.generateAccessToken(user.getEmail(), user.getId(),
-				user.getRole().toString(), user.getProvider());
+				user.getRole().toString(), user.getProvider().toString());
 
 			String jwtRefreshToken = jwtProvider.generateRefreshToken(user.getId());
 
