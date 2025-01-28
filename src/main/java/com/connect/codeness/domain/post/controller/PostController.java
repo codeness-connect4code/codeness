@@ -1,5 +1,6 @@
 package com.connect.codeness.domain.post.controller;
 
+import static com.connect.codeness.global.constants.Constants.ACCESS_TOKEN;
 import static com.connect.codeness.global.constants.Constants.AUTHORIZATION;
 import static com.connect.codeness.global.constants.Constants.PAGE_NUMBER;
 import static com.connect.codeness.global.constants.Constants.PAGE_SIZE;
@@ -13,6 +14,7 @@ import com.connect.codeness.global.dto.PaginationResponseDto;
 import com.connect.codeness.global.jwt.JwtProvider;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.enums.PostType;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.data.domain.PageRequest;
@@ -47,9 +49,9 @@ public class PostController {
 	@PostMapping
 	public ResponseEntity<CommonResponseDto> createPost(
 		@Valid @RequestBody PostCreateRequestDto dto,
-		@RequestHeader("Authorization") String token) {
+		HttpServletRequest request) {
 
-		Long userId = jwtProvider.extractUserId(token);
+		Long userId = jwtProvider.getCookieReturnUserId(request, ACCESS_TOKEN);
 
 		CommonResponseDto responseDto = postService.createPost(userId, dto);
 
@@ -96,9 +98,9 @@ public class PostController {
 	public ResponseEntity<CommonResponseDto> updatePost(
 		@Valid @RequestBody PostUpdateRequestDto dto,
 		@PathVariable Long postId,
-		@RequestHeader(AUTHORIZATION) String token) {
+		HttpServletRequest request) {
 
-		Long userId = jwtProvider.extractUserId(token);
+		Long userId = jwtProvider.getCookieReturnUserId(request, ACCESS_TOKEN);
 
 		CommonResponseDto responseDto = postService.updatePost(userId, postId, dto);
 
@@ -108,9 +110,9 @@ public class PostController {
 	@DeleteMapping("/{postId}")
 	public ResponseEntity<CommonResponseDto> deletePost(
 		@PathVariable Long postId,
-		@RequestHeader(AUTHORIZATION) String token) {
+		HttpServletRequest request) {
 
-		Long userId = jwtProvider.extractUserId(token);
+		Long userId = jwtProvider.getCookieReturnUserId(request, ACCESS_TOKEN);
 
 		CommonResponseDto responseDto = postService.deletePost(userId, postId);
 
