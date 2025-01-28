@@ -212,7 +212,9 @@ public class PaymentServiceImpl implements PaymentService {
 
 		//dto 생성
 		PaymentResponseDto paymentResponseDto = PaymentResponseDto.builder()
-			.paymentHistoryId(paymentHistory.getId())
+			.partnerId(mentor.getId())
+			.mentoringDate(payment.getMentoringSchedule().getMentoringDate())
+			.mentoringTime(payment.getMentoringSchedule().getMentoringTime())
 			.build();
 
 		//TODO : 멘티가 동일한 멘토의 스케쥴을 여러번 구매할 수 없다 -> 이미 생성된 채팅방이라는 예외가 뜸 -> 채팅 쪽에서 처리해야함
@@ -282,7 +284,9 @@ public class PaymentServiceImpl implements PaymentService {
 
 		//dto 생성
 		PaymentResponseDto paymentResponseDto = PaymentResponseDto.builder()
-			.paymentHistoryId(paymentHistory.getId())
+			.partnerId(mentoringSchedule.getMentoringPost().getUser().getId())
+			.mentoringDate(payment.getMentoringSchedule().getMentoringDate())
+			.mentoringTime(payment.getMentoringSchedule().getMentoringTime())
 			.build();
 
 		//TODO : 결제 환불 api 호출 후, 채팅방 삭제 api 호출

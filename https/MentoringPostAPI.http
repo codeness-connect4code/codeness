@@ -123,10 +123,10 @@ Authorization: Bearer {{token}}
 	"career" : 10,
 	"region" : "서울, 경기 남부",
 	"price" : 1,
-	"startDate" : "2025-01-28",
-	"endDate" : "2025-01-29",
-	"startTime" : "13:00",
-	"endTime" : "15:00",
+	"startDate" : "2025-01-29",
+	"endDate" : "2025-01-30",
+	"startTime" : "10:00",
+	"endTime" : "14:00",
 	"description" : "멘토링 받으러 오세요~😊"
 }
 
