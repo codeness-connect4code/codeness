@@ -7,7 +7,7 @@ import com.connect.codeness.domain.payment.dto.PaymentRefundRequestDto;
 import com.connect.codeness.domain.payment.dto.PaymentRequestDto;
 import com.connect.codeness.domain.payment.service.PaymentService;
 import com.connect.codeness.domain.paymenthistory.service.PaymentHistoryService;
-import com.connect.codeness.global.jwt.JwtUtil;
+import com.connect.codeness.global.jwt.JwtProvider;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -25,11 +25,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class PaymentController {
 
 	private final PaymentService paymentService;
-	private final JwtUtil jwtUtil;
+	private final JwtProvider jwtProvider;
 
-	public PaymentController(PaymentService paymentService, PaymentHistoryService paymentHistoryService, JwtUtil jwtUtil) {
+	public PaymentController(PaymentService paymentService, PaymentHistoryService paymentHistoryService, JwtProvider jwtProvider) {
 		this.paymentService = paymentService;
-		this.jwtUtil = jwtUtil;
+		this.jwtProvider = jwtProvider;
 	}
 
 	/**
@@ -38,7 +38,7 @@ public class PaymentController {
 	 */
 	@PostMapping("/payments")
 	public ResponseEntity<CommonResponseDto> createPayment(@RequestHeader(AUTHORIZATION) String token,  @RequestBody PaymentRequestDto requestDto){
-		Long userId = jwtUtil.extractUserId(token);
+		Long userId = jwtProvider.extractUserId(token);
 
 		CommonResponseDto responseDto = paymentService.createPayment(userId, requestDto);
 
@@ -75,7 +75,7 @@ public class PaymentController {
 	 */
 	@PostMapping("/payments/{paymentId}/refund")
 	public ResponseEntity<CommonResponseDto> refundPayment(@RequestHeader(AUTHORIZATION) String token, @PathVariable Long paymentId, @Valid @RequestBody PaymentRefundRequestDto requestDto){
-		Long userId = jwtUtil.extractUserId(token);
+		Long userId = jwtProvider.extractUserId(token);
 
 		CommonResponseDto responseDto = paymentService.refundPayment(userId, paymentId, requestDto);
 

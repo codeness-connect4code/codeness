@@ -10,7 +10,7 @@ import com.connect.codeness.domain.comment.dto.CommentFindAllResponseDto;
 import com.connect.codeness.domain.comment.service.CommentService;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.dto.PaginationResponseDto;
-import com.connect.codeness.global.jwt.JwtUtil;
+import com.connect.codeness.global.jwt.JwtProvider;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -33,11 +33,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class CommentController {
 
 	private final CommentService commentService;
-	private final JwtUtil jwtUtil;
+	private final JwtProvider jwtProvider;
 
-	public CommentController(final CommentService commentService, JwtUtil jwtUtil) {
+	public CommentController(final CommentService commentService, JwtProvider jwtProvider) {
 		this.commentService = commentService;
-		this.jwtUtil = jwtUtil;
+		this.jwtProvider = jwtProvider;
 	}
 
 	@PostMapping("posts/{postId}/comments")
@@ -46,7 +46,7 @@ public class CommentController {
 		@Valid @RequestBody CommentCreateRequestDto dto,
 		@RequestHeader(AUTHORIZATION) String token){
 
-		Long userId = jwtUtil.extractUserId(token);
+		Long userId = jwtProvider.extractUserId(token);
 
 		CommonResponseDto responseDto = commentService.createComment(postId, userId, dto);
 
@@ -72,7 +72,7 @@ public class CommentController {
 		@Valid @RequestBody CommentCreateRequestDto dto,
 		@RequestHeader(AUTHORIZATION) String token) {
 
-		Long userId = jwtUtil.extractUserId(token);
+		Long userId = jwtProvider.extractUserId(token);
 
 		CommonResponseDto responseDto = commentService.updateComment(commentId, userId, dto);
 
@@ -84,7 +84,7 @@ public class CommentController {
 		@PathVariable("commentId") Long commentId,
 		@RequestHeader(AUTHORIZATION) String token) {
 
-		Long userId = jwtUtil.extractUserId(token);
+		Long userId = jwtProvider.extractUserId(token);
 
 		CommonResponseDto responseDto = commentService.deleteComment(commentId, userId);
 

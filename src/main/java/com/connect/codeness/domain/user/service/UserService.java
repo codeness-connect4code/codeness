@@ -9,11 +9,12 @@ import com.connect.codeness.domain.user.dto.UserDeleteResponseDto;
 import com.connect.codeness.domain.user.dto.UserPasswordUpdateRequestDto;
 import com.connect.codeness.domain.user.dto.UserUpdateRequestDto;
 import com.connect.codeness.global.dto.CommonResponseDto;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public interface UserService {
 	CommonResponseDto createUser(UserCreateRequestDto userCreateRequestDto);
-	String login(LoginRequestDto loginRequestDto);
+	String login(LoginRequestDto loginRequestDto, HttpServletResponse response) throws IOException;
 	CommonResponseDto getUser(Long userId);
 	CommonResponseDto updateUser(Long userId, UserUpdateRequestDto userUpdateRequestDto, ImageFile imageFile) throws IOException;
 	CommonResponseDto updateGoogleUser(Long userId, GoogleUserUpdateRequestDto googleUserUpdateRequestDto, ImageFile imageFile) throws IOException;

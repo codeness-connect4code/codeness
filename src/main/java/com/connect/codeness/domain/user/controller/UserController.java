@@ -2,11 +2,10 @@ package com.connect.codeness.domain.user.controller;
 
 import static com.connect.codeness.global.constants.Constants.AUTHORIZATION;
 
+import com.connect.codeness.domain.file.entity.ImageFile;
 import com.connect.codeness.domain.file.repository.FileRepository;
 import com.connect.codeness.domain.file.service.FileService;
-import com.connect.codeness.domain.file.entity.ImageFile;
 import com.connect.codeness.domain.user.dto.GoogleUserUpdateRequestDto;
-import com.connect.codeness.domain.user.repository.UserRepository;
 import com.connect.codeness.domain.user.dto.JwtResponseDto;
 import com.connect.codeness.domain.user.dto.LoginRequestDto;
 import com.connect.codeness.domain.user.dto.UserBankUpdateRequestDto;
@@ -14,10 +13,12 @@ import com.connect.codeness.domain.user.dto.UserCreateRequestDto;
 import com.connect.codeness.domain.user.dto.UserDeleteResponseDto;
 import com.connect.codeness.domain.user.dto.UserPasswordUpdateRequestDto;
 import com.connect.codeness.domain.user.dto.UserUpdateRequestDto;
+import com.connect.codeness.domain.user.repository.UserRepository;
 import com.connect.codeness.domain.user.service.UserService;
-import com.connect.codeness.global.jwt.JwtUtil;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.enums.FileCategory;
+import com.connect.codeness.global.jwt.JwtProvider;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
@@ -38,19 +39,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping
 @Slf4j
 public class UserController {
+
 	private final UserService userService;
-	private final JwtUtil jwtUtil;
+	private final JwtProvider jwtProvider;
 	private final AuthenticationManager authenticationManager;
 	private final FileService fileService;
 	private final FileRepository fileRepository;
 	private final UserRepository userRepository;
 
-	public UserController(
-		UserService userService, JwtUtil jwtUtil, AuthenticationManager authenticationManager
-		, FileService fileService,
+	public UserController(UserService userService, JwtProvider jwtProvider,
+		AuthenticationManager authenticationManager, FileService fileService,
 		FileRepository fileRepository, UserRepository userRepository) {
 		this.userService = userService;
-		this.jwtUtil =  jwtUtil;
+		this.jwtProvider = jwtProvider;
 		this.authenticationManager = authenticationManager;
 		this.fileService = fileService;
 		this.fileRepository = fileRepository;
@@ -59,12 +60,14 @@ public class UserController {
 
 	/**
 	 * 회원가입 API
+	 *
 	 * @param userCreateRequestDto
 	 * @return
 	 */
 	@PostMapping("/signup")
-	public ResponseEntity<CommonResponseDto> createUser(@Valid @RequestBody UserCreateRequestDto userCreateRequestDto) {
-		CommonResponseDto response = userService.createUser(userCreateRequestDto);
+	public ResponseEntity<CommonResponseDto<?>> createUser(
+		@Valid @RequestBody UserCreateRequestDto userCreateRequestDto) {
+		CommonResponseDto<?> response = userService.createUser(userCreateRequestDto);
 
 		return new ResponseEntity<>(response, HttpStatus.CREATED);
 	}
@@ -73,161 +76,162 @@ public class UserController {
 
 	/**
 	 * 로그인 API
+	 *
 	 * @param loginRequestDto
 	 * @return
 	 */
 	@PostMapping("/login")
-	public ResponseEntity<JwtResponseDto> login(@RequestBody LoginRequestDto loginRequestDto){
+	public ResponseEntity<JwtResponseDto> login(@RequestBody LoginRequestDto loginRequestDto,
+		HttpServletResponse response) throws IOException {
 		JwtResponseDto jwtResponseDto = JwtResponseDto.builder()
-			.token(userService.login(loginRequestDto))
-			.dto(CommonResponseDto.builder()
-				.msg("로그인 성공")
-				.build())
-			.build();
+			.token(userService.login(loginRequestDto, response))
+			.dto(CommonResponseDto.builder().msg("로그인 성공").build()).build();
 		return new ResponseEntity<>(jwtResponseDto, HttpStatus.OK);
 	}
 
 	/**
 	 * 유저 상세 조회 API
+	 *
 	 * @param authorizationHeader
 	 * @return
 	 */
 	@GetMapping("/users")
-	public ResponseEntity<CommonResponseDto> getUser(@RequestHeader(AUTHORIZATION)String authorizationHeader) {
+	public ResponseEntity<CommonResponseDto<?>> getUser(
+		@RequestHeader(AUTHORIZATION) String authorizationHeader) {
 		String token = authorizationHeader.substring("Bearer ".length());
-		Long userId = jwtUtil.extractUserId(token);
-		CommonResponseDto commonResponseDto = userService.getUser(userId);
+		Long userId = jwtProvider.extractUserId(token);
+		CommonResponseDto<?> commonResponseDto = userService.getUser(userId);
 		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
 	}
 
 	/**
 	 * 유저 정보 수정 API
+	 *
 	 * @param authorizationHeader
 	 * @param userUpdateRequestDto
 	 * @return
 	 */
 	@PatchMapping("/users")
-	public ResponseEntity<CommonResponseDto> updateUser(
+	public ResponseEntity<CommonResponseDto<?>> updateUser(
 		@RequestHeader(AUTHORIZATION) String authorizationHeader,
-		@ModelAttribute UserUpdateRequestDto userUpdateRequestDto
-	)throws IOException{
+		@ModelAttribute UserUpdateRequestDto userUpdateRequestDto) throws IOException {
 		String token = authorizationHeader.substring("Bearer ".length());
-		Long tokenId = jwtUtil.extractUserId(token);
+		Long tokenId = jwtProvider.extractUserId(token);
 
-		if (
-			fileRepository.findByUserIdAndFileCategory(tokenId, FileCategory.PROFILE).isPresent()
-		){
-			fileService.deleteFile(tokenId,FileCategory.PROFILE);
+		if (fileRepository.findByUserIdAndFileCategory(tokenId, FileCategory.PROFILE).isPresent()) {
+			fileService.deleteFile(tokenId, FileCategory.PROFILE);
 		}
 
-		CommonResponseDto fileDto =
-			fileService.createFile(
-				userUpdateRequestDto.getMultipartFile(), tokenId, FileCategory.PROFILE);
-		ImageFile imageFile = fileRepository.findByUserIdAndFileCategoryOrElseThrow(tokenId, FileCategory.PROFILE);
-		CommonResponseDto dto = userService.updateUser(tokenId, userUpdateRequestDto, imageFile);
+		CommonResponseDto<?> fileDto = fileService.createFile(userUpdateRequestDto.getMultipartFile(),
+			tokenId, FileCategory.PROFILE);
+		ImageFile imageFile = fileRepository.findByUserIdAndFileCategoryOrElseThrow(tokenId,
+			FileCategory.PROFILE);
+		CommonResponseDto<?> dto = userService.updateUser(tokenId, userUpdateRequestDto, imageFile);
 
 		return new ResponseEntity<>(dto, HttpStatus.OK);
 	}
 
 	/**
 	 * 구글 로그인 유저 전용 회원 정보 수정
+	 *
 	 * @param authorizationHeader
 	 * @param googleUserUpdateRequestDto
 	 * @return
 	 * @throws IOException
 	 */
 	@PatchMapping("/google/users")
-	public ResponseEntity<CommonResponseDto> updateGoogleUser(
-		@RequestHeader(AUTHORIZATION) String authorizationHeader, @ModelAttribute GoogleUserUpdateRequestDto googleUserUpdateRequestDto
-	)throws IOException{
+	public ResponseEntity<CommonResponseDto<?>> updateGoogleUser(
+		@RequestHeader(AUTHORIZATION) String authorizationHeader,
+		@ModelAttribute GoogleUserUpdateRequestDto googleUserUpdateRequestDto) throws IOException {
 		String token = authorizationHeader.substring("Bearer ".length());
-		Long tokenId = jwtUtil.extractUserId(token);
+		Long tokenId = jwtProvider.extractUserId(token);
 
-		if (
-			fileRepository.findByUserIdAndFileCategory(tokenId, FileCategory.PROFILE).isPresent()
-		){
-			fileService.deleteFile(tokenId,FileCategory.PROFILE);
+		if (fileRepository.findByUserIdAndFileCategory(tokenId, FileCategory.PROFILE).isPresent()) {
+			fileService.deleteFile(tokenId, FileCategory.PROFILE);
 		}
 
-		CommonResponseDto fileDto =
-			fileService.createFile(
-				googleUserUpdateRequestDto.getMultipartFile(), tokenId, FileCategory.PROFILE);
-		ImageFile imageFile = fileRepository.findByUserIdAndFileCategoryOrElseThrow(tokenId, FileCategory.PROFILE);
-		CommonResponseDto dto = userService.updateGoogleUser(tokenId, googleUserUpdateRequestDto, imageFile);
+		CommonResponseDto<?> fileDto = fileService.createFile(
+			googleUserUpdateRequestDto.getMultipartFile(), tokenId, FileCategory.PROFILE);
+		ImageFile imageFile = fileRepository.findByUserIdAndFileCategoryOrElseThrow(tokenId,
+			FileCategory.PROFILE);
+		CommonResponseDto<?> dto = userService.updateGoogleUser(tokenId, googleUserUpdateRequestDto,
+			imageFile);
 
 		return new ResponseEntity<>(dto, HttpStatus.OK);
 	}
 
 	/**
 	 * 유저 비밀번호 수정 API
+	 *
 	 * @param authorizationHeader
 	 * @param userPasswordUpdateRequestDto
 	 * @return
 	 */
 	@PatchMapping("/users/password")
-	public ResponseEntity<CommonResponseDto> updatePassword(
+	public ResponseEntity<CommonResponseDto<?>> updatePassword(
 		@RequestHeader(AUTHORIZATION) String authorizationHeader,
-		@RequestBody UserPasswordUpdateRequestDto userPasswordUpdateRequestDto
-	){
+		@RequestBody UserPasswordUpdateRequestDto userPasswordUpdateRequestDto) {
 		String token = authorizationHeader.substring("Bearer ".length());
-		Long tokenId = jwtUtil.extractUserId(token);
+		Long tokenId = jwtProvider.extractUserId(token);
 
-		CommonResponseDto commonResponseDto = userService.updatePassword(tokenId,
+		CommonResponseDto<?> commonResponseDto = userService.updatePassword(tokenId,
 			userPasswordUpdateRequestDto);
 		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
 	}
 
 	/**
 	 * 유저 계좌번호 수정 API
+	 *
 	 * @param authorizationHeader
 	 * @param userBankUpdateRequestDto
 	 * @return
 	 */
 	@PatchMapping("/users/bank-account")
-	public ResponseEntity<CommonResponseDto> updateBankAccount(
+	public ResponseEntity<CommonResponseDto<?>> updateBankAccount(
 		@RequestHeader(AUTHORIZATION) String authorizationHeader,
-		@RequestBody UserBankUpdateRequestDto userBankUpdateRequestDto
-	){
+		@RequestBody UserBankUpdateRequestDto userBankUpdateRequestDto) {
 		String token = authorizationHeader.substring("Bearer ".length());
-		Long tokenId = jwtUtil.extractUserId(token);
+		Long tokenId = jwtProvider.extractUserId(token);
 
-		CommonResponseDto commonResponseDto = userService.updateBankAccount(tokenId,userBankUpdateRequestDto);
+		CommonResponseDto<?> commonResponseDto = userService.updateBankAccount(tokenId,
+			userBankUpdateRequestDto);
 		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
 	}
 
 	/**
 	 * 유저 탈퇴 API
+	 *
 	 * @param authorizationHeader
 	 * @param userDeleteResponseDto
 	 * @return
 	 */
 	@DeleteMapping("/users")
-	public ResponseEntity<CommonResponseDto> deleteUser(
+	public ResponseEntity<CommonResponseDto<?>> deleteUser(
 		@RequestHeader(AUTHORIZATION) String authorizationHeader,
-		@RequestBody UserDeleteResponseDto userDeleteResponseDto
-	){
+		@RequestBody UserDeleteResponseDto userDeleteResponseDto) {
 		String token = authorizationHeader.substring("Bearer ".length());
-		Long tokenId = jwtUtil.extractUserId(token);
+		Long tokenId = jwtProvider.extractUserId(token);
 
-		CommonResponseDto commonResponseDto = userService.deleteUser(tokenId,userDeleteResponseDto);
+		CommonResponseDto<?> commonResponseDto = userService.deleteUser(tokenId,
+			userDeleteResponseDto);
 		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
 	}
 
 	/**
 	 * 유저 추천 멘토링 공고 조회 API
+	 *
 	 * @param authorizationHeader
 	 * @return
 	 */
-	 @GetMapping("/users/mentoring")
-	public ResponseEntity<CommonResponseDto> getRecommendMentor(
-		@RequestHeader(AUTHORIZATION) String authorizationHeader
-	 ){
+	@GetMapping("/users/mentoring")
+	public ResponseEntity<CommonResponseDto<?>> getRecommendMentor(
+		@RequestHeader(AUTHORIZATION) String authorizationHeader) {
 		String token = authorizationHeader.substring("Bearer ".length());
-		Long tokenId = jwtUtil.extractUserId(token);
+		Long tokenId = jwtProvider.extractUserId(token);
 
-		CommonResponseDto commonResponseDto = userService.getMentoring(tokenId);
-		return new ResponseEntity<>(commonResponseDto,HttpStatus.OK);
-	 }
+		CommonResponseDto<?> commonResponseDto = userService.getMentoring(tokenId);
+		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
+	}
 
 
 }

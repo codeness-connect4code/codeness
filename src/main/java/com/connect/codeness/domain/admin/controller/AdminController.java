@@ -10,7 +10,7 @@ import com.connect.codeness.domain.admin.dto.AdminUpdateMentorRequestDto;
 import com.connect.codeness.global.dto.PaginationResponseDto;
 import com.connect.codeness.domain.mentorrequest.dto.MentorRequestResponseDto;
 import com.connect.codeness.domain.user.repository.UserRepository;
-import com.connect.codeness.global.jwt.JwtUtil;
+import com.connect.codeness.global.jwt.JwtProvider;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import java.util.List;
 import org.springframework.http.HttpStatus;
@@ -28,13 +28,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class AdminController {
 
 	private final AdminService adminService;
-	private final JwtUtil jwtUtil;
+	private final JwtProvider jwtProvider;
 	private final UserRepository userRepository;
 
-	public AdminController(AdminService adminService, JwtUtil jwtUtil,
+	public AdminController(AdminService adminService, JwtProvider jwtProvider,
 		UserRepository userRepository) {
 		this.adminService = adminService;
-		this.jwtUtil = jwtUtil;
+		this.jwtProvider = jwtProvider;
 		this.userRepository = userRepository;
 	}
 

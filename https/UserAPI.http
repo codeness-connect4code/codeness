@@ -12,18 +12,18 @@ Content-Type: application/json
   "userRole" : "MENTEE"
 }
 
-### 로그인
-POST localhost:8080/login
+### 로그인 요청
+POST http://localhost:8080/login
 Content-Type: application/json
 
 {
-  "email" : "2aaaaaaaa@naver.com",
-  "password" : "asdf1234!@"
+  "email": "2aaaaaaaa@naver.com",
+  "password": "asdf1234!@"
 }
 
 > {%
-  client.global.set("token",response.body.token);
-  client.log("Token saved: " + client.global.get("token"));
+  client.global.set("cookies", response.headers["set-cookie"]);
+  client.log("Cookies saved: " + client.global.get("cookies"));
 %}
 
 ### 유저 상세 조회 API

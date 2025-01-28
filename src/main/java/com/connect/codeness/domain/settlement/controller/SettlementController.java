@@ -9,16 +9,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
-import com.connect.codeness.global.jwt.JwtUtil;
+import com.connect.codeness.global.jwt.JwtProvider;
 
 @RestController
 public class SettlementController {
 
-	private final JwtUtil jwtUtil;
+	private final JwtProvider jwtProvider;
 	private final SettlementService settlementService;
 
-	public SettlementController(JwtUtil jwtUtil, SettlementService settlementService) {
-		this.jwtUtil = jwtUtil;
+	public SettlementController(JwtProvider jwtProvider, SettlementService settlementService) {
+		this.jwtProvider = jwtProvider;
 		this.settlementService = settlementService;
 	}
 
@@ -30,7 +30,7 @@ public class SettlementController {
 	 */
 	@PatchMapping("/mentors/mentoring/payment-history/settles")
 	public ResponseEntity<CommonResponseDto> requestSettlement(@RequestHeader(AUTHORIZATION) String token){
-		Long userId = jwtUtil.extractUserId(token);
+		Long userId = jwtProvider.extractUserId(token);
 
 		CommonResponseDto responseDto = settlementService.requestSettlement(userId);
 		return new ResponseEntity<>(responseDto, HttpStatus.OK);

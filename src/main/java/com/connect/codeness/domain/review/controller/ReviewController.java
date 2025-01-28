@@ -10,7 +10,7 @@ import com.connect.codeness.global.dto.PaginationResponseDto;
 import com.connect.codeness.domain.review.dto.ReviewCreateRequestDto;
 import com.connect.codeness.domain.review.dto.ReviewResponseDto;
 import com.connect.codeness.global.dto.CommonResponseDto;
-import com.connect.codeness.global.jwt.JwtUtil;
+import com.connect.codeness.global.jwt.JwtProvider;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,11 +27,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class ReviewController {
 
 	private final ReviewService reviewService;
-	private final JwtUtil jwtUtil;
+	private final JwtProvider jwtProvider;
 
-	public ReviewController(ReviewService reviewService, JwtUtil jwtUtil) {
+	public ReviewController(ReviewService reviewService, JwtProvider jwtProvider) {
 		this.reviewService = reviewService;
-		this.jwtUtil = jwtUtil;
+		this.jwtProvider = jwtProvider;
 	}
 
 	@PostMapping("/logout")
@@ -46,7 +46,7 @@ public class ReviewController {
 		@RequestHeader(AUTHORIZATION) String token,
 		@Valid @RequestBody ReviewCreateRequestDto dto
 	) {
-		Long userId = jwtUtil.extractUserId(token);
+		Long userId = jwtProvider.extractUserId(token);
 		CommonResponseDto commonResponseDto = reviewService.createReview(userId, paymentHistoryId,
 			dto);
 
@@ -70,7 +70,7 @@ public class ReviewController {
 		@PathVariable Long paymentHistoryId,
 		@RequestHeader(AUTHORIZATION) String token
 	) {
-		Long userId = jwtUtil.extractUserId(token);
+		Long userId = jwtProvider.extractUserId(token);
 
 		CommonResponseDto<ReviewResponseDetailDto> commonResponseDto
 			= reviewService.findReview(userId, paymentHistoryId);
@@ -83,7 +83,7 @@ public class ReviewController {
 		@PathVariable Long reviewId,
 		@RequestHeader(AUTHORIZATION) String token
 	) {
-		Long userId = jwtUtil.extractUserId(token);
+		Long userId = jwtProvider.extractUserId(token);
 		CommonResponseDto commonResponseDto = reviewService.deleteReview(userId, reviewId);
 
 		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);

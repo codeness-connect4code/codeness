@@ -7,7 +7,7 @@ import com.connect.codeness.domain.file.service.FileService;
 import com.connect.codeness.domain.file.entity.ImageFile;
 import com.connect.codeness.domain.mentorrequest.dto.MentorRequestCreateRequestDto;
 import com.connect.codeness.domain.mentorrequest.service.MentorRequestService;
-import com.connect.codeness.global.jwt.JwtUtil;
+import com.connect.codeness.global.jwt.JwtProvider;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.enums.FileCategory;
 import jakarta.validation.Valid;
@@ -28,13 +28,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class MentorRequestController {
 
 	private final MentorRequestService mentorRequestService;
-	private final JwtUtil jwtUtil;
+	private final JwtProvider jwtProvider;
 	private final FileRepository fileRepository;
 	private final FileService fileService;
 
-	public MentorRequestController(MentorRequestService mentorRequestService, JwtUtil jwtUtil, FileRepository fileRepository, FileService fileService) {
+	public MentorRequestController(MentorRequestService mentorRequestService, JwtProvider jwtProvider, FileRepository fileRepository, FileService fileService) {
 		this.mentorRequestService = mentorRequestService;
-		this.jwtUtil = jwtUtil;
+		this.jwtProvider = jwtProvider;
 		this.fileRepository = fileRepository;
 		this.fileService = fileService;
 	}
@@ -52,7 +52,7 @@ public class MentorRequestController {
 		@Valid @ModelAttribute MentorRequestCreateRequestDto mentorRequestCreateRequestDto
 	) throws IOException {
 		String token = authorizationHeader.substring("Bearer ".length());
-		Long tokenId = jwtUtil.extractUserId(token);
+		Long tokenId = jwtProvider.extractUserId(token);
 
 		if (
 			fileRepository.findByUserIdAndFileCategory(tokenId, FileCategory.EMPLOYEE_CARD).isPresent()
@@ -83,7 +83,7 @@ public class MentorRequestController {
 		@PathVariable Long mentorRequestId
 	){
 		String token = authorizationHeader.substring("Bearer ".length());
-		Long tokenId = jwtUtil.extractUserId(token);
+		Long tokenId = jwtProvider.extractUserId(token);
 
 		CommonResponseDto commonResponseDto = mentorRequestService.deleteMentorRequest(tokenId,mentorRequestId);
 		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
@@ -97,7 +97,7 @@ public class MentorRequestController {
 	@GetMapping("/mentors")
 	public ResponseEntity<CommonResponseDto> getMentorRequest(@RequestHeader(AUTHORIZATION) String authorizationHeader){
 		String token = authorizationHeader.substring("Bearer ".length());
-		Long tokenId = jwtUtil.extractUserId(token);
+		Long tokenId = jwtProvider.extractUserId(token);
 
 		CommonResponseDto commonResponseDto = mentorRequestService.getMentorRequest(tokenId);
 		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);

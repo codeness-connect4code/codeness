@@ -10,7 +10,7 @@ import com.connect.codeness.domain.mentoringpost.dto.MentoringPostSearchResponse
 import com.connect.codeness.domain.mentoringpost.dto.MyMentoringPostResponseDto;
 import com.connect.codeness.domain.mentoringpost.service.MentoringPostService;
 import com.connect.codeness.global.dto.PaginationResponseDto;
-import com.connect.codeness.global.jwt.JwtUtil;
+import com.connect.codeness.global.jwt.JwtProvider;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -28,11 +28,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class MentoringPostController {
 
 	private final MentoringPostService mentoringPostService;
-	private final JwtUtil jwtUtil;
+	private final JwtProvider jwtProvider;
 
-	public MentoringPostController(MentoringPostService mentoringPostService, JwtUtil jwtUtil) {
+	public MentoringPostController(MentoringPostService mentoringPostService, JwtProvider jwtProvider) {
 		this.mentoringPostService = mentoringPostService;
-		this.jwtUtil = jwtUtil;
+		this.jwtProvider = jwtProvider;
 	}
 
 	/**
@@ -42,7 +42,7 @@ public class MentoringPostController {
 	@PostMapping("/mentoring")
 	public ResponseEntity<CommonResponseDto> createMentoringPost(@RequestHeader(AUTHORIZATION) String token,
 		@Valid @RequestBody MentoringPostCreateRequestDto requestDto) {
-		Long userId = jwtUtil.extractUserId(token);
+		Long userId = jwtProvider.extractUserId(token);
 
 		CommonResponseDto responseDto = mentoringPostService.createMentoringPost(userId, requestDto);
 
@@ -57,7 +57,7 @@ public class MentoringPostController {
 	@PatchMapping("/mentoring/{mentoringPostId}")
 	public ResponseEntity<CommonResponseDto> deleteMentoringPost(@RequestHeader(AUTHORIZATION) String token,
 		@PathVariable Long mentoringPostId) {
-		Long userId = jwtUtil.extractUserId(token);
+		Long userId = jwtProvider.extractUserId(token);
 		CommonResponseDto responseDto = mentoringPostService.deleteMentoringPost(userId, mentoringPostId);
 
 		return new ResponseEntity<>(responseDto, HttpStatus.OK);
@@ -103,7 +103,7 @@ public class MentoringPostController {
 	@GetMapping("/mentors/mentoring")
 	public ResponseEntity<CommonResponseDto<MyMentoringPostResponseDto>> findMentoringPostByMentorId(@RequestHeader(AUTHORIZATION) String token) {
 
-		Long userId = jwtUtil.extractUserId(token);
+		Long userId = jwtProvider.extractUserId(token);
 		CommonResponseDto<MyMentoringPostResponseDto> responseDto = mentoringPostService.findMentoringPostByMentorId(userId);
 
 		return new ResponseEntity<>(responseDto, HttpStatus.OK);
@@ -120,7 +120,7 @@ public class MentoringPostController {
 		@RequestParam(defaultValue = PAGE_NUMBER) int pageNumber,
 		@RequestParam(defaultValue = PAGE_SIZE) int pageSize) {
 
-		Long userId = jwtUtil.extractUserId(token);
+		Long userId = jwtProvider.extractUserId(token);
 		CommonResponseDto<PaginationResponseDto<MyMentoringPostResponseDto>> responseDto = mentoringPostService.findMentoringPostByMenteeId(userId, pageNumber, pageSize);
 
 		return new ResponseEntity<>(responseDto, HttpStatus.OK);

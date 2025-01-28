@@ -8,7 +8,7 @@ import com.connect.codeness.domain.chat.dto.ChatRoomCreateRequestDto;
 import com.connect.codeness.domain.chat.dto.ChatRoomDto;
 import com.connect.codeness.domain.chat.service.ChatService;
 import com.connect.codeness.global.dto.CommonResponseDto;
-import com.connect.codeness.global.jwt.JwtUtil;
+import com.connect.codeness.global.jwt.JwtProvider;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,11 +26,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class ChatController {
 
 	private final ChatService chatService;
-	private final JwtUtil jwtUtil;
+	private final JwtProvider jwtProvider;
 
-	public ChatController(ChatService chatService, JwtUtil jwtUtil) {
+	public ChatController(ChatService chatService, JwtProvider jwtProvider) {
 		this.chatService = chatService;
-		this.jwtUtil = jwtUtil;
+		this.jwtProvider = jwtProvider;
 	}
 
 	//TODO:나중에 지울 것
@@ -40,7 +40,7 @@ public class ChatController {
 		@RequestHeader(AUTHORIZATION) String token,
 		@RequestBody ChatRoomCreateRequestDto dto
 	) {
-		Long userId = jwtUtil.extractUserId(token);
+		Long userId = jwtProvider.extractUserId(token);
 		CommonResponseDto responseDto = chatService.createChatRoom(userId, dto);
 
 		return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
@@ -52,7 +52,7 @@ public class ChatController {
 		@RequestHeader(AUTHORIZATION) String token,
 		@RequestBody ChatCreateRequestDto dto
 	) {
-		Long userId = jwtUtil.extractUserId(token);
+		Long userId = jwtProvider.extractUserId(token);
 
 		CommonResponseDto commonResponseDto = chatService.sendMessage(userId, dto);
 
@@ -65,7 +65,7 @@ public class ChatController {
 	public ResponseEntity<CommonResponseDto<List<ChatRoomDto>>> getChatRooms(
 		@RequestHeader(AUTHORIZATION) String token
 	) {
-		Long userId = jwtUtil.extractUserId(token);
+		Long userId = jwtProvider.extractUserId(token);
 
 		CommonResponseDto<List<ChatRoomDto>> responseDto
 			= chatService.getChatRooms(userId);
@@ -79,7 +79,7 @@ public class ChatController {
 		@RequestHeader(AUTHORIZATION) String token,
 		@PathVariable String chatRoomId
 	) {
-		Long userId = jwtUtil.extractUserId(token);
+		Long userId = jwtProvider.extractUserId(token);
 
 		CommonResponseDto<List<ChatMessageDto>> responseDto
 			= chatService.getChats(userId, chatRoomId);
@@ -93,7 +93,7 @@ public class ChatController {
 		@PathVariable String chatRoomId
 	) {
 
-		Long userId = jwtUtil.extractUserId(token);
+		Long userId = jwtProvider.extractUserId(token);
 
 		CommonResponseDto responseDto = chatService.deleteChatRoom(userId, chatRoomId);
 

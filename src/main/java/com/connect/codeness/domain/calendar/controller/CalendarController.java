@@ -6,7 +6,7 @@ import com.connect.codeness.domain.calendar.dto.CalendarEventDto;
 import com.connect.codeness.domain.calendar.dto.CalendarEventResponseDto;
 import com.connect.codeness.domain.calendar.service.CalendarService;
 import com.connect.codeness.global.dto.CommonResponseDto;
-import com.connect.codeness.global.jwt.JwtUtil;
+import com.connect.codeness.global.jwt.JwtProvider;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
@@ -21,11 +21,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/users")
 public class CalendarController {
 	private final CalendarService calendarService;
-	private final JwtUtil jwtUtil;
+	private final JwtProvider jwtProvider;
 
-	public CalendarController(final CalendarService calendarService, JwtUtil jwtUtil) {
+	public CalendarController(final CalendarService calendarService, JwtProvider jwtProvider) {
 		this.calendarService = calendarService;
-		this.jwtUtil = jwtUtil;
+		this.jwtProvider = jwtProvider;
 	}
 
 	/**
@@ -42,7 +42,7 @@ public class CalendarController {
 		@RequestParam String endDate
 	) {
 		String token = authorizationHeader.substring("Bearer ".length());
-		Long tokenId = jwtUtil.extractUserId(token);
+		Long tokenId = jwtProvider.extractUserId(token);
 
 		//캘린더 서비스에서 특정 기간 일정 조회
 		List<CalendarEventDto> events = calendarService.getEvents(tokenId, startDate, endDate);

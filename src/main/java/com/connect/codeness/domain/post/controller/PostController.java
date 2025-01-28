@@ -10,7 +10,7 @@ import com.connect.codeness.domain.post.dto.PostFindResponseDto;
 import com.connect.codeness.domain.post.dto.PostUpdateRequestDto;
 import com.connect.codeness.domain.post.service.PostService;
 import com.connect.codeness.global.dto.PaginationResponseDto;
-import com.connect.codeness.global.jwt.JwtUtil;
+import com.connect.codeness.global.jwt.JwtProvider;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.enums.PostType;
 import jakarta.validation.Valid;
@@ -36,11 +36,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class PostController {
 
 	private PostService postService;
-	private JwtUtil jwtUtil;
+	private JwtProvider jwtProvider;
 
-	public PostController(PostService postService, JwtUtil jwtUtil) {
+	public PostController(PostService postService, JwtProvider jwtProvider) {
 		this.postService = postService;
-		this.jwtUtil = jwtUtil;
+		this.jwtProvider = jwtProvider;
 	}
 
 	// 게시글 생성
@@ -49,7 +49,7 @@ public class PostController {
 		@Valid @RequestBody PostCreateRequestDto dto,
 		@RequestHeader("Authorization") String token) {
 
-		Long userId = jwtUtil.extractUserId(token);
+		Long userId = jwtProvider.extractUserId(token);
 
 		CommonResponseDto responseDto = postService.createPost(userId, dto);
 
@@ -98,7 +98,7 @@ public class PostController {
 		@PathVariable Long postId,
 		@RequestHeader(AUTHORIZATION) String token) {
 
-		Long userId = jwtUtil.extractUserId(token);
+		Long userId = jwtProvider.extractUserId(token);
 
 		CommonResponseDto responseDto = postService.updatePost(userId, postId, dto);
 
@@ -110,7 +110,7 @@ public class PostController {
 		@PathVariable Long postId,
 		@RequestHeader(AUTHORIZATION) String token) {
 
-		Long userId = jwtUtil.extractUserId(token);
+		Long userId = jwtProvider.extractUserId(token);
 
 		CommonResponseDto responseDto = postService.deletePost(userId, postId);
 
