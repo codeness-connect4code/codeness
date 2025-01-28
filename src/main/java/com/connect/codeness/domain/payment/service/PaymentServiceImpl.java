@@ -2,9 +2,9 @@ package com.connect.codeness.domain.payment.service;
 
 
 import com.connect.codeness.domain.chat.service.ChatServiceImpl;
-import com.connect.codeness.domain.chat.dto.ChatRoomCreateRequestDto;
 import com.connect.codeness.domain.mentoringschedule.entity.MentoringSchedule;
 import com.connect.codeness.domain.mentoringschedule.repository.MentoringScheduleRepository;
+import com.connect.codeness.domain.payment.dto.PaymentResponseDto;
 import com.connect.codeness.domain.payment.entity.Payment;
 import com.connect.codeness.domain.payment.repository.PaymentRepository;
 import com.connect.codeness.domain.payment.dto.PaymentDeleteRequestDto;
@@ -43,7 +43,6 @@ public class PaymentServiceImpl implements PaymentService {
 	private final PaymentHistoryRepository paymentHistoryRepository;
 	private final UserRepository userRepository;
 	private final MentoringScheduleRepository mentoringScheduleRepository;
-	private final ChatServiceImpl chatService;
 	private final SettlementRepository settlementRepository;
 
 	public PaymentServiceImpl(IamportClient iamportClient, PaymentRepository paymentRepository,
@@ -55,7 +54,6 @@ public class PaymentServiceImpl implements PaymentService {
 		this.paymentHistoryRepository = paymentHistoryRepository;
 		this.userRepository = userRepository;
 		this.mentoringScheduleRepository = mentoringScheduleRepository;
-		this.chatService = chatService;
 		this.settlementRepository = settlementRepository;
 	}
 
@@ -66,7 +64,7 @@ public class PaymentServiceImpl implements PaymentService {
 	 */
 	@Transactional
 	@Override
-	public CommonResponseDto createPayment(Long userId, PaymentRequestDto requestDto) {
+	public CommonResponseDto<?> createPayment(Long userId, PaymentRequestDto requestDto) {
 		//ImpUid 존재하면 예외처리 : 중복 주문 안됨
 		if (requestDto.getImpUid() != null && paymentRepository.existsByImpUid(requestDto.getImpUid())) {
 			throw new BusinessException(ExceptionType.DUPLICATE_VALUE);
@@ -96,13 +94,29 @@ public class PaymentServiceImpl implements PaymentService {
 	}
 
 	/**
-	 * 결제 삭제 메서드
-	 * - 결제 도중 취소하거나 결제가 거절됐을 경우 결제 데이터 삭제
-	 * - TODO : 소프트 딜리트 고려해봐야함
+	 * 결제 삭제 서비스 메서드
+	 * - 클라이언트에서 결제 도중 취소하거나 결제 창을 빠져나가 결제가 중단 되었을 경우
+	 * - paymentId만 가지고 데이터 삭제를 진행 -> 데이터 저장해 둘 필요가 없음
 	 */
 	@Transactional
 	@Override
-	public CommonResponseDto deletePayment(Long paymentId, PaymentDeleteRequestDto requestDto) {
+	public CommonResponseDto<?> deletePaymentOnCancel(Long paymentId) {
+		//결제(멘토링 신청 내역) 확인
+		Payment payment = paymentRepository.findByIdOrElseThrow(paymentId);
+
+		//해당 결제 삭제
+		paymentRepository.deleteById(paymentId);
+
+		return CommonResponseDto.builder().msg("결제 데이터가 삭제 되었습니다.").build();
+	}
+
+	/**
+	 * 결제 삭제 서비스 메서드
+	 * - 결제 진행시, 잔액 부족 등으로 결제가 거절되었을 경우 결제 데이터 삭제
+	 */
+	@Transactional
+	@Override
+	public CommonResponseDto<?> deletePaymentOnRejection(Long paymentId, PaymentDeleteRequestDto requestDto) {
 		//결제(멘토링 신청 내역) 확인
 		Payment payment = paymentRepository.findByIdOrElseThrow(paymentId);
 
@@ -125,10 +139,11 @@ public class PaymentServiceImpl implements PaymentService {
 
 	/**
 	 * 결제 검증 서비스 메서드
+	 * - TODO : 응답 DTO 반환 : paymentHistoryId
 	 */
 	@Transactional
 	@Override
-	public CommonResponseDto verifyPayment(Long paymentId, PaymentRequestDto requestDto) {
+	public CommonResponseDto<PaymentResponseDto> verifyPayment(Long paymentId, PaymentRequestDto requestDto) {
 		//ImpUid 유효성 검사
 		if (requestDto.getImpUid() == null || requestDto.getImpUid().isEmpty()) {
 			throw new BusinessException(ExceptionType.NOT_FOUND_IMPUID);
@@ -196,30 +211,28 @@ public class PaymentServiceImpl implements PaymentService {
 		settlementRepository.save(settlement);
 
 		//dto 생성
-		ChatRoomCreateRequestDto chatRoomCreateRequestDto = ChatRoomCreateRequestDto.builder()
-			.partnerId(mentor.getId())
+		PaymentResponseDto paymentResponseDto = PaymentResponseDto.builder()
+			.paymentHistoryId(paymentHistory.getId())
 			.build();
 
-		//TODO : 멘티가 동일한 멘토의 스케쥴을 여러번 구매할 수 없다 -> 이미 생성된 채팅방이라는 예외가 뜸 -
+		//TODO : 멘티가 동일한 멘토의 스케쥴을 여러번 구매할 수 없다 -> 이미 생성된 채팅방이라는 예외가 뜸 -> 채팅 쪽에서 처리해야함
 		//채팅방 생성 - 로그인한 id, 멘토의 id
 //		chatService.createChatRoom(payment.getUser().getId(), chatRoomCreateRequestDto);
 
-		return CommonResponseDto.builder().msg("결제가 완료되었습니다.").data(payment.getId()).build();
+		return CommonResponseDto.<PaymentResponseDto>builder().msg("결제가 완료되었습니다.").data(paymentResponseDto).build();
 	}
 
 	/**
 	 * 결제 환불 서비스 메서드
 	 * - 결제 완료 후 환불 진행 : 결제 내역 테이블에서 조회 및 진행
-	 * - TODO : 멘토링 스케쥴 상태 확인 후 결제 환불 진행
+	 *  - TODO : 응답 DTO 반환 : paymentHistoryId
 	 */
 
 	@Transactional
 	@Override
-	public CommonResponseDto refundPayment(Long userId, Long paymentId, PaymentRefundRequestDto requestDto) {
+	public CommonResponseDto<PaymentResponseDto> refundPayment(Long userId, Long paymentId, PaymentRefundRequestDto requestDto) {
 
-		//TODO : 결제 내역id가 아니라 결제 id랑 비교해야함
-		//결제 내역 테이블 조회 - 로그인한 유저 ID & 결제 ID
-//		PaymentHistory paymentHistory = paymentHistoryRepository.findByIdAndUserIdOrElseThrow(userId, paymentId);
+		//결제 조회 - 로그인한 유저 ID & 결제 ID
 		Payment payment = paymentRepository.findByIdAndUserId(userId, paymentId)
 			.orElseThrow(() -> new BusinessException(ExceptionType.NOT_FOUND_PAYMENT));
 
@@ -231,7 +244,7 @@ public class PaymentServiceImpl implements PaymentService {
 		//결제 내역 조회
 		PaymentHistory paymentHistory = paymentHistoryRepository.findByPaymentIdOrElseThrow(payment.getId());
 		//상태가 결제 취소일 경우
-		if (paymentHistory.getPaymentStatus().equals("CANCEL")) {
+		if (paymentHistory.getPaymentStatus().equals(PaymentStatus.CANCEL)) {
 			throw new BusinessException(ExceptionType.ALREADY_CANCEL);
 		}
 
@@ -267,12 +280,16 @@ public class PaymentServiceImpl implements PaymentService {
 		//결제 업데이트 : 취소일
 		payment.updatePaymentCanceledAt();
 
-		//채팅방 삭제 - 채팅방 id는 로그인한 유저 id랑 상대 멘토 id 조합 -> ex) 1_2
-		//TODO : 로직 분리
+		//dto 생성
+		PaymentResponseDto paymentResponseDto = PaymentResponseDto.builder()
+			.paymentHistoryId(paymentHistory.getId())
+			.build();
+
+		//TODO : 결제 환불 api 호출 후, 채팅방 삭제 api 호출
 //		String chatRoomId = chatService.generateChatRoomId(userId, payment.getUser().getId());
 //		chatService.deleteChatRoom(userId, chatRoomId);
 
-		return CommonResponseDto.builder().msg("결제가 환불되었습니다.").build();
+		return CommonResponseDto.<PaymentResponseDto>builder().msg("결제가 환불되었습니다.").data(paymentResponseDto).build();
 	}
 
 }

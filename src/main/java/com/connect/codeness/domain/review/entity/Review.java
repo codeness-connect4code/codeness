@@ -4,8 +4,11 @@ import com.connect.codeness.domain.mentoringpost.entity.MentoringPost;
 import com.connect.codeness.domain.paymenthistory.entity.PaymentHistory;
 import com.connect.codeness.domain.user.entity.User;
 import com.connect.codeness.global.entity.BaseEntity;
+import com.connect.codeness.global.enums.ReviewStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -53,6 +56,9 @@ public class Review extends BaseEntity {
 	@Column(nullable = false, length = 300)
 	private String reviewContent;
 
+	@Column(nullable = false)
+	private boolean isDeleted;
+
 	public Review() {
 	}
 
@@ -64,5 +70,10 @@ public class Review extends BaseEntity {
 		this.user = user;
 		this.starRating = starRating;
 		this.reviewContent = reviewContent;
+		this.isDeleted = false;
+	}
+
+	public void delete(){
+		this.isDeleted = true;
 	}
 }

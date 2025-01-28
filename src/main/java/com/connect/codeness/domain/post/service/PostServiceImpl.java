@@ -110,12 +110,15 @@ public class PostServiceImpl implements PostService {
 
 		Post post = postRepository.findByIdOrElseThrow(postId);
 
-		ImageFile writerProfile = fileRepository.findByUserId(post.getUser().getId());
+		Long userId = post.getUser().getId();
+
+		ImageFile writerProfile = fileRepository.findByUserId(userId);
 
 		post.increaseView(post.getView());
 
 		PostFindResponseDto postFindResult= PostFindResponseDto.builder()
 			.postId(post.getId())
+			.userId(userId)
 			.title(post.getTitle())
 			.writer(post.getWriter())
 			.view(post.getView())

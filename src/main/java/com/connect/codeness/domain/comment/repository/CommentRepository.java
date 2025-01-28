@@ -17,7 +17,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
 	@Query("""
 	SELECT new com.connect.codeness.domain.comment.dto.CommentFindAllResponseDto(
-		c.post.id,c.id,c.content,c.user.userNickname,i.filePath,c.createdAt)
+		c.post.id,c.user.id, c.id,c.content,c.user.userNickname,i.filePath,c.createdAt)
 		FROM Comment c
 		LEFT JOIN c.user.imageFiles i
 		WHERE c.post.id = :postId

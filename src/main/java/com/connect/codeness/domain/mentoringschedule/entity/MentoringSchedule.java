@@ -4,6 +4,7 @@ package com.connect.codeness.domain.mentoringschedule.entity;
 import com.connect.codeness.domain.mentoringpost.entity.MentoringPost;
 import com.connect.codeness.global.entity.CreateTimeEntity;
 import com.connect.codeness.global.enums.BookedStatus;
+import com.connect.codeness.global.enums.MentoringScheduleStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -41,6 +42,10 @@ public class MentoringSchedule extends CreateTimeEntity {
 	@Column(nullable = false)
 	private BookedStatus bookedStatus; //예약 여부
 
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	private MentoringScheduleStatus mentoringScheduleStatus;//멘토링 스케쥴 삭제 여부
+
 	public MentoringSchedule() {
 
 	}
@@ -58,10 +63,18 @@ public class MentoringSchedule extends CreateTimeEntity {
 	 */
 	@Builder
 	public MentoringSchedule(MentoringPost mentoringPost, LocalDate mentoringDate, LocalTime mentoringTime,
-		BookedStatus bookedStatus) {
+		BookedStatus bookedStatus, MentoringScheduleStatus mentoringScheduleStatus) {
 		this.mentoringPost = mentoringPost;
 		this.mentoringDate = mentoringDate;
 		this.mentoringTime = mentoringTime;
 		this.bookedStatus = bookedStatus;
+		this.mentoringScheduleStatus = mentoringScheduleStatus;
+	}
+
+	/**
+	 * 멘토링 공고 삭제시 멘토링 공고 스케쥴 상태 변경
+	 */
+	public void updateStatus(MentoringScheduleStatus mentoringScheduleStatus) {
+		this.mentoringScheduleStatus = mentoringScheduleStatus;
 	}
 }
