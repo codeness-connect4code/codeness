@@ -1,11 +1,11 @@
 package com.connect.codeness.global.jwt;
 
-import static com.connect.codeness.global.constants.Constants.AUTHORIZATION;
-import static com.connect.codeness.global.constants.Constants.BEARER;
 import static com.connect.codeness.global.constants.Constants.REFRESH_TOKEN_EXPIRATION;
+import static com.connect.codeness.global.constants.Constants.ACCESS_TOKEN;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -30,7 +30,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
 	// 제외할 경로
 	private static final List<String> POST_EXCLUDED_PATHS = List.of("/login", "/signup", "/logout");
-	private static final List<String> GET_EXCLUDED_PATHS = List.of("/posts", "/posts/.*", "/news", "/mentoring/\\d+/reviews", "/mentoring",  "/mentoring.*","/users/schedule");
+	private static final List<String> GET_EXCLUDED_PATHS = List.of("/posts", "/posts/.*", "/news", "/mentoring/\\d+/reviews", "/mentoring", "/mentoring.*", "/users/schedule");
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
@@ -45,15 +45,13 @@ public class JwtFilter extends OncePerRequestFilter {
 			return;
 		}
 
-		// Authorization 헤더에서 JWT 토큰 추출
-		String authorizationHeader = request.getHeader(AUTHORIZATION);
+		// 쿠키에서 JWT 토큰 추출
+		String token = getCookie(request, ACCESS_TOKEN);
 
-		if (authorizationHeader == null || !authorizationHeader.startsWith(BEARER)) {
+		if (token == null) {
 			chain.doFilter(request, response);
 			return;
 		}
-
-		String token = authorizationHeader.substring(BEARER.length());
 
 		try {
 			// 토큰 검증
@@ -64,7 +62,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
 				// 인증 객체 생성
 				if (role != null) {
-					// ROLE_ADMIN 이면 어드민 권한 부여
+					// ROLE_ADMIN이면 어드민 권한 부여
 					if (role.equals("ROLE_ADMIN")) {
 						log.debug("Admin access granted for user: {}", email);
 					} else {
@@ -81,9 +79,8 @@ public class JwtFilter extends OncePerRequestFilter {
 					log.debug("Authentication set for user: {}", email);
 
 					// 토큰 갱신 처리
-					if (jwtProvider.validationRefreshToken(token)){
+					if (jwtProvider.validationRefreshToken(token)) {
 						String newRefreshToken = jwtProvider.generateRefreshToken(userId);
-
 						response.addCookie(jwtProvider.createHttpOnlyCookie("refresh_token", newRefreshToken, REFRESH_TOKEN_EXPIRATION));
 					} else {
 						log.warn("Invalid access token for user.");
@@ -96,7 +93,6 @@ public class JwtFilter extends OncePerRequestFilter {
 
 		chain.doFilter(request, response);
 	}
-
 
 	/**
 	 * 입력된 경로를 jwt 필터에서 제외
@@ -112,5 +108,23 @@ public class JwtFilter extends OncePerRequestFilter {
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * 쿠키에서 JWT 토큰을 가져오는 메서드
+	 * @param request HTTP 요청
+	 * @param cookieName 쿠키 이름
+	 * @return 쿠키 값
+	 */
+	private String getCookie(HttpServletRequest request, String cookieName) {
+		Cookie[] cookies = request.getCookies();
+		if (cookies != null) {
+			for (Cookie cookie : cookies) {
+				if (cookieName.equals(cookie.getName())) {
+					return cookie.getValue();
+				}
+			}
+		}
+		return null;
 	}
 }

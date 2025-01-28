@@ -1,7 +1,6 @@
 package com.connect.codeness.domain.chat.controller;
 
 import static com.connect.codeness.global.constants.Constants.ACCESS_TOKEN;
-import static com.connect.codeness.global.constants.Constants.AUTHORIZATION;
 
 import com.connect.codeness.domain.chat.dto.ChatCreateRequestDto;
 import com.connect.codeness.domain.chat.dto.ChatMessageDto;
@@ -19,7 +18,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 

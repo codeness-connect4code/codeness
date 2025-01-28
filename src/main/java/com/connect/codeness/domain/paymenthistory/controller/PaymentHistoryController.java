@@ -2,7 +2,6 @@ package com.connect.codeness.domain.paymenthistory.controller;
 
 
 import static com.connect.codeness.global.constants.Constants.ACCESS_TOKEN;
-import static com.connect.codeness.global.constants.Constants.AUTHORIZATION;
 import com.connect.codeness.domain.paymenthistory.dto.PaymentHistoryResponseDto;
 import com.connect.codeness.domain.paymenthistory.service.PaymentHistoryService;
 import com.connect.codeness.global.jwt.JwtProvider;
@@ -12,7 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
