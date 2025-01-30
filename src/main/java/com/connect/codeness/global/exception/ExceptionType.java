@@ -19,7 +19,7 @@ public enum ExceptionType {
 	ALREADY_CANCEL(HttpStatus.BAD_REQUEST, "이미 결제가 취소된 내역입니다."),
 	REFUND_FAILED(HttpStatus.BAD_REQUEST, "환불 요청이 실패했습니다."),
 	ALREADY_BOOKED(HttpStatus.BAD_REQUEST, "이미 예약된 멘토링 스케쥴 입니다." ),
-	MENTORING_SCHEDULE_EXPIRED(HttpStatus.BAD_REQUEST, "멘토링 스케쥴 시간이 만료되었습니다." ),
+	MENTORING_SCHEDULE_EXPIRED(HttpStatus.BAD_REQUEST, "멘토링 스케쥴 시간이 만료되어 환불 요청이 불가능합니다." ),
 	ALREADY_CLOSED_MENTOR_REQUEST(HttpStatus.BAD_REQUEST,"이미 처리된 멘토 신청 입니다."),
 	NOT_MENTOR(HttpStatus.BAD_REQUEST,"멘토인 사용자가 아닙니다."),
 	ALREADY_EXIST_CHATROOM(HttpStatus.BAD_REQUEST, "이미 생성된 채팅방입니다."),

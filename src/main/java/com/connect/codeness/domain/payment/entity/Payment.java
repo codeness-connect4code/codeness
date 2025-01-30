@@ -28,8 +28,8 @@ public class Payment extends CreateTimeEntity {
 	@JoinColumn(name = "mentee_id")
 	private User user;//사용자 고유 식별자 (외래키) - 멘티
 
-	//연관관계 : 1:1
-	@OneToOne
+	//연관관계 : N:1
+	@ManyToOne
 	@JoinColumn(name = "mentoring_schedule_id")
 	private MentoringSchedule mentoringSchedule;// 멘토링 스케쥴 고유 식별자 (외래키)
 
