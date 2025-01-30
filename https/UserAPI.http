@@ -12,27 +12,27 @@ Content-Type: application/json
   "userRole" : "MENTEE"
 }
 
-### 로그인
-POST localhost:8080/login
+### 로그인 요청
+POST http://localhost:8080/login
 Content-Type: application/json
 
 {
-  "email" : "2aaaaaaaa@naver.com",
-  "password" : "asdf1234!@"
+  "email": "2aaaaaaaa@naver.com",
+  "password": "asdf1234!@"
 }
 
 > {%
-  client.global.set("token",response.body.token);
-  client.log("Token saved: " + client.global.get("token"));
+  client.global.set("cookies", response.headers["set-cookie"]);
+  client.log("Cookies saved: " + client.global.get("cookies"));
 %}
 
 ### 유저 상세 조회 API
 GET localhost:8080/users
-Authorization: Bearer {{token}}
+Cookie: {{cookies}}
 
 ### 유저 정보 수정 API
 PATCH localhost:8080/users
-Authorization: Bearer {{token}}
+Cookie: {{cookies}}
 Content-Type: multipart/form-data; boundary=boundary
 
 --boundary
@@ -73,7 +73,7 @@ Content-Type: image/jpeg
 
 ### 유저 비밀번호 변경 API
 PATCH localhost:8080/users/password
-Authorization: Bearer {{token}}
+Cookie: {{cookies}}
 Content-Type: application/json
 
 {
@@ -83,7 +83,7 @@ Content-Type: application/json
 
 ### 유저 계좌 변경 API
 PATCH localhost:8080/users/bank-account
-Authorization: Bearer {{token}}
+Cookie: {{cookies}}
 Content-Type: application/json
 
 {
@@ -93,7 +93,7 @@ Content-Type: application/json
 
 ### 유저 탈퇴 API
 DELETE localhost:8080/users
-Authorization: Bearer {{token}}
+Cookie: {{cookies}}
 Content-Type: application/json
 
 {
@@ -102,4 +102,4 @@ Content-Type: application/json
 
 ### 유저 공고 추천 API
 GET localhost:8080/users/mentoring
-Authorization: Bearer {{token}}
+Cookie: {{cookies}}

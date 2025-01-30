@@ -1,7 +1,7 @@
 package com.connect.codeness.domain.comment.controller;
 
 
-import static com.connect.codeness.global.constants.Constants.AUTHORIZATION;
+import static com.connect.codeness.global.constants.Constants.ACCESS_TOKEN;
 import static com.connect.codeness.global.constants.Constants.PAGE_NUMBER;
 import static com.connect.codeness.global.constants.Constants.PAGE_SIZE;
 
@@ -10,7 +10,8 @@ import com.connect.codeness.domain.comment.dto.CommentFindAllResponseDto;
 import com.connect.codeness.domain.comment.service.CommentService;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.dto.PaginationResponseDto;
-import com.connect.codeness.global.jwt.JwtUtil;
+import com.connect.codeness.global.jwt.JwtProvider;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,7 +24,6 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,20 +33,20 @@ import org.springframework.web.bind.annotation.RestController;
 public class CommentController {
 
 	private final CommentService commentService;
-	private final JwtUtil jwtUtil;
+	private final JwtProvider jwtProvider;
 
-	public CommentController(final CommentService commentService, JwtUtil jwtUtil) {
+	public CommentController(final CommentService commentService, JwtProvider jwtProvider) {
 		this.commentService = commentService;
-		this.jwtUtil = jwtUtil;
+		this.jwtProvider = jwtProvider;
 	}
 
 	@PostMapping("posts/{postId}/comments")
 	public ResponseEntity<CommonResponseDto> createComment(
 		@PathVariable("postId") Long postId,
 		@Valid @RequestBody CommentCreateRequestDto dto,
-		@RequestHeader(AUTHORIZATION) String token){
+		HttpServletRequest request){
 
-		Long userId = jwtUtil.extractUserId(token);
+		Long userId = jwtProvider.getCookieReturnUserId(request,ACCESS_TOKEN);
 
 		CommonResponseDto responseDto = commentService.createComment(postId, userId, dto);
 
@@ -70,9 +70,9 @@ public class CommentController {
 	public ResponseEntity updateComment(
 		@PathVariable("commentId") Long commentId,
 		@Valid @RequestBody CommentCreateRequestDto dto,
-		@RequestHeader(AUTHORIZATION) String token) {
+		HttpServletRequest request){
 
-		Long userId = jwtUtil.extractUserId(token);
+		Long userId = jwtProvider.getCookieReturnUserId(request,ACCESS_TOKEN);
 
 		CommonResponseDto responseDto = commentService.updateComment(commentId, userId, dto);
 
@@ -82,9 +82,9 @@ public class CommentController {
 	@DeleteMapping("comments/{commentId}")
 	public ResponseEntity deleteComment(
 		@PathVariable("commentId") Long commentId,
-		@RequestHeader(AUTHORIZATION) String token) {
+		HttpServletRequest request) {
 
-		Long userId = jwtUtil.extractUserId(token);
+		Long userId = jwtProvider.getCookieReturnUserId(request,ACCESS_TOKEN);
 
 		CommonResponseDto responseDto = commentService.deleteComment(commentId, userId);
 
