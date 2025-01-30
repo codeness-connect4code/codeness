@@ -1,6 +1,7 @@
 package com.connect.codeness.domain.paymenthistory.service;
 
 
+import com.connect.codeness.domain.file.entity.ImageFile;
 import com.connect.codeness.domain.payment.entity.Payment;
 import com.connect.codeness.domain.payment.repository.PaymentRepository;
 import com.connect.codeness.domain.paymenthistory.entity.PaymentHistory;
@@ -11,6 +12,7 @@ import com.connect.codeness.domain.paymenthistory.dto.PaymentHistoryResponseDto;
 import com.connect.codeness.domain.user.entity.User;
 import com.connect.codeness.domain.user.repository.UserRepository;
 import com.connect.codeness.global.dto.CommonResponseDto;
+import com.connect.codeness.global.enums.FileCategory;
 import com.connect.codeness.global.enums.UserRole;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
@@ -55,8 +57,21 @@ public class PaymentHistoryServiceImpl implements PaymentHistoryService {
 				.toList();
 
 			List<PaymentHistoryMenteeResponseDto> paymentHistoryMenteeResponseDtos = paymentHistories.stream()
-				.map(PaymentHistoryMenteeResponseDto::from)
+				.map(paymentHistory -> {
+					//멘토 정보
+					User mentor = paymentHistory.getUser();
+					
+					//멘토 프로필 이미지 조회
+					String profileUrl = mentor.getImageFiles().stream()
+						.filter(imageFile -> imageFile.getFileCategory().equals(FileCategory.PROFILE))
+						.findFirst()
+						.map(ImageFile::getFilePath)
+						.orElse(null);
+
+					return PaymentHistoryMenteeResponseDto.from(paymentHistory, profileUrl);
+				})
 				.toList();
+
 			return CommonResponseDto.<List<PaymentHistoryMenteeResponseDto>>builder()
 				.msg("멘티 결제 내역이 전체 조회 되었습니다.").data(paymentHistoryMenteeResponseDtos).build();
 		}

@@ -41,7 +41,7 @@ public class PaymentHistory extends CreateTimeEntity {
 	//연관관계 : N:1
 	@ManyToOne(fetch = FetchType.LAZY)//필요한 시점에만 데이터 로드
 	@JoinColumn(name = "mentor_id")
-	private User user;//사용자 고유 식별자 (외래키)
+	private User user;//사용자 고유 식별자 (외래키) - 멘토
 
 	@Column(nullable = false)
 	private String pgTid; //PG사 발급 거래 ID
