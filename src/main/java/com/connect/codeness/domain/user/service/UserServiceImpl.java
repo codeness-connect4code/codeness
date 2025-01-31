@@ -1,7 +1,5 @@
 package com.connect.codeness.domain.user.service;
 
-import static com.connect.codeness.global.constants.Constants.ACCESS_TOKEN;
-import static com.connect.codeness.global.constants.Constants.ACCESS_TOKEN_EXPIRATION;
 import static com.connect.codeness.global.constants.Constants.REFRESH_TOKEN;
 import static com.connect.codeness.global.constants.Constants.REFRESH_TOKEN_EXPIRATION;
 import static com.connect.codeness.global.enums.UserProvider.GOOGLE;
@@ -13,6 +11,7 @@ import com.connect.codeness.domain.file.service.FileServiceImpl;
 import com.connect.codeness.domain.mentoringpost.dto.MentoringPostRecommendResponseDto;
 import com.connect.codeness.domain.mentoringpost.repository.MentoringPostRepository;
 import com.connect.codeness.domain.user.dto.GoogleUserUpdateRequestDto;
+import com.connect.codeness.domain.user.dto.LoginCheckResponseDto;
 import com.connect.codeness.domain.user.dto.LoginRequestDto;
 import com.connect.codeness.domain.user.dto.UserBankUpdateRequestDto;
 import com.connect.codeness.domain.user.dto.UserCreateRequestDto;
@@ -106,30 +105,30 @@ public class UserServiceImpl implements UserService {
 	 */
 	@Override
 	public String login(LoginRequestDto dto, HttpServletResponse response) throws IOException {
-		//이메일, 비밀번호 검증
+		// 이메일, 비밀번호 검증
 		Authentication authentication = authenticationManager.authenticate(
 			new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword()));
 
 		User user = userRepository.findByEmailOrElseThrow(dto.getEmail());
 
-		//구글 회원가입 유저일시 예외반환
+		// 구글 회원가입 유저일 시 예외 반환
 		if (user.getProvider().equals(GOOGLE)) {
 			throw new BusinessException(ExceptionType.GOOGLE_PROVIDER);
 		}
 
-		//로그인 성공시 토큰 생성 후 반환
+		// 로그인 성공 시 토큰 생성 후 반환
 		String accessToken = jwtProvider.generateAccessToken(user.getEmail(), user.getId(),
 			user.getRole().toString(), UserProvider.LOCAL.toString());
 		String refreshToken = jwtProvider.generateRefreshToken(user.getId());
 
-		// 두 토큰을 각각 HTTP-Only 쿠키에 저장
-		response.addCookie(
-			jwtProvider.createHttpOnlyCookie(ACCESS_TOKEN, accessToken, ACCESS_TOKEN_EXPIRATION));
+		// 리프레시 토큰을 HTTP-Only 쿠키에 저장
 		response.addCookie(jwtProvider.createHttpOnlyCookie(REFRESH_TOKEN, refreshToken,
 			REFRESH_TOKEN_EXPIRATION));
 
+		// 액세스 토큰은 응답 바디로 반환하여 클라이언트가 상태 관리
 		return accessToken;
 	}
+
 
 	/**
 	 * 유저 정보 조회
@@ -273,5 +272,21 @@ public class UserServiceImpl implements UserService {
 			Math.min(3, commendMentoringPost.size()));
 
 		return CommonResponseDto.builder().msg("멘토링 공고 추천에 성공했습니다.").data(randList).build();
+	}
+
+	@Override
+	public CommonResponseDto<?> loginCheck(Long userId) {
+
+		User user = userRepository.findByIdOrElseThrow(userId);
+		LoginCheckResponseDto dto = LoginCheckResponseDto.builder()
+			.id(user.getId())
+			.provider(user.getProvider())
+			.role(user.getRole())
+			.build();
+
+		return CommonResponseDto.builder()
+			.msg("로그인 확인")
+			.data(dto)
+			.build();
 	}
 }

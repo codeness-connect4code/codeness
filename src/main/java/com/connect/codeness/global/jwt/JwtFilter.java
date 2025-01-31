@@ -1,7 +1,11 @@
 package com.connect.codeness.global.jwt;
 
-import static com.connect.codeness.global.constants.Constants.REFRESH_TOKEN_EXPIRATION;
+import static com.connect.codeness.global.constants.Constants.AUTHORIZATION;
+import static com.connect.codeness.global.constants.Constants.BEARER;
 import static com.connect.codeness.global.constants.Constants.ACCESS_TOKEN;
+import static com.connect.codeness.global.constants.Constants.REFRESH_TOKEN;
+import static com.connect.codeness.global.constants.Constants.ACCESS_TOKEN_EXPIRATION;
+import static com.connect.codeness.global.constants.Constants.REFRESH_TOKEN_EXPIRATION;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -28,7 +32,6 @@ public class JwtFilter extends OncePerRequestFilter {
 		this.jwtProvider = jwtProvider;
 	}
 
-	// 제외할 경로
 	private static final List<String> POST_EXCLUDED_PATHS = List.of("/login", "/signup", "/logout");
 	private static final List<String> GET_EXCLUDED_PATHS = List.of("/posts", "/posts/.*", "/news", "/mentoring/\\d+/reviews", "/mentoring", "/mentoring.*", "/users/schedule");
 
@@ -39,52 +42,41 @@ public class JwtFilter extends OncePerRequestFilter {
 		String requestPath = request.getRequestURI();
 		String method = request.getMethod();
 
-		// 제외된 경로 처리
+		// 특정 경로에서는 필터 적용 제외
 		if (isExcludedPath(requestPath, method)) {
 			chain.doFilter(request, response);
 			return;
 		}
 
-		// 쿠키에서 JWT 토큰 추출
-		String token = getCookie(request, ACCESS_TOKEN);
-
-		if (token == null) {
-			chain.doFilter(request, response);
-			return;
-		}
+		// Access Token과 Refresh Token을 쿠키에서 가져오기
+		String accessToken = getCookie(request, ACCESS_TOKEN);
+		String refreshToken = getCookie(request, REFRESH_TOKEN);
 
 		try {
-			// 토큰 검증
-			if (jwtProvider.validationAccessToken(token)) {
-				String email = jwtProvider.extractEmail(token);
-				String role = jwtProvider.extractRole(token);
-				Long userId = jwtProvider.extractUserId(token);
+			if (accessToken != null) {
+				// Access Token이 유효한 경우, 인증 정보 설정
+				if (jwtProvider.validationAccessToken(accessToken)) {
+					setAuthentication(accessToken, request);
+				}
+				// Access Token이 만료되었고 Refresh Token이 유효한 경우, 새로운 Access Token 발급
+				else if (refreshToken != null && jwtProvider.validationRefreshToken(refreshToken)) {
+					String email = jwtProvider.extractEmail(refreshToken);
+					String role = jwtProvider.extractRole(refreshToken);
+					Long userId = jwtProvider.extractUserId(refreshToken);
+					String provider = jwtProvider.extractProvider(refreshToken);
 
-				// 인증 객체 생성
-				if (role != null) {
-					// ROLE_ADMIN이면 어드민 권한 부여
-					if (role.equals("ROLE_ADMIN")) {
-						log.debug("Admin access granted for user: {}", email);
-					} else {
-						log.debug("User access granted for user: {}", email);
-					}
+					// 새 Access Token 발급
+					String newAccessToken = jwtProvider.regenerateAccessToken(refreshToken, email, role, provider);
 
-					// 인증 객체 설정
-					UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-						email, null, Collections.singletonList(new SimpleGrantedAuthority(role)));
+					// 응답 쿠키에 새 Access Token 설정
+					response.addCookie(jwtProvider.createHttpOnlyCookie(ACCESS_TOKEN, newAccessToken, ACCESS_TOKEN_EXPIRATION));
 
-					authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-					SecurityContextHolder.getContext().setAuthentication(authentication);
+					// 새 Access Token을 사용하여 인증 정보 설정
+					setAuthentication(newAccessToken, request);
 
-					log.debug("Authentication set for user: {}", email);
-
-					// 토큰 갱신 처리
-					if (jwtProvider.validationRefreshToken(token)) {
-						String newRefreshToken = jwtProvider.generateRefreshToken(userId);
-						response.addCookie(jwtProvider.createHttpOnlyCookie("refresh_token", newRefreshToken, REFRESH_TOKEN_EXPIRATION));
-					} else {
-						log.warn("Invalid access token for user.");
-					}
+					// 새로운 Refresh Token 발급 및 설정
+					String newRefreshToken = jwtProvider.generateRefreshToken(userId);
+					response.addCookie(jwtProvider.createHttpOnlyCookie(REFRESH_TOKEN, newRefreshToken, REFRESH_TOKEN_EXPIRATION));
 				}
 			}
 		} catch (Exception e) {
@@ -94,12 +86,19 @@ public class JwtFilter extends OncePerRequestFilter {
 		chain.doFilter(request, response);
 	}
 
-	/**
-	 * 입력된 경로를 jwt 필터에서 제외
-	 * @param path 경로
-	 * @param method 요청 메서드
-	 * @return 검증 여부
-	 */
+	private void setAuthentication(String token, HttpServletRequest request) {
+		String email = jwtProvider.extractEmail(token);
+		String role = jwtProvider.extractRole(token);
+
+		if (role != null) {
+			UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+				email, null, Collections.singletonList(new SimpleGrantedAuthority(role)));
+			authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+			SecurityContextHolder.getContext().setAuthentication(authentication);
+			log.debug("Authentication set for user: {}", email);
+		}
+	}
+
 	private boolean isExcludedPath(String path, String method) {
 		if ("GET".equalsIgnoreCase(method) && GET_EXCLUDED_PATHS.stream().anyMatch(path::matches)) {
 			return true;
@@ -110,12 +109,6 @@ public class JwtFilter extends OncePerRequestFilter {
 		return false;
 	}
 
-	/**
-	 * 쿠키에서 JWT 토큰을 가져오는 메서드
-	 * @param request HTTP 요청
-	 * @param cookieName 쿠키 이름
-	 * @return 쿠키 값
-	 */
 	private String getCookie(HttpServletRequest request, String cookieName) {
 		Cookie[] cookies = request.getCookies();
 		if (cookies != null) {
