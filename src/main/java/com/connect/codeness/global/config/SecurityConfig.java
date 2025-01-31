@@ -59,6 +59,7 @@ public class SecurityConfig {
 					"/error",
 					"/posts/**",
 					"/news",
+					"/news/**",
 					"/mentoring",
 					"/mentoring/**",
 					"/users/schedule"
@@ -121,7 +122,9 @@ public class SecurityConfig {
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000")); // 와일드카드(*) 대신 구체적인 출처
+		configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000",
+			"https://codeness-front.vercel.app/"
+			)); // 와일드카드(*) 대신 구체적인 출처
 		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE","PATCH", "OPTIONS"));
 		configuration.setAllowedHeaders(Arrays.asList("*"));
 		configuration.setAllowCredentials(true); // credentials 허용
