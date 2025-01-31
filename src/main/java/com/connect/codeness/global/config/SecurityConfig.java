@@ -1,12 +1,12 @@
 package com.connect.codeness.global.config;
 
+import static com.connect.codeness.global.constants.Constants.AUTHORIZATION;
+
 import com.connect.codeness.global.handler.OAuth2SuccessHandler;
 import com.connect.codeness.global.jwt.JwtFilter;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,8 +31,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @Configuration
 public class SecurityConfig {
 
-	private static final Logger log = LoggerFactory.getLogger(SecurityConfig.class);
-
 	private final JwtFilter jwtFilter;
 	private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
@@ -43,7 +41,6 @@ public class SecurityConfig {
 
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		log.info("🔒 SecurityFilterChain 설정 시작");
 
 		http.cors(corsCustomizer -> corsCustomizer.configurationSource(corsConfigurationSource()))
 			.csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests(
@@ -85,7 +82,6 @@ public class SecurityConfig {
 			public OAuth2User loadUser(OAuth2UserRequest userRequest)
 				throws OAuth2AuthenticationException {
 				OAuth2User user = super.loadUser(userRequest);
-				log.info("🔑 OAuth2 사용자 정보 로드 성공: {}", user.getName());
 				return user;
 			}
 		};
@@ -111,11 +107,10 @@ public class SecurityConfig {
 			Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
 		configuration.setAllowedHeaders(List.of("*"));
 		configuration.setAllowCredentials(true);
-		configuration.setExposedHeaders(List.of("Authorization"));
+		configuration.setExposedHeaders(List.of(AUTHORIZATION));
 
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", configuration);
-		log.info("🌍 CORS 설정 완료");
 		return source;
 	}
 }
