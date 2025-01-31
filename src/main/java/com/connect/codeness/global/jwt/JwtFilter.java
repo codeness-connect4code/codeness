@@ -48,8 +48,11 @@ public class JwtFilter extends OncePerRequestFilter {
 			return;
 		}
 
-		// Access Token과 Refresh Token을 쿠키에서 가져오기
-		String accessToken = getCookie(request, ACCESS_TOKEN);
+		// Access Token과 Refresh Token을 가져오기
+		String accessToken = request.getHeader(AUTHORIZATION);
+		if (accessToken != null && accessToken.startsWith(BEARER)) {
+			accessToken = accessToken.substring(BEARER.length());
+		}
 		String refreshToken = getCookie(request, REFRESH_TOKEN);
 
 		try {
