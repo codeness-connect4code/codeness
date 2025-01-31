@@ -27,7 +27,7 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "mentorScheduleId" : 12,
+  "mentorScheduleId" : 1,
   "paymentCost" : 100,
   "paymentCard" : "신용카드"
 }

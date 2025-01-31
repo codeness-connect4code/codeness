@@ -1,10 +1,10 @@
 package com.connect.codeness.global.jwt;
 
+import static com.connect.codeness.global.constants.Constants.ACCESS_TOKEN;
+import static com.connect.codeness.global.constants.Constants.ACCESS_TOKEN_EXPIRATION;
 import static com.connect.codeness.global.constants.Constants.AUTHORIZATION;
 import static com.connect.codeness.global.constants.Constants.BEARER;
-import static com.connect.codeness.global.constants.Constants.ACCESS_TOKEN;
 import static com.connect.codeness.global.constants.Constants.REFRESH_TOKEN;
-import static com.connect.codeness.global.constants.Constants.ACCESS_TOKEN_EXPIRATION;
 import static com.connect.codeness.global.constants.Constants.REFRESH_TOKEN_EXPIRATION;
 
 import jakarta.servlet.FilterChain;
@@ -26,18 +26,18 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Slf4j
 @Component
 public class JwtFilter extends OncePerRequestFilter {
-	private final JwtProvider jwtProvider;
 
+	private static final List<String> POST_EXCLUDED_PATHS = List.of("/login", "/signup", "/logout");
+	private static final List<String> GET_EXCLUDED_PATHS = List.of("/posts", "/posts/.*", "/news",
+		"/mentoring/\\d+/reviews", "/mentoring", "/mentoring.*", "/users/schedule");
+	private final JwtProvider jwtProvider;
 	public JwtFilter(JwtProvider jwtProvider) {
 		this.jwtProvider = jwtProvider;
 	}
 
-	private static final List<String> POST_EXCLUDED_PATHS = List.of("/login", "/signup", "/logout");
-	private static final List<String> GET_EXCLUDED_PATHS = List.of("/posts", "/posts/.*", "/news", "/mentoring/\\d+/reviews", "/mentoring", "/mentoring.*", "/users/schedule");
-
 	@Override
-	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
-		throws ServletException, IOException {
+	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+		FilterChain chain) throws ServletException, IOException {
 
 		String requestPath = request.getRequestURI();
 		String method = request.getMethod();
@@ -48,8 +48,11 @@ public class JwtFilter extends OncePerRequestFilter {
 			return;
 		}
 
-		// Access Token과 Refresh Token을 쿠키에서 가져오기
-		String accessToken = getCookie(request, ACCESS_TOKEN);
+		// Access Token과 Refresh Token을 가져오기
+		String accessToken = request.getHeader(AUTHORIZATION);
+		if (accessToken != null && accessToken.startsWith(BEARER)) {
+			accessToken = accessToken.substring(BEARER.length());
+		}
 		String refreshToken = getCookie(request, REFRESH_TOKEN);
 
 		try {
@@ -66,17 +69,22 @@ public class JwtFilter extends OncePerRequestFilter {
 					String provider = jwtProvider.extractProvider(refreshToken);
 
 					// 새 Access Token 발급
-					String newAccessToken = jwtProvider.regenerateAccessToken(refreshToken, email, role, provider);
+					String newAccessToken = jwtProvider.regenerateAccessToken(refreshToken, email,
+						role, provider);
 
 					// 응답 쿠키에 새 Access Token 설정
-					response.addCookie(jwtProvider.createHttpOnlyCookie(ACCESS_TOKEN, newAccessToken, ACCESS_TOKEN_EXPIRATION));
+					response.addCookie(
+						jwtProvider.createHttpOnlyCookie(ACCESS_TOKEN, newAccessToken,
+							ACCESS_TOKEN_EXPIRATION));
 
 					// 새 Access Token을 사용하여 인증 정보 설정
 					setAuthentication(newAccessToken, request);
 
 					// 새로운 Refresh Token 발급 및 설정
 					String newRefreshToken = jwtProvider.generateRefreshToken(userId);
-					response.addCookie(jwtProvider.createHttpOnlyCookie(REFRESH_TOKEN, newRefreshToken, REFRESH_TOKEN_EXPIRATION));
+					response.addCookie(
+						jwtProvider.createHttpOnlyCookie(REFRESH_TOKEN, newRefreshToken,
+							REFRESH_TOKEN_EXPIRATION));
 				}
 			}
 		} catch (Exception e) {
@@ -103,10 +111,8 @@ public class JwtFilter extends OncePerRequestFilter {
 		if ("GET".equalsIgnoreCase(method) && GET_EXCLUDED_PATHS.stream().anyMatch(path::matches)) {
 			return true;
 		}
-		if ("POST".equalsIgnoreCase(method) && POST_EXCLUDED_PATHS.stream().anyMatch(path::matches)) {
-			return true;
-		}
-		return false;
+		return "POST".equalsIgnoreCase(method) && POST_EXCLUDED_PATHS.stream()
+			.anyMatch(path::matches);
 	}
 
 	private String getCookie(HttpServletRequest request, String cookieName) {
