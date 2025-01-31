@@ -2,6 +2,7 @@ package com.connect.codeness.domain.comment.controller;
 
 
 import static com.connect.codeness.global.constants.Constants.ACCESS_TOKEN;
+import static com.connect.codeness.global.constants.Constants.AUTHORIZATION;
 import static com.connect.codeness.global.constants.Constants.PAGE_NUMBER;
 import static com.connect.codeness.global.constants.Constants.PAGE_SIZE;
 
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -44,9 +46,9 @@ public class CommentController {
 	public ResponseEntity<CommonResponseDto> createComment(
 		@PathVariable("postId") Long postId,
 		@Valid @RequestBody CommentCreateRequestDto dto,
-		HttpServletRequest request){
+		@RequestHeader(AUTHORIZATION) String authorizationHeader){
 
-		Long userId = jwtProvider.getCookieReturnUserId(request,ACCESS_TOKEN);
+		Long userId = jwtProvider.extractUserId(authorizationHeader);
 
 		CommonResponseDto responseDto = commentService.createComment(postId, userId, dto);
 
@@ -70,9 +72,9 @@ public class CommentController {
 	public ResponseEntity updateComment(
 		@PathVariable("commentId") Long commentId,
 		@Valid @RequestBody CommentCreateRequestDto dto,
-		HttpServletRequest request){
+		@RequestHeader(AUTHORIZATION) String authorizationHeader){
 
-		Long userId = jwtProvider.getCookieReturnUserId(request,ACCESS_TOKEN);
+		Long userId = jwtProvider.extractUserId(authorizationHeader);
 
 		CommonResponseDto responseDto = commentService.updateComment(commentId, userId, dto);
 
@@ -82,9 +84,9 @@ public class CommentController {
 	@DeleteMapping("comments/{commentId}")
 	public ResponseEntity deleteComment(
 		@PathVariable("commentId") Long commentId,
-		HttpServletRequest request) {
+		@RequestHeader(AUTHORIZATION) String authorizationHeader) {
 
-		Long userId = jwtProvider.getCookieReturnUserId(request,ACCESS_TOKEN);
+		Long userId = jwtProvider.extractUserId(authorizationHeader);
 
 		CommonResponseDto responseDto = commentService.deleteComment(commentId, userId);
 

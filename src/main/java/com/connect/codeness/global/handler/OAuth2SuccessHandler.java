@@ -1,6 +1,9 @@
 package com.connect.codeness.global.handler;
 
+import static com.connect.codeness.global.constants.Constants.ACCESS_TOKEN;
 import static com.connect.codeness.global.constants.Constants.FRONTEND_URL;
+import static com.connect.codeness.global.constants.Constants.REFRESH_TOKEN;
+import static com.connect.codeness.global.constants.Constants.REFRESH_TOKEN_EXPIRATION;
 
 import com.connect.codeness.domain.user.entity.User;
 import com.connect.codeness.domain.user.repository.UserRepository;
@@ -73,13 +76,14 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
 			String jwtRefreshToken = jwtProvider.generateRefreshToken(user.getId());
 
-			// 쿠키 설정 (HttpOnly & Secure)
-			addHttpOnlyCookie(response, "access_token", jwtAccessToken, 60 * 60 * 24);
-			addHttpOnlyCookie(response, "refresh_token", jwtRefreshToken, 60 * 60 * 24 * 7);
+			// 리프레시 토큰을 HttpOnly 쿠키에 저장
+			jwtProvider.createHttpOnlyCookie(REFRESH_TOKEN, jwtRefreshToken, REFRESH_TOKEN_EXPIRATION);
 
-			// 리다이렉트 (토큰을 쿼리파라미터에 포함하지 않음)
+			// 프론트엔드로 리다이렉트하면서 액세스 토큰을 쿼리 파라미터로 전달
 			String redirectUrl = UriComponentsBuilder.fromUriString(
-					System.getenv().getOrDefault("FRONTEND_URL", FRONTEND_URL)).build()
+					System.getenv().getOrDefault("FRONTEND_URL", FRONTEND_URL))
+				.queryParam(ACCESS_TOKEN, jwtAccessToken)
+				.build()
 				.toUriString();
 
 			response.sendRedirect(redirectUrl);
@@ -89,16 +93,5 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			response.getWriter().write("로그인 처리 중 오류가 발생했습니다: " + e.getMessage());
 		}
-	}
-
-	// HttpOnly 쿠키 추가 메서드
-	private void addHttpOnlyCookie(HttpServletResponse response, String name, String value,
-		int maxAge) {
-		Cookie cookie = new Cookie(name, value);
-		cookie.setHttpOnly(true);
-		cookie.setSecure(true); // HTTPS 환경에서만 전송 (운영 환경에서 적용)
-		cookie.setPath("/");
-		cookie.setMaxAge(maxAge);
-		response.addCookie(cookie);
 	}
 }

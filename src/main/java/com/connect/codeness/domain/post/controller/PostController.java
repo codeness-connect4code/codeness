@@ -1,6 +1,7 @@
 package com.connect.codeness.domain.post.controller;
 
 import static com.connect.codeness.global.constants.Constants.ACCESS_TOKEN;
+import static com.connect.codeness.global.constants.Constants.AUTHORIZATION;
 import static com.connect.codeness.global.constants.Constants.PAGE_NUMBER;
 import static com.connect.codeness.global.constants.Constants.PAGE_SIZE;
 
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -47,9 +49,9 @@ public class PostController {
 	@PostMapping
 	public ResponseEntity<CommonResponseDto> createPost(
 		@Valid @RequestBody PostCreateRequestDto dto,
-		HttpServletRequest request) {
+		@RequestHeader(AUTHORIZATION) String authorizationHeader) {
 
-		Long userId = jwtProvider.getCookieReturnUserId(request, ACCESS_TOKEN);
+		Long userId = jwtProvider.extractUserId(authorizationHeader);
 
 		CommonResponseDto responseDto = postService.createPost(userId, dto);
 
@@ -96,9 +98,9 @@ public class PostController {
 	public ResponseEntity<CommonResponseDto> updatePost(
 		@Valid @RequestBody PostUpdateRequestDto dto,
 		@PathVariable Long postId,
-		HttpServletRequest request) {
+		@RequestHeader(AUTHORIZATION) String authorizationHeader) {
 
-		Long userId = jwtProvider.getCookieReturnUserId(request, ACCESS_TOKEN);
+		Long userId = jwtProvider.extractUserId(authorizationHeader);
 
 		CommonResponseDto responseDto = postService.updatePost(userId, postId, dto);
 
@@ -107,10 +109,9 @@ public class PostController {
 
 	@DeleteMapping("/{postId}")
 	public ResponseEntity<CommonResponseDto> deletePost(
-		@PathVariable Long postId,
-		HttpServletRequest request) {
+		@PathVariable Long postId, @RequestHeader(AUTHORIZATION) String authorizationHeader){
 
-		Long userId = jwtProvider.getCookieReturnUserId(request, ACCESS_TOKEN);
+		Long userId = jwtProvider.extractUserId(authorizationHeader);
 
 		CommonResponseDto responseDto = postService.deletePost(userId, postId);
 

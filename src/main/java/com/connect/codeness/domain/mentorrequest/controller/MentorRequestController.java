@@ -1,6 +1,7 @@
 package com.connect.codeness.domain.mentorrequest.controller;
 
 import static com.connect.codeness.global.constants.Constants.ACCESS_TOKEN;
+import static com.connect.codeness.global.constants.Constants.AUTHORIZATION;
 
 import com.connect.codeness.domain.file.entity.ImageFile;
 import com.connect.codeness.domain.file.repository.FileRepository;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -43,16 +45,16 @@ public class MentorRequestController {
 	/**
 	 * 멘토 신청 API
 	 *
-	 * @param request
-	 * @param mentorRequestCreateRequestDto
-	 * @return
+	 * @param authorizationHeader 액세스 토큰 헤더
+	 * @param mentorRequestCreateRequestDto 멘토 신청 dto
+	 * @return 성공 메세지
 	 * @throws IOException
 	 */
 	@PostMapping("/mentors")
-	public ResponseEntity<CommonResponseDto<?>> createMentorRequest(HttpServletRequest request,
+	public ResponseEntity<CommonResponseDto<?>> createMentorRequest(@RequestHeader(AUTHORIZATION) String authorizationHeader,
 		@Valid @ModelAttribute MentorRequestCreateRequestDto mentorRequestCreateRequestDto)
 		throws IOException {
-		Long userId = jwtProvider.getCookieReturnUserId(request, ACCESS_TOKEN);
+		Long userId = jwtProvider.extractUserId(authorizationHeader);
 
 		if (fileRepository.findByUserIdAndFileCategory(userId, FileCategory.EMPLOYEE_CARD)
 			.isPresent()) {
@@ -72,14 +74,14 @@ public class MentorRequestController {
 	/**
 	 * 멘토 신청 삭제 API
 	 *
-	 * @param request
-	 * @param mentorRequestId
-	 * @return
+	 * @param authorizationHeader 액세스 토큰 헤더
+	 * @param mentorRequestId 멘토 신청 고유 식별자
+	 * @return 성공 메세지
 	 */
 	@DeleteMapping("/mentors/{mentorRequestId}")
-	public ResponseEntity<CommonResponseDto<?>> deleteMentorRequest(HttpServletRequest request,
+	public ResponseEntity<CommonResponseDto<?>> deleteMentorRequest(@RequestHeader(AUTHORIZATION) String authorizationHeader,
 		@PathVariable Long mentorRequestId) {
-		Long userId = jwtProvider.getCookieReturnUserId(request, ACCESS_TOKEN);
+		Long userId = jwtProvider.extractUserId(authorizationHeader);
 
 		CommonResponseDto<?> commonResponseDto = mentorRequestService.deleteMentorRequest(userId,
 			mentorRequestId);
@@ -89,12 +91,12 @@ public class MentorRequestController {
 	/**
 	 * 멘토 신청 조회 API
 	 *
-	 * @param request
-	 * @return
+	 * @param authorizationHeader 액세스 토큰 헤더
+	 * @return 멘토 신청 리스트
 	 */
 	@GetMapping("/mentors")
-	public ResponseEntity<CommonResponseDto<?>> getMentorRequest(HttpServletRequest request) {
-		Long userId = jwtProvider.getCookieReturnUserId(request, ACCESS_TOKEN);
+	public ResponseEntity<CommonResponseDto<?>> getMentorRequest(@RequestHeader(AUTHORIZATION) String authorizationHeader) {
+		Long userId = jwtProvider.extractUserId(authorizationHeader);
 
 		CommonResponseDto<?> commonResponseDto = mentorRequestService.getMentorRequest(userId);
 		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);

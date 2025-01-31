@@ -1,6 +1,7 @@
 package com.connect.codeness.domain.review.controller;
 
 import static com.connect.codeness.global.constants.Constants.ACCESS_TOKEN;
+import static com.connect.codeness.global.constants.Constants.AUTHORIZATION;
 import static com.connect.codeness.global.constants.Constants.PAGE_NUMBER;
 import static com.connect.codeness.global.constants.Constants.PAGE_SIZE;
 
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -37,10 +39,10 @@ public class ReviewController {
 	@PostMapping("/payment-history/{paymentHistoryId}/reviews")
 	public ResponseEntity<CommonResponseDto> createReview(
 		@PathVariable Long paymentHistoryId,
-		HttpServletRequest request,
+		@RequestHeader(AUTHORIZATION) String authorizationHeader,
 		@Valid @RequestBody ReviewCreateRequestDto dto
 	) {
-		Long userId = jwtProvider.getCookieReturnUserId(request, ACCESS_TOKEN);
+		Long userId = jwtProvider.extractUserId(authorizationHeader);
 		CommonResponseDto commonResponseDto = reviewService.createReview(userId, paymentHistoryId,
 			dto);
 
@@ -62,9 +64,9 @@ public class ReviewController {
 	@GetMapping("/payment-history/{paymentHistoryId}/reviews")
 	public ResponseEntity<CommonResponseDto<ReviewResponseDetailDto>> findReview(
 		@PathVariable Long paymentHistoryId,
-		HttpServletRequest request
+		@RequestHeader(AUTHORIZATION) String authorizationHeader
 	) {
-		Long userId = jwtProvider.getCookieReturnUserId(request, ACCESS_TOKEN);
+		Long userId = jwtProvider.extractUserId(authorizationHeader);
 
 		CommonResponseDto<ReviewResponseDetailDto> commonResponseDto
 			= reviewService.findReview(userId, paymentHistoryId);
@@ -75,9 +77,9 @@ public class ReviewController {
 	@DeleteMapping("/reviews/{reviewId}")
 	public ResponseEntity<CommonResponseDto> deleteReview(
 		@PathVariable Long reviewId,
-		HttpServletRequest request
+		@RequestHeader(AUTHORIZATION) String authorizationHeader
 	) {
-		Long userId = jwtProvider.getCookieReturnUserId(request, ACCESS_TOKEN);
+		Long userId = jwtProvider.extractUserId(authorizationHeader);
 		CommonResponseDto commonResponseDto = reviewService.deleteReview(userId, reviewId);
 
 		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);

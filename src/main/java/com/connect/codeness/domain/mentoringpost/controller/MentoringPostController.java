@@ -1,6 +1,7 @@
 package com.connect.codeness.domain.mentoringpost.controller;
 
 import static com.connect.codeness.global.constants.Constants.ACCESS_TOKEN;
+import static com.connect.codeness.global.constants.Constants.AUTHORIZATION;
 import static com.connect.codeness.global.constants.Constants.PAGE_NUMBER;
 import static com.connect.codeness.global.constants.Constants.PAGE_SIZE;
 
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -40,9 +42,9 @@ public class MentoringPostController {
 	 * - 멘토만 가능
 	 */
 	@PostMapping("/mentoring")
-	public ResponseEntity<CommonResponseDto> createMentoringPost(HttpServletRequest request,
+	public ResponseEntity<CommonResponseDto> createMentoringPost(@RequestHeader(AUTHORIZATION) String authorizationHeader,
 		@Valid @RequestBody MentoringPostCreateRequestDto requestDto) {
-		Long userId = jwtProvider.getCookieReturnUserId(request,ACCESS_TOKEN);
+		Long userId = jwtProvider.extractUserId(authorizationHeader);
 
 		CommonResponseDto responseDto = mentoringPostService.createMentoringPost(userId, requestDto);
 
@@ -55,9 +57,9 @@ public class MentoringPostController {
 	 * - 삭제시 상태 DELETED 변경
 	 */
 	@PatchMapping("/mentoring/{mentoringPostId}")
-	public ResponseEntity<CommonResponseDto> deleteMentoringPost(HttpServletRequest request,
+	public ResponseEntity<CommonResponseDto> deleteMentoringPost(@RequestHeader(AUTHORIZATION) String authorizationHeader,
 		@PathVariable Long mentoringPostId) {
-		Long userId = jwtProvider.getCookieReturnUserId(request,ACCESS_TOKEN);
+		Long userId = jwtProvider.extractUserId(authorizationHeader);
 		CommonResponseDto responseDto = mentoringPostService.deleteMentoringPost(userId, mentoringPostId);
 
 		return new ResponseEntity<>(responseDto, HttpStatus.OK);
@@ -101,9 +103,9 @@ public class MentoringPostController {
 	 * - 멘토가 생성한 멘토링 공고 단건 조회
 	 */
 	@GetMapping("/mentors/mentoring")
-	public ResponseEntity<CommonResponseDto<MyMentoringPostResponseDto>> findMentoringPostByMentorId(HttpServletRequest request) {
+	public ResponseEntity<CommonResponseDto<MyMentoringPostResponseDto>> findMentoringPostByMentorId(@RequestHeader(AUTHORIZATION) String authorizationHeader) {
 
-		Long userId = jwtProvider.getCookieReturnUserId(request,ACCESS_TOKEN);
+		Long userId = jwtProvider.extractUserId(authorizationHeader);
 		CommonResponseDto<MyMentoringPostResponseDto> responseDto = mentoringPostService.findMentoringPostByMentorId(userId);
 
 		return new ResponseEntity<>(responseDto, HttpStatus.OK);
@@ -116,11 +118,11 @@ public class MentoringPostController {
 	 */
 	@GetMapping("/mentees/mentoring")
 	public ResponseEntity<CommonResponseDto<PaginationResponseDto<MyMentoringPostResponseDto>>> findMentoringPostByMenteeId(
-		HttpServletRequest request,
+		@RequestHeader(AUTHORIZATION) String authorizationHeader,
 		@RequestParam(defaultValue = PAGE_NUMBER) int pageNumber,
 		@RequestParam(defaultValue = PAGE_SIZE) int pageSize) {
 
-		Long userId = jwtProvider.getCookieReturnUserId(request,ACCESS_TOKEN);
+		Long userId = jwtProvider.extractUserId(authorizationHeader);
 		CommonResponseDto<PaginationResponseDto<MyMentoringPostResponseDto>> responseDto = mentoringPostService.findMentoringPostByMenteeId(userId, pageNumber, pageSize);
 
 		return new ResponseEntity<>(responseDto, HttpStatus.OK);

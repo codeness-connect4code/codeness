@@ -13,14 +13,15 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public interface UserService {
-	CommonResponseDto createUser(UserCreateRequestDto userCreateRequestDto);
+	CommonResponseDto<?> createUser(UserCreateRequestDto userCreateRequestDto);
 	String login(LoginRequestDto loginRequestDto, HttpServletResponse response) throws IOException;
-	CommonResponseDto getUser(Long userId);
-	CommonResponseDto updateUser(Long userId, UserUpdateRequestDto userUpdateRequestDto, ImageFile imageFile) throws IOException;
-	CommonResponseDto updateGoogleUser(Long userId, GoogleUserUpdateRequestDto googleUserUpdateRequestDto, ImageFile imageFile) throws IOException;
-	CommonResponseDto updatePassword(Long userId, UserPasswordUpdateRequestDto userPasswordUpdateRequestDto);
-	CommonResponseDto updateBankAccount(Long userId, UserBankUpdateRequestDto userBankUpdateRequestDto);
-	CommonResponseDto deleteUser(Long userId, UserDeleteResponseDto userDeleteResponseDto);
-	CommonResponseDto getMentoring(Long userId);
+	CommonResponseDto<?> getUser(Long userId);
+	CommonResponseDto<?> updateUser(Long userId, UserUpdateRequestDto userUpdateRequestDto, ImageFile imageFile) throws IOException;
+	CommonResponseDto<?> updateGoogleUser(Long userId, GoogleUserUpdateRequestDto googleUserUpdateRequestDto, ImageFile imageFile) throws IOException;
+	CommonResponseDto<?> updatePassword(Long userId, UserPasswordUpdateRequestDto userPasswordUpdateRequestDto);
+	CommonResponseDto<?> updateBankAccount(Long userId, UserBankUpdateRequestDto userBankUpdateRequestDto);
+	CommonResponseDto<?> deleteUser(Long userId, UserDeleteResponseDto userDeleteResponseDto);
+	CommonResponseDto<?> getMentoring(Long userId);
+	CommonResponseDto<?> loginCheck(Long userId);
 }
 
