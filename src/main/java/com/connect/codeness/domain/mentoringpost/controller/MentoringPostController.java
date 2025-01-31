@@ -1,8 +1,9 @@
 package com.connect.codeness.domain.mentoringpost.controller;
 
+import static com.connect.codeness.global.constants.Constants.ACCESS_TOKEN;
+import static com.connect.codeness.global.constants.Constants.AUTHORIZATION;
 import static com.connect.codeness.global.constants.Constants.PAGE_NUMBER;
 import static com.connect.codeness.global.constants.Constants.PAGE_SIZE;
-import static com.connect.codeness.global.constants.Constants.AUTHORIZATION;
 
 import com.connect.codeness.domain.mentoringpost.dto.MentoringPostCreateRequestDto;
 import com.connect.codeness.domain.mentoringpost.dto.MentoringPostDetailResponseDto;
@@ -10,8 +11,9 @@ import com.connect.codeness.domain.mentoringpost.dto.MentoringPostSearchResponse
 import com.connect.codeness.domain.mentoringpost.dto.MyMentoringPostResponseDto;
 import com.connect.codeness.domain.mentoringpost.service.MentoringPostService;
 import com.connect.codeness.global.dto.PaginationResponseDto;
-import com.connect.codeness.global.jwt.JwtUtil;
+import com.connect.codeness.global.jwt.JwtProvider;
 import com.connect.codeness.global.dto.CommonResponseDto;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,11 +30,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class MentoringPostController {
 
 	private final MentoringPostService mentoringPostService;
-	private final JwtUtil jwtUtil;
+	private final JwtProvider jwtProvider;
 
-	public MentoringPostController(MentoringPostService mentoringPostService, JwtUtil jwtUtil) {
+	public MentoringPostController(MentoringPostService mentoringPostService, JwtProvider jwtProvider) {
 		this.mentoringPostService = mentoringPostService;
-		this.jwtUtil = jwtUtil;
+		this.jwtProvider = jwtProvider;
 	}
 
 	/**
@@ -40,9 +42,9 @@ public class MentoringPostController {
 	 * - 멘토만 가능
 	 */
 	@PostMapping("/mentoring")
-	public ResponseEntity<CommonResponseDto> createMentoringPost(@RequestHeader(AUTHORIZATION) String token,
+	public ResponseEntity<CommonResponseDto> createMentoringPost(@RequestHeader(AUTHORIZATION) String authorizationHeader,
 		@Valid @RequestBody MentoringPostCreateRequestDto requestDto) {
-		Long userId = jwtUtil.extractUserId(token);
+		Long userId = jwtProvider.extractUserId(authorizationHeader);
 
 		CommonResponseDto responseDto = mentoringPostService.createMentoringPost(userId, requestDto);
 
@@ -55,9 +57,9 @@ public class MentoringPostController {
 	 * - 삭제시 상태 DELETED 변경
 	 */
 	@PatchMapping("/mentoring/{mentoringPostId}")
-	public ResponseEntity<CommonResponseDto> deleteMentoringPost(@RequestHeader(AUTHORIZATION) String token,
+	public ResponseEntity<CommonResponseDto> deleteMentoringPost(@RequestHeader(AUTHORIZATION) String authorizationHeader,
 		@PathVariable Long mentoringPostId) {
-		Long userId = jwtUtil.extractUserId(token);
+		Long userId = jwtProvider.extractUserId(authorizationHeader);
 		CommonResponseDto responseDto = mentoringPostService.deleteMentoringPost(userId, mentoringPostId);
 
 		return new ResponseEntity<>(responseDto, HttpStatus.OK);
@@ -101,9 +103,9 @@ public class MentoringPostController {
 	 * - 멘토가 생성한 멘토링 공고 단건 조회
 	 */
 	@GetMapping("/mentors/mentoring")
-	public ResponseEntity<CommonResponseDto<MyMentoringPostResponseDto>> findMentoringPostByMentorId(@RequestHeader(AUTHORIZATION) String token) {
+	public ResponseEntity<CommonResponseDto<MyMentoringPostResponseDto>> findMentoringPostByMentorId(@RequestHeader(AUTHORIZATION) String authorizationHeader) {
 
-		Long userId = jwtUtil.extractUserId(token);
+		Long userId = jwtProvider.extractUserId(authorizationHeader);
 		CommonResponseDto<MyMentoringPostResponseDto> responseDto = mentoringPostService.findMentoringPostByMentorId(userId);
 
 		return new ResponseEntity<>(responseDto, HttpStatus.OK);
@@ -116,11 +118,11 @@ public class MentoringPostController {
 	 */
 	@GetMapping("/mentees/mentoring")
 	public ResponseEntity<CommonResponseDto<PaginationResponseDto<MyMentoringPostResponseDto>>> findMentoringPostByMenteeId(
-		@RequestHeader(AUTHORIZATION) String token,
+		@RequestHeader(AUTHORIZATION) String authorizationHeader,
 		@RequestParam(defaultValue = PAGE_NUMBER) int pageNumber,
 		@RequestParam(defaultValue = PAGE_SIZE) int pageSize) {
 
-		Long userId = jwtUtil.extractUserId(token);
+		Long userId = jwtProvider.extractUserId(authorizationHeader);
 		CommonResponseDto<PaginationResponseDto<MyMentoringPostResponseDto>> responseDto = mentoringPostService.findMentoringPostByMenteeId(userId, pageNumber, pageSize);
 
 		return new ResponseEntity<>(responseDto, HttpStatus.OK);

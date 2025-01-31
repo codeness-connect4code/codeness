@@ -4,6 +4,7 @@ import com.connect.codeness.global.jwt.JwtFilter;
 import com.connect.codeness.global.handler.OAuth2SuccessHandler;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Arrays;
+import java.util.List;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -59,15 +60,13 @@ public class SecurityConfig {
 					"/error",
 					"/posts/**",
 					"/news",
-					"/news/**",
 					"/mentoring",
 					"/mentoring/**",
 					"/users/schedule"
 				).permitAll()
 				.requestMatchers("/admin/**").hasAuthority("ADMIN")
-				.requestMatchers(HttpMethod.POST,"/mentoring").hasAuthority("MENTOR")
-//				.requestMatchers(HttpMethod.GET,"/mentoring/{id}/mentoring-schedule").hasAuthority("MENTEE")
-				.requestMatchers(HttpMethod.DELETE,"/mentoring").hasAuthority("MENTOR")
+				.requestMatchers(HttpMethod.POST, "/mentoring").hasAuthority("MENTOR")
+				.requestMatchers(HttpMethod.DELETE, "/mentoring").hasAuthority("MENTOR")
 				.requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
 				.anyRequest().authenticated()
 			)
@@ -104,9 +103,24 @@ public class SecurityConfig {
 		return new DefaultOAuth2UserService() {
 			@Override
 			public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-				return super.loadUser(userRequest);
+				OAuth2User user = super.loadUser(userRequest);
+				// JWT 발급 후 쿠키에 저장
+				String jwtToken = generateJwtToken(user);
+				setJwtTokenInCookie(jwtToken);
+				return user;
 			}
 		};
+	}
+
+	private String generateJwtToken(OAuth2User user) {
+		// JWT 생성 로직 (user 정보 바탕으로 JWT를 생성)
+		// 예시: return JwtUtil.generateToken(user);
+		return "generated-jwt-token";  // 실제 JWT 생성 로직을 추가하세요.
+	}
+
+	private void setJwtTokenInCookie(String jwtToken) {
+		HttpServletResponse response = null;  // 실제 Response 객체를 가져오는 로직 추가 필요
+		response.addHeader("Set-Cookie", "access_token=" + jwtToken + "; Path=/; HttpOnly; Secure; SameSite=Strict");
 	}
 
 	@Bean
@@ -122,13 +136,13 @@ public class SecurityConfig {
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000",
+		configuration.setAllowedOrigins(List.of("http://localhost:3000",
 			"https://codeness-front.vercel.app/"
-			)); // 와일드카드(*) 대신 구체적인 출처
-		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE","PATCH", "OPTIONS"));
-		configuration.setAllowedHeaders(Arrays.asList("*"));
-		configuration.setAllowCredentials(true); // credentials 허용
-		configuration.setExposedHeaders(Arrays.asList("Authorization")); // Authorization 헤더 노출
+			));  // 클라이언트의 실제 URL로 수정
+		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+		configuration.setAllowedHeaders(List.of("*"));
+		configuration.setAllowCredentials(true);  // credentials 허용
+		configuration.setExposedHeaders(List.of("Authorization"));  // Authorization 헤더 노출
 
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", configuration);

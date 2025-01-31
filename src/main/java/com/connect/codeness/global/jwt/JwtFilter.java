@@ -1,17 +1,21 @@
 package com.connect.codeness.global.jwt;
 
-import io.jsonwebtoken.JwtException;
+import static com.connect.codeness.global.constants.Constants.AUTHORIZATION;
+import static com.connect.codeness.global.constants.Constants.BEARER;
+import static com.connect.codeness.global.constants.Constants.ACCESS_TOKEN;
+import static com.connect.codeness.global.constants.Constants.REFRESH_TOKEN;
+import static com.connect.codeness.global.constants.Constants.ACCESS_TOKEN_EXPIRATION;
+import static com.connect.codeness.global.constants.Constants.REFRESH_TOKEN_EXPIRATION;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.security.SignatureException;
 import java.util.Collections;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,18 +23,17 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+@Slf4j
 @Component
 public class JwtFilter extends OncePerRequestFilter {
+	private final JwtProvider jwtProvider;
 
-	private static final Logger logger = LoggerFactory.getLogger(JwtFilter.class);
+	public JwtFilter(JwtProvider jwtProvider) {
+		this.jwtProvider = jwtProvider;
+	}
 
-	@Autowired
-	private JwtUtil jwtUtil;
-
-	// 제외할 경로
 	private static final List<String> POST_EXCLUDED_PATHS = List.of("/login", "/signup", "/logout");
-	private static final List<String> GET_EXCLUDED_PATHS = List.of("/posts", "/posts/.*", "/news", "/mentoring/\\d+/reviews", "/mentoring",  "/mentoring.*","/users/schedule");
-//	private static final List<String> EXCLUDED_PATHS = List.of("/payment/.*", "/mentoring", "/login-page", "/users", "/loginPage.html", "/payment.html");
+	private static final List<String> GET_EXCLUDED_PATHS = List.of("/posts", "/posts/.*", "/news", "/mentoring/\\d+/reviews", "/mentoring", "/mentoring.*", "/users/schedule");
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
@@ -39,67 +42,64 @@ public class JwtFilter extends OncePerRequestFilter {
 		String requestPath = request.getRequestURI();
 		String method = request.getMethod();
 
-		// 제외된 경로 처리
+		// 특정 경로에서는 필터 적용 제외
 		if (isExcludedPath(requestPath, method)) {
 			chain.doFilter(request, response);
 			return;
 		}
 
-		// Authorization 헤더에서 JWT 토큰 추출
-		String authorizationHeader = request.getHeader("Authorization");
-
-		if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-			chain.doFilter(request, response);
-			return;
-		}
-
-		String token = authorizationHeader.substring(7);
+		// Access Token과 Refresh Token을 쿠키에서 가져오기
+		String accessToken = getCookie(request, ACCESS_TOKEN);
+		String refreshToken = getCookie(request, REFRESH_TOKEN);
 
 		try {
-			// 토큰 검증
-			if (jwtUtil.validateToken(token)) {
-				String email = jwtUtil.extractEmail(token);
-				String role = jwtUtil.extractRole(token);
-				Long userId = jwtUtil.extractUserId(token);
+			if (accessToken != null) {
+				// Access Token이 유효한 경우, 인증 정보 설정
+				if (jwtProvider.validationAccessToken(accessToken)) {
+					setAuthentication(accessToken, request);
+				}
+				// Access Token이 만료되었고 Refresh Token이 유효한 경우, 새로운 Access Token 발급
+				else if (refreshToken != null && jwtProvider.validationRefreshToken(refreshToken)) {
+					String email = jwtProvider.extractEmail(refreshToken);
+					String role = jwtProvider.extractRole(refreshToken);
+					Long userId = jwtProvider.extractUserId(refreshToken);
+					String provider = jwtProvider.extractProvider(refreshToken);
 
-				// 인증 객체 생성
-				if (role != null) {
-					// ROLE_ADMIN이면 어드민 권한 부여
-					if (role.equals("ROLE_ADMIN")) {
-						logger.debug("Admin access granted for user: {}", email);
-					} else {
-						logger.debug("User access granted for user: {}", email);
-					}
+					// 새 Access Token 발급
+					String newAccessToken = jwtProvider.regenerateAccessToken(refreshToken, email, role, provider);
 
-					// 인증 객체 설정
-					UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-						email, null, Collections.singletonList(new SimpleGrantedAuthority(role)));
+					// 응답 쿠키에 새 Access Token 설정
+					response.addCookie(jwtProvider.createHttpOnlyCookie(ACCESS_TOKEN, newAccessToken, ACCESS_TOKEN_EXPIRATION));
 
-					authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-					SecurityContextHolder.getContext().setAuthentication(authentication);
+					// 새 Access Token을 사용하여 인증 정보 설정
+					setAuthentication(newAccessToken, request);
 
-					logger.debug("Authentication set for user: {}", email);
-
-					// 토큰 갱신 처리
-					if (jwtUtil.needsRefresh(token)) {
-						String newToken = jwtUtil.refreshToken(token);
-						response.setHeader("New-Token", newToken);
-						logger.debug("Token refreshed for user: {}", email);
-					}
+					// 새로운 Refresh Token 발급 및 설정
+					String newRefreshToken = jwtProvider.generateRefreshToken(userId);
+					response.addCookie(jwtProvider.createHttpOnlyCookie(REFRESH_TOKEN, newRefreshToken, REFRESH_TOKEN_EXPIRATION));
 				}
 			}
 		} catch (Exception e) {
-			logger.error("Cannot set user authentication: {}", e.getMessage());
+			log.error("Cannot set user authentication: {}", e.getMessage());
 		}
 
 		chain.doFilter(request, response);
 	}
 
-	// 제외된 경로 처리
+	private void setAuthentication(String token, HttpServletRequest request) {
+		String email = jwtProvider.extractEmail(token);
+		String role = jwtProvider.extractRole(token);
+
+		if (role != null) {
+			UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+				email, null, Collections.singletonList(new SimpleGrantedAuthority(role)));
+			authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+			SecurityContextHolder.getContext().setAuthentication(authentication);
+			log.debug("Authentication set for user: {}", email);
+		}
+	}
+
 	private boolean isExcludedPath(String path, String method) {
-//		if (EXCLUDED_PATHS.stream().anyMatch(path::matches)) {
-//			return true;
-//		}
 		if ("GET".equalsIgnoreCase(method) && GET_EXCLUDED_PATHS.stream().anyMatch(path::matches)) {
 			return true;
 		}
@@ -107,5 +107,17 @@ public class JwtFilter extends OncePerRequestFilter {
 			return true;
 		}
 		return false;
+	}
+
+	private String getCookie(HttpServletRequest request, String cookieName) {
+		Cookie[] cookies = request.getCookies();
+		if (cookies != null) {
+			for (Cookie cookie : cookies) {
+				if (cookieName.equals(cookie.getName())) {
+					return cookie.getValue();
+				}
+			}
+		}
+		return null;
 	}
 }

@@ -1,15 +1,18 @@
 package com.connect.codeness.domain.payment.controller;
 
 
+import static com.connect.codeness.global.constants.Constants.ACCESS_TOKEN;
 import static com.connect.codeness.global.constants.Constants.AUTHORIZATION;
+
 import com.connect.codeness.domain.payment.dto.PaymentDeleteRequestDto;
 import com.connect.codeness.domain.payment.dto.PaymentRefundRequestDto;
 import com.connect.codeness.domain.payment.dto.PaymentRequestDto;
 import com.connect.codeness.domain.payment.dto.PaymentResponseDto;
 import com.connect.codeness.domain.payment.service.PaymentService;
 import com.connect.codeness.domain.paymenthistory.service.PaymentHistoryService;
-import com.connect.codeness.global.jwt.JwtUtil;
+import com.connect.codeness.global.jwt.JwtProvider;
 import com.connect.codeness.global.dto.CommonResponseDto;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,11 +29,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class PaymentController {
 
 	private final PaymentService paymentService;
-	private final JwtUtil jwtUtil;
+	private final JwtProvider jwtProvider;
 
-	public PaymentController(PaymentService paymentService, PaymentHistoryService paymentHistoryService, JwtUtil jwtUtil) {
+	public PaymentController(PaymentService paymentService, PaymentHistoryService paymentHistoryService, JwtProvider jwtProvider) {
 		this.paymentService = paymentService;
-		this.jwtUtil = jwtUtil;
+		this.jwtProvider = jwtProvider;
 	}
 
 	/**
@@ -38,8 +41,8 @@ public class PaymentController {
 	 * - 멘토링 스케쥴 신청
 	 */
 	@PostMapping("/payments")
-	public ResponseEntity<CommonResponseDto<?>> createPayment(@RequestHeader(AUTHORIZATION) String token,  @RequestBody PaymentRequestDto requestDto){
-		Long userId = jwtUtil.extractUserId(token);
+	public ResponseEntity<CommonResponseDto<?>> createPayment(@RequestHeader(AUTHORIZATION) String authorizationHeader,  @RequestBody PaymentRequestDto requestDto){
+		Long userId = jwtProvider.extractUserId(authorizationHeader);
 
 		CommonResponseDto<?> responseDto = paymentService.createPayment(userId, requestDto);
 
@@ -87,8 +90,8 @@ public class PaymentController {
 	 * - 환불 완료시 채팅방 삭제
 	 */
 	@PostMapping("/payments/{paymentId}/refund")
-	public ResponseEntity<CommonResponseDto<PaymentResponseDto>> refundPayment(@RequestHeader(AUTHORIZATION) String token, @PathVariable Long paymentId, @Valid @RequestBody PaymentRefundRequestDto requestDto){
-		Long userId = jwtUtil.extractUserId(token);
+	public ResponseEntity<CommonResponseDto<PaymentResponseDto>> refundPayment(@RequestHeader(AUTHORIZATION) String authorizationHeader, @PathVariable Long paymentId, @Valid @RequestBody PaymentRefundRequestDto requestDto){
+		Long userId = jwtProvider.extractUserId(authorizationHeader);
 
 		CommonResponseDto<PaymentResponseDto> responseDto = paymentService.refundPayment(userId, paymentId, requestDto);
 

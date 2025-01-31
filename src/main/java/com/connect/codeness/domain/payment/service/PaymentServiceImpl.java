@@ -30,6 +30,8 @@ import com.siot.IamportRestClient.exception.IamportResponseException;
 import com.siot.IamportRestClient.request.CancelData;
 import com.siot.IamportRestClient.response.IamportResponse;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -66,9 +68,9 @@ public class PaymentServiceImpl implements PaymentService {
 	@Override
 	public CommonResponseDto<?> createPayment(Long userId, PaymentRequestDto requestDto) {
 		//ImpUid 존재하면 예외처리 : 중복 주문 안됨
-		if (requestDto.getImpUid() != null && paymentRepository.existsByImpUid(requestDto.getImpUid())) {
-			throw new BusinessException(ExceptionType.DUPLICATE_VALUE);
-		}
+//		if (requestDto.getImpUid() != null && paymentRepository.existsByImpUid(requestDto.getImpUid())) {
+//			throw new BusinessException(ExceptionType.DUPLICATE_VALUE);
+//		}
 
 		//유저 조회
 		User user = userRepository.findByIdOrElseThrow(userId);
@@ -139,7 +141,6 @@ public class PaymentServiceImpl implements PaymentService {
 
 	/**
 	 * 결제 검증 서비스 메서드
-	 * - TODO : 응답 DTO 반환 : paymentHistoryId
 	 */
 	@Transactional
 	@Override
@@ -212,12 +213,12 @@ public class PaymentServiceImpl implements PaymentService {
 
 		//dto 생성
 		PaymentResponseDto paymentResponseDto = PaymentResponseDto.builder()
-			.paymentHistoryId(paymentHistory.getId())
+			.partnerId(mentor.getId())
+			.mentoringDate(payment.getMentoringSchedule().getMentoringDate())
+			.mentoringTime(payment.getMentoringSchedule().getMentoringTime())
 			.build();
 
 		//TODO : 멘티가 동일한 멘토의 스케쥴을 여러번 구매할 수 없다 -> 이미 생성된 채팅방이라는 예외가 뜸 -> 채팅 쪽에서 처리해야함
-		//채팅방 생성 - 로그인한 id, 멘토의 id
-//		chatService.createChatRoom(payment.getUser().getId(), chatRoomCreateRequestDto);
 
 		return CommonResponseDto.<PaymentResponseDto>builder().msg("결제가 완료되었습니다.").data(paymentResponseDto).build();
 	}
@@ -225,7 +226,7 @@ public class PaymentServiceImpl implements PaymentService {
 	/**
 	 * 결제 환불 서비스 메서드
 	 * - 결제 완료 후 환불 진행 : 결제 내역 테이블에서 조회 및 진행
-	 *  - TODO : 응답 DTO 반환 : paymentHistoryId
+	 * - TODO : 멘토링 스케쥴 시간 검증
 	 */
 
 	@Transactional
@@ -236,7 +237,21 @@ public class PaymentServiceImpl implements PaymentService {
 		Payment payment = paymentRepository.findByIdAndUserId(userId, paymentId)
 			.orElseThrow(() -> new BusinessException(ExceptionType.NOT_FOUND_PAYMENT));
 
-		//pgTid 유효성 검사
+		//현재 날짜 & 시간
+		LocalDate currentDate = LocalDate.now();
+		LocalTime currentTime = LocalTime.now();
+
+		//멘토링 스케쥴 날짜, 시간 검증
+		LocalDate mentoringDate = payment.getMentoringSchedule().getMentoringDate();
+		LocalTime mentoringTime = payment.getMentoringSchedule().getMentoringTime();
+
+		//멘토링 스케쥴 날짜가 지금보다 과거이거나, 현재 날짜이지만 시간이 이전이면 환불 불가
+		if (mentoringDate.isBefore(currentDate) ||
+			(mentoringDate.isEqual(currentDate) && mentoringTime.isBefore(currentTime))) {
+			throw new BusinessException(ExceptionType.MENTORING_SCHEDULE_EXPIRED);
+		}
+
+ 		//pgTid 유효성 검사
 		if (payment.getPgTid() == null || payment.getPgTid().isEmpty()) {
 			throw new BusinessException(ExceptionType.NOT_FOUND_PGTID);
 		}
@@ -282,12 +297,12 @@ public class PaymentServiceImpl implements PaymentService {
 
 		//dto 생성
 		PaymentResponseDto paymentResponseDto = PaymentResponseDto.builder()
-			.paymentHistoryId(paymentHistory.getId())
+			.partnerId(paymentHistory.getUser().getId())
+			.mentoringDate(payment.getMentoringSchedule().getMentoringDate())
+			.mentoringTime(payment.getMentoringSchedule().getMentoringTime())
 			.build();
 
 		//TODO : 결제 환불 api 호출 후, 채팅방 삭제 api 호출
-//		String chatRoomId = chatService.generateChatRoomId(userId, payment.getUser().getId());
-//		chatService.deleteChatRoom(userId, chatRoomId);
 
 		return CommonResponseDto.<PaymentResponseDto>builder().msg("결제가 환불되었습니다.").data(paymentResponseDto).build();
 	}

@@ -1,14 +1,19 @@
 package com.connect.codeness.global.handler;
 
+import static com.connect.codeness.global.constants.Constants.ACCESS_TOKEN;
+import static com.connect.codeness.global.constants.Constants.FRONTEND_URL;
+import static com.connect.codeness.global.constants.Constants.REFRESH_TOKEN;
+import static com.connect.codeness.global.constants.Constants.REFRESH_TOKEN_EXPIRATION;
+
 import com.connect.codeness.domain.user.entity.User;
 import com.connect.codeness.domain.user.repository.UserRepository;
-import com.connect.codeness.global.jwt.JwtUtil;
+import com.connect.codeness.global.enums.UserProvider;
 import com.connect.codeness.global.enums.UserRole;
-import io.jsonwebtoken.Jwt;
+import com.connect.codeness.global.jwt.JwtProvider;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
@@ -22,69 +27,62 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Component
 @Slf4j
 public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
-	private final JwtUtil jwtUtil;
+
+	private final JwtProvider jwtProvider;
 	private final UserRepository userRepository;
 	private final OAuth2AuthorizedClientService authorizedClientService;
 
-	public OAuth2SuccessHandler(JwtUtil jwtUtil, UserRepository userRepository, OAuth2AuthorizedClientService authorizedClientService) {
-		this.jwtUtil = jwtUtil;
+	public OAuth2SuccessHandler(JwtProvider jwtProvider, UserRepository userRepository,
+		OAuth2AuthorizedClientService authorizedClientService) {
+		this.jwtProvider = jwtProvider;
 		this.userRepository = userRepository;
 		this.authorizedClientService = authorizedClientService;
 	}
 
 	@Override
-	public void onAuthenticationSuccess(HttpServletRequest request,
-		HttpServletResponse response,
+	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
 		Authentication authentication) throws IOException {
 
-		//OAuth2 인증 성공시 사용자 정보를 가져옴
 		OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
 		OAuth2AuthenticationToken oAuth2Authentication = (OAuth2AuthenticationToken) authentication;
 
-		//인증된 클라이언트 정보를 가져옴
 		OAuth2AuthorizedClient authorizedClient = authorizedClientService.loadAuthorizedClient(
 			oAuth2Authentication.getAuthorizedClientRegistrationId(),
-			oAuth2Authentication.getName()
-		);
+			oAuth2Authentication.getName());
 
-		//OAuth2 액세스 토큰 가져옴
 		String accessToken = authorizedClient.getAccessToken().getTokenValue();
 
 		try {
-			//OAuth2에서 가져온 정보를 이메일과 이름으로 저장
 			String email = oAuth2User.getAttribute("email");
 			String name = oAuth2User.getAttribute("name");
 
-			//위의 정보 바탕으로 user 객체 생성
-			User user = userRepository.findByEmail(email)
-				.orElseGet(() -> {
-					User newUser = User.builder()
-						.email(email)
-						.name(name)
-						.userNickname(name)
-						.provider("GOOGLE")    //provider - 구글 로그인 의미
-						.role(UserRole.MENTEE)
-						.googleToken(accessToken)  //OAuth2 액세스 토큰도 함께 저장
-						.build();
-					return userRepository.save(newUser);
-				});
+			User user = userRepository.findByEmail(email).orElseGet(() -> {
+				User newUser = User.builder()
+					.email(email)
+					.name(name)
+					.userNickname(name)
+					.provider(UserProvider.GOOGLE)
+					.role(UserRole.MENTEE)
+					.googleToken(accessToken).build();
+				return userRepository.save(newUser);
+			});
 
-			//기존 사용자일경우 토큰 갱신
 			user.updateGoogleToken(accessToken);
 			userRepository.save(user);
 
-			//로그인 jwt 토큰 생성
-			String token = jwtUtil.generateToken(
-				user.getEmail(),
-				user.getId(),
-				user.getRole().toString(),
-				user.getProvider()
-			);
+			// JWT 생성
+			String jwtAccessToken = jwtProvider.generateAccessToken(user.getEmail(), user.getId(),
+				user.getRole().toString(), user.getProvider().toString());
 
-			//일련의 과정 완료시 리다이렉트
-			String redirectUrl = UriComponentsBuilder
-				.fromUriString(System.getenv().getOrDefault("FRONTEND_URL", "http://localhost:3000"))
-				.queryParam("token", token)
+			String jwtRefreshToken = jwtProvider.generateRefreshToken(user.getId());
+
+			// 리프레시 토큰을 HttpOnly 쿠키에 저장
+			jwtProvider.createHttpOnlyCookie(REFRESH_TOKEN, jwtRefreshToken, REFRESH_TOKEN_EXPIRATION);
+
+			// 프론트엔드로 리다이렉트하면서 액세스 토큰을 쿼리 파라미터로 전달
+			String redirectUrl = UriComponentsBuilder.fromUriString(
+					System.getenv().getOrDefault("FRONTEND_URL", FRONTEND_URL))
+				.queryParam(ACCESS_TOKEN, jwtAccessToken)
 				.build()
 				.toUriString();
 
