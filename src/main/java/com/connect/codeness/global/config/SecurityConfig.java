@@ -102,24 +102,9 @@ public class SecurityConfig {
 		return new DefaultOAuth2UserService() {
 			@Override
 			public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-				OAuth2User user = super.loadUser(userRequest);
-				// JWT 발급 후 쿠키에 저장
-				String jwtToken = generateJwtToken(user);
-				setJwtTokenInCookie(jwtToken);
-				return user;
+				return super.loadUser(userRequest);
 			}
 		};
-	}
-
-	private String generateJwtToken(OAuth2User user) {
-		// JWT 생성 로직 (user 정보 바탕으로 JWT를 생성)
-		// 예시: return JwtUtil.generateToken(user);
-		return "generated-jwt-token";  // 실제 JWT 생성 로직을 추가하세요.
-	}
-
-	private void setJwtTokenInCookie(String jwtToken) {
-		HttpServletResponse response = null;  // 실제 Response 객체를 가져오는 로직 추가 필요
-		response.addHeader("Set-Cookie", "access_token=" + jwtToken + "; Path=/; HttpOnly; Secure; SameSite=Strict");
 	}
 
 	@Bean
