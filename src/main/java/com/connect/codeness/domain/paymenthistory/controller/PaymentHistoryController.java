@@ -2,6 +2,8 @@ package com.connect.codeness.domain.paymenthistory.controller;
 
 
 import static com.connect.codeness.global.constants.Constants.ACCESS_TOKEN;
+import static com.connect.codeness.global.constants.Constants.AUTHORIZATION;
+
 import com.connect.codeness.domain.paymenthistory.dto.PaymentHistoryResponseDto;
 import com.connect.codeness.domain.paymenthistory.service.PaymentHistoryService;
 import com.connect.codeness.global.jwt.JwtProvider;
@@ -11,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -35,8 +38,8 @@ public class PaymentHistoryController {
 	 * - 멘티 & 멘토별 응답 다름
 	 */
 	@GetMapping("/mentoring/payment-history")
-	public ResponseEntity<CommonResponseDto<?>> getAllPaymentHistory(HttpServletRequest request) {
-		Long userId = jwtProvider.getCookieReturnUserId(request, ACCESS_TOKEN);
+	public ResponseEntity<CommonResponseDto<?>> getAllPaymentHistory(@RequestHeader(AUTHORIZATION) String authorizationHeader) {
+		Long userId = jwtProvider.extractUserId(authorizationHeader);
 
 		CommonResponseDto<?> responseDto = paymentHistoryService.getAllPaymentHistory(userId);
 		return new ResponseEntity<>(responseDto, HttpStatus.OK);
@@ -47,8 +50,8 @@ public class PaymentHistoryController {
 	 * - 멘티 & 멘토 응답 똑같음 - 멘티의 결제 내역
 	 */
 	@GetMapping("/mentoring/payment-history/{paymentHistoryId}")
-	public ResponseEntity<CommonResponseDto> getPaymentHistory(HttpServletRequest request, @PathVariable Long paymentHistoryId) {
-		Long userId = jwtProvider.getCookieReturnUserId(request, ACCESS_TOKEN);
+	public ResponseEntity<CommonResponseDto> getPaymentHistory(@RequestHeader(AUTHORIZATION) String authorizationHeader, @PathVariable Long paymentHistoryId) {
+		Long userId = jwtProvider.extractUserId(authorizationHeader);
 
 		CommonResponseDto<PaymentHistoryResponseDto> responseDto = paymentHistoryService.getPaymentHistory(userId, paymentHistoryId);
 		return new ResponseEntity<>(responseDto, HttpStatus.OK);

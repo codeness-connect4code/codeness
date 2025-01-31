@@ -1,6 +1,7 @@
 package com.connect.codeness.domain.settlement.controller;
 
 import static com.connect.codeness.global.constants.Constants.ACCESS_TOKEN;
+import static com.connect.codeness.global.constants.Constants.AUTHORIZATION;
 
 import com.connect.codeness.domain.settlement.service.SettlementService;
 import com.connect.codeness.global.dto.CommonResponseDto;
@@ -9,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -29,8 +31,8 @@ public class SettlementController {
 	 * - 사용자 계좌, 은행명은 유저 테이블쪽에서 가져오기
 	 */
 	@PatchMapping("/mentors/mentoring/payment-history/settles")
-	public ResponseEntity<CommonResponseDto<?>> requestSettlement(HttpServletRequest request){
-		Long userId = jwtProvider.getCookieReturnUserId(request, ACCESS_TOKEN);
+	public ResponseEntity<CommonResponseDto<?>> requestSettlement(@RequestHeader(AUTHORIZATION) String authorizationHeader){
+		Long userId = jwtProvider.extractUserId(authorizationHeader);
 
 		CommonResponseDto<?> responseDto = settlementService.requestSettlement(userId);
 		return new ResponseEntity<>(responseDto, HttpStatus.OK);
