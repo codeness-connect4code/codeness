@@ -1,7 +1,6 @@
 package com.connect.codeness.domain.payment.service;
 
 
-import com.connect.codeness.domain.chat.service.ChatServiceImpl;
 import com.connect.codeness.domain.mentoringschedule.entity.MentoringSchedule;
 import com.connect.codeness.domain.mentoringschedule.repository.MentoringScheduleRepository;
 import com.connect.codeness.domain.payment.dto.PaymentResponseDto;
@@ -24,7 +23,7 @@ import com.connect.codeness.global.enums.SettlementStatus;
 import com.connect.codeness.global.enums.UserRole;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
-import com.google.firebase.database.FirebaseDatabase;
+import com.connect.codeness.global.service.RedisLockService;
 import com.siot.IamportRestClient.IamportClient;
 import com.siot.IamportRestClient.exception.IamportResponseException;
 import com.siot.IamportRestClient.request.CancelData;
@@ -33,8 +32,14 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 @Slf4j
 @Service
@@ -46,59 +51,110 @@ public class PaymentServiceImpl implements PaymentService {
 	private final UserRepository userRepository;
 	private final MentoringScheduleRepository mentoringScheduleRepository;
 	private final SettlementRepository settlementRepository;
+	private final RedisLockService redisLockService;
+	private final RedissonClient redissonClient;
 
 	public PaymentServiceImpl(IamportClient iamportClient, PaymentRepository paymentRepository,
-		PaymentHistoryRepository paymentHistoryRepository,
-		UserRepository userRepository, MentoringScheduleRepository mentoringScheduleRepository, ChatServiceImpl chatService,
-		FirebaseDatabase firebaseDatabase, SettlementRepository settlementRepository) {
+		PaymentHistoryRepository paymentHistoryRepository, UserRepository userRepository,
+		MentoringScheduleRepository mentoringScheduleRepository, SettlementRepository settlementRepository,
+		RedisLockService redisLockService, RedissonClient redissonClient) {
 		this.iamportClient = iamportClient;
 		this.paymentRepository = paymentRepository;
 		this.paymentHistoryRepository = paymentHistoryRepository;
 		this.userRepository = userRepository;
 		this.mentoringScheduleRepository = mentoringScheduleRepository;
 		this.settlementRepository = settlementRepository;
+		this.redisLockService = redisLockService;
+		this.redissonClient = redissonClient;
 	}
+
 
 	/**
 	 * 결제 생성 서비스 메서드
 	 * - 멘토링 스케쥴 신청
-	 * - TODO : 채팅방 생성 로직 추가 & 멘토는 신청 못하는 로직 추가
+	 * - TODO : 동시성 제어 추가
 	 */
-	@Transactional
+	@Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
 	@Override
 	public CommonResponseDto<?> createPayment(Long userId, PaymentRequestDto requestDto) {
-		//ImpUid 존재하면 예외처리 : 중복 주문 안됨
-//		if (requestDto.getImpUid() != null && paymentRepository.existsByImpUid(requestDto.getImpUid())) {
-//			throw new BusinessException(ExceptionType.DUPLICATE_VALUE);
-//		}
 
-		//유저 조회
-		User user = userRepository.findByIdOrElseThrow(userId);
-		//멘토는 멘토링 신청이 불가함
-		if (user.getRole().equals(UserRole.MENTOR)) {
-			throw new BusinessException(ExceptionType.MENTOR_PAYMENT_NOT_ALLOWED);
+		//락 적용할 Key -> 같은 멘토링 스케쥴에 대한 결제 동시성 제어
+		String lockKey = "mentoringSchedule:" + requestDto.getMentoringScheduleId();
+		RLock lock = redissonClient.getLock(lockKey);
+
+		//redis 락 획득 (최대 5초 대기, 락 보유 시간 60초)
+		boolean isLocked = redisLockService.acquireLock(lockKey, 5000, 60000);
+		System.out.println("락 획득 시도: " + lockKey + " -> 결과: " + isLocked);
+
+		if(!isLocked){
+			System.out.println("락 획득 실패: " + lockKey);
+			throw new BusinessException(ExceptionType.CONCURRENT_PAYMENT_ATTEMPT);
 		}
 
-		//멘토링 스케쥴 조회
-		MentoringSchedule mentoringSchedule = mentoringScheduleRepository.findByIdOrElseThrow(requestDto.getMentoringScheduleId());
+		try{
+			System.out.println("락 획득 성공: " + lockKey);
 
-		Payment payment = Payment.builder()
-			.user(user)
-			.mentoringSchedule(mentoringSchedule)
-			.paymentCost(requestDto.getPaymentCost())
-			.paymentCard(requestDto.getPaymentCard())
-			.build();
+			//유저 조회
+			User user = userRepository.findByIdOrElseThrow(userId);
+			//멘토는 멘토링 신청이 불가함
+			if (user.getRole().equals(UserRole.MENTOR)) {
+				throw new BusinessException(ExceptionType.MENTOR_PAYMENT_NOT_ALLOWED);
+			}
 
-		//결제(멘토링 신청) db 저장
-		paymentRepository.save(payment);
+			//멘토링 스케쥴 조회
+			MentoringSchedule mentoringSchedule = mentoringScheduleRepository.findByIdOrElseThrow(requestDto.getMentoringScheduleId());
 
-		return CommonResponseDto.builder().msg("멘토링 스케쥴이 신청 되었습니다.").data(payment.getId()).build();
+			//멘토링 스케쥴이 예약 진행중이면 예외 -> 중복 결제 방지
+			if(mentoringSchedule.getBookedStatus().equals(BookedStatus.IN_PROGRESS)){
+				throw new BusinessException(ExceptionType.DUPLICATE_PAYMENT);
+			}
+
+			//멘토링 스케쥴 예약 진행중으로 상태 변경 & 저장
+			mentoringSchedule.updateBookedStatus(BookedStatus.IN_PROGRESS);
+			mentoringScheduleRepository.save(mentoringSchedule);
+
+			//스케쥴 상태 추가 -> 중복 결제 방지
+			Payment payment = Payment.builder()
+				.user(user)
+				.mentoringSchedule(mentoringSchedule)
+				.paymentCost(requestDto.getPaymentCost())
+				.paymentCard(requestDto.getPaymentCard())
+				.build();
+
+			//결제(멘토링 신청) db 저장
+			paymentRepository.save(payment);
+
+			//트랜잭션 완료된 후 락 해제를 실행하는 이벤트 등록
+			unlockEvent(lockKey);
+
+			return CommonResponseDto.builder().msg("멘토링 스케쥴이 신청 되었습니다.").data(payment.getId()).build();
+		} catch (Exception exception) {
+			System.out.println("트랜잭션 롤백 발생: " + exception.getMessage());
+			throw exception;
+		}
+	}
+
+	/**
+	 * 트랜잭션이 커밋된 후 락을 해제하는 이벤트 메서드
+	 */
+	private void unlockEvent(String lockKey) {
+
+		TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
+			@Override
+			public void afterCommit() {
+				if (redissonClient.getLock(lockKey).isHeldByCurrentThread()) {
+					redissonClient.getLock(lockKey).unlock();
+					System.out.println("트랜잭션 완료 후 락 해제: " + lockKey);
+				}
+			}
+		});
 	}
 
 	/**
 	 * 결제 삭제 서비스 메서드
 	 * - 클라이언트에서 결제 도중 취소하거나 결제 창을 빠져나가 결제가 중단 되었을 경우
 	 * - paymentId만 가지고 데이터 삭제를 진행 -> 데이터 저장해 둘 필요가 없음
+	 * - TODO : 멘토링 상태 변경해줘야함
 	 */
 	@Transactional
 	@Override
@@ -115,6 +171,7 @@ public class PaymentServiceImpl implements PaymentService {
 	/**
 	 * 결제 삭제 서비스 메서드
 	 * - 결제 진행시, 잔액 부족 등으로 결제가 거절되었을 경우 결제 데이터 삭제
+	 * - TODO : 멘토링 상태 변경해줘야함
 	 */
 	@Transactional
 	@Override
@@ -218,8 +275,6 @@ public class PaymentServiceImpl implements PaymentService {
 			.mentoringTime(payment.getMentoringSchedule().getMentoringTime())
 			.build();
 
-		//TODO : 멘티가 동일한 멘토의 스케쥴을 여러번 구매할 수 없다 -> 이미 생성된 채팅방이라는 예외가 뜸 -> 채팅 쪽에서 처리해야함
-
 		return CommonResponseDto.<PaymentResponseDto>builder().msg("결제가 완료되었습니다.").data(paymentResponseDto).build();
 	}
 
@@ -301,8 +356,6 @@ public class PaymentServiceImpl implements PaymentService {
 			.mentoringDate(payment.getMentoringSchedule().getMentoringDate())
 			.mentoringTime(payment.getMentoringSchedule().getMentoringTime())
 			.build();
-
-		//TODO : 결제 환불 api 호출 후, 채팅방 삭제 api 호출
 
 		return CommonResponseDto.<PaymentResponseDto>builder().msg("결제가 환불되었습니다.").data(paymentResponseDto).build();
 	}
