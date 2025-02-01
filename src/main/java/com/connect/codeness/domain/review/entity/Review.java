@@ -31,7 +31,7 @@ public class Review extends BaseEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@OneToOne
+	@ManyToOne
 	@JoinColumn(name = "payment_history_id")
 	@NotNull
 	private PaymentHistory paymentHistory;
