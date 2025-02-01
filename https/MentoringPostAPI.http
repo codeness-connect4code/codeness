@@ -6,7 +6,7 @@ Content-Type: application/json
   "email" : "a11@naver.com",
   "password" : "asdf1234!@",
   "name" : "한철수",
-  "nickname" : "개발개발",
+  "nickname" : "철수철수",
   "phoneNumber" : "010 - 1234 - 6328",
   "field" : "BACKEND",
   "userRole" : "MENTOR"
@@ -26,7 +26,7 @@ Content-Type: application/json
   "userRole" : "MENTOR"
 }
 
-### 회원가입 - 멘티
+### 회원가입 - 멘티 박짱구
 POST localhost:8080/signup
 Content-Type: application/json
 
@@ -34,9 +34,23 @@ Content-Type: application/json
   "email" : "a23@naver.com",
   "password" : "asdf1234!@",
   "name" : "박짱구",
-  "nickname" : "개발개발",
+  "nickname" : "짱구짱구",
   "phoneNumber" : "010 - 1234 - 6328",
   "field" : "BACKEND",
+  "userRole" : "MENTEE"
+}
+
+### 회원가입 - 멘티 최유리
+POST localhost:8080/signup
+Content-Type: application/json
+
+{
+  "email" : "a123@naver.com",
+  "password" : "asdf1234!@",
+  "name" : "최유리",
+  "nickname" : "유리유리",
+  "phoneNumber" : "010 - 1234 - 6328",
+  "field" : "FRONTEND",
   "userRole" : "MENTEE"
 }
 
@@ -111,6 +125,20 @@ Content-Type: application/json
   client.log("Token saved: " + client.global.get("token"));
 %}
 
+### 로그인 - 멘티 최유리
+POST localhost:8080/login
+Content-Type: application/json
+
+{
+  "email" : "a123@naver.com",
+  "password" : "asdf1234!@"
+}
+
+> {%
+  client.global.set("token",response.body.token);
+  client.log("Token saved: " + client.global.get("token"));
+%}
+
 ### 멘토링 공고 생성하기 - 프론트
 POST localhost:8080/mentoring
 Content-Type: application/json
@@ -138,15 +166,15 @@ Authorization: Bearer {{token}}
 
 {
   "company" : "테스트회사",
-  "title" : "멘토링 시작합니다 어서오세요",
+  "title" : "백엔드 멘토링 시작",
   "field" : "BACKEND",
   "career" : 5,
   "region" : "서울, 경기 남부",
   "price" : 1,
   "startDate" : "2025-02-01",
   "endDate" : "2025-02-02",
-  "startTime" : "20:00",
-  "endTime" : "22:00",
+  "startTime" : "15:00",
+  "endTime" : "17:00",
   "description" : "멘토링 받으러 오세요~😊"
 }
 
