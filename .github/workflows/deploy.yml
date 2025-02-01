@@ -2,11 +2,9 @@ name: Deploy to AWS EC2
 
 
 on:
-  pull_request:
+  push:
     branches:
       - feature/deploy
-    types:
-      - push  # PR이 닫힐 때 실행 (머지 포함)
 
 jobs:
   deploy:
