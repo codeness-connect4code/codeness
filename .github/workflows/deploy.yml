@@ -1,16 +1,13 @@
 name: Deploy to AWS EC2
 
 on:
-  pull_request:
+  push:
     branches:
-      - develop
-    types:
-      - closed  # PR이 닫힐 때 실행 (머지 포함)
+      - feature/deploy
 
 jobs:
   deploy:
-    if: github.event.pull_request.merged == true  # 머지된 경우만 실행
-    runs-on: ubuntu-latest  # GitHub Actions가 실행될 환경
+    runs-on: ubuntu-latest  # GitHub Actions 실행 환경
 
     steps:
       # ✅ 1️⃣ GitHub 저장소 코드 가져오기
@@ -24,11 +21,11 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      # ✅ 3️⃣ Gradle을 사용해 Spring Boot 애플리케이션 빌드
+      # ✅ 3️⃣ Gradle 빌드 (Spring Boot JAR 파일 생성)
       - name: Build JAR file
         run: |
           chmod +x gradlew
-          ./gradlew build -x test  # JAR 파일 빌드 (테스트 제외)
+          ./gradlew build -x test  # 테스트 제외하고 빌드 실행
 
       # ✅ 4️⃣ Docker 로그인 (GitHub Secrets 사용)
       - name: Login to Docker Hub
@@ -42,7 +39,7 @@ jobs:
           docker tag ${{ secrets.DOCKER_USERNAME }}/my-backend:latest ${{ secrets.DOCKER_USERNAME }}/my-backend:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/my-backend:latest
 
-      # ✅ 6️⃣ EC2에 SSH 접속 후 배포 (최신 Docker 이미지로 컨테이너 실행)
+      # ✅ 6️⃣ EC2에 SSH 접속 후 배포 (최신 Docker 이미지 실행)
       - name: Deploy to EC2
         uses: appleboy/ssh-action@master
         with:
@@ -53,4 +50,4 @@ jobs:
             docker pull ${{ secrets.DOCKER_USERNAME }}/my-backend:latest
             docker stop backend-container || true
             docker rm backend-container || true
-            docker run -d -p 3000:3000 --env-file .env --name backend-container ${{ secrets.DOCKER_USERNAME }}/my-backend:latest
+            docker run -d -p 8080:8080 --env-file .env --name backend-container ${{ secrets.DOCKER_USERNAME }}/my-backend:latest
