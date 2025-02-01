@@ -1,6 +1,5 @@
 name: Deploy to AWS EC2
 
-
 on:
   push:
     branches:
@@ -51,4 +50,4 @@ jobs:
             docker pull ${{ secrets.DOCKER_USERNAME }}/my-backend:latest
             docker stop backend-container || true
             docker rm backend-container || true
-            docker run -d -p 8080:8080 --env-file .env --name backend-container ${{ secrets.DOCKER_USERNAME }}/my-backend:latest
+            docker run -d -p 8080:8080 --env-file /home/ubuntu/codeness/.env --name backend-container ${{ secrets.DOCKER_USERNAME }}/my-backend:latest
