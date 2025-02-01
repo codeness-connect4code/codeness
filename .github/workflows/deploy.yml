@@ -3,13 +3,13 @@ name: Deploy to AWS EC2
 on:
   pull_request:
     branches:
-      - develop
+      - feature/deploy
     types:
-      - closed  # PR이 닫힐 때 실행 (머지 포함)
+      - push  # PR이 닫힐 때 실행 (머지 포함)
 
 jobs:
   deploy:
-    if: github.event.pull_request.merged == true  # 머지된 경우만 실행
+#    if: github.event.pull_request.merged == true  # 머지된 경우만 실행
     runs-on: ubuntu-latest  # GitHub Actions가 실행될 환경
 
     steps:
@@ -50,7 +50,14 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: |
+            mkdir -p /home/ubuntu/secrets
+            if [ ! -f "/home/ubuntu/secrets/firebase-codeness-key.json" ]; then
+              echo "${FIREBASE_KEY_JSON}" | base64 --decode > /home/ubuntu/secrets/firebase-codeness-key.json
+              chmod 600 /home/ubuntu/secrets/firebase-codeness-key.json
+            fi
             docker pull ${{ secrets.DOCKER_USERNAME }}/my-backend:latest
             docker stop backend-container || true
             docker rm backend-container || true
-            docker run -d -p 8080:8080 --env-file /home/ubuntu/codeness/.env --name backend-container ${{ secrets.DOCKER_USERNAME }}/my-backend:latest
+            docker run -d -p 8080:8080 --env-file /home/ubuntu/codeness/.env -v /home/ubuntu/secrets/firebase-codeness-key.json:/app/firebase-codeness-key.json --name backend-container ${{ secrets.DOCKER_USERNAME }}/my-backend:latest
+        env:
+          FIREBASE_KEY_JSON: ${{ secrets.FIREBASE_KEY_JSON }}
