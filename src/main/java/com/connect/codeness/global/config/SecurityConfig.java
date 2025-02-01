@@ -45,8 +45,7 @@ public class SecurityConfig {
 		http.cors(corsCustomizer -> corsCustomizer.configurationSource(corsConfigurationSource()))
 			.csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests(
 				auth -> auth.requestMatchers("/api/**").authenticated()
-					.requestMatchers("/signup", "/login", "/api/login", "/login-page", "/users/**",
-						"/payment", "/loginPage.html", "/payment.html", "/oauth2/**",
+					.requestMatchers("/signup", "/login", "/api/login", "/users/**", "/oauth2/**",
 						"/login/oauth2/code/**", "/favicon.ico", "/error", "/posts/**", "/news",
 						"/mentoring", "/mentoring/**", "/users/schedule").permitAll()
 					.requestMatchers("/admin/**").hasAuthority("ADMIN")

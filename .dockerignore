@@ -1,0 +1,17 @@
+# Gradle 관련 파일
+.gradle
+build.gradle
+gradlew
+gradlew.bat
+settings.gradle
+
+# 실행 로그
+nohup.out
+output.log
+
+# 보안 관련 파일
+tokens
+https
+
+# 문서 파일
+README.md
