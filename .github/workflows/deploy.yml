@@ -1,6 +1,5 @@
 name: Deploy to AWS EC2
 
-
 on:
   push:
     branches:
@@ -40,23 +39,15 @@ jobs:
           docker tag ${{ secrets.DOCKER_USERNAME }}/my-backend:latest ${{ secrets.DOCKER_USERNAME }}/my-backend:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/my-backend:latest
 
-      # 6️⃣ EC2에 SSH 접속 후 배포 (최신 Docker 이미지 실행)
-      - name: Deploy to EC2
+      # 6️⃣ EC2에 SSH 접속 후 docker-compose를 사용하여 배포
+      - name: Deploy to EC2 using docker-compose
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: |
-            # 최신 Docker 이미지 가져오기
-            docker pull ${{ secrets.DOCKER_USERNAME }}/my-backend:latest
-
-            # 기존 컨테이너 종료 및 삭제
-            docker stop backend-container || true
-            docker rm backend-container || true
-
-            # .env 파일을 통해 FIRE_DB_URL, FIRE_PATH 등 환경변수를 전달합니다.
-            # Firebase 키 파일은 JAR 내 포함되어 있으므로 별도 마운트 없이 실행합니다.
-            docker run -d -p 8080:8080 \
-              --env-file /home/ubuntu/codeness/.env \
-              --name backend-container ${{ secrets.DOCKER_USERNAME }}/my-backend:latest
+            cd /home/ubuntu/codeness
+            docker-compose pull
+            docker-compose down
+            docker-compose up -d
