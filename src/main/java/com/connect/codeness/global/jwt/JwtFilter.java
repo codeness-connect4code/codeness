@@ -1,12 +1,12 @@
 package com.connect.codeness.global.jwt;
 
-import static com.connect.codeness.global.constants.Constants.ACCESS_TOKEN;
-import static com.connect.codeness.global.constants.Constants.ACCESS_TOKEN_EXPIRATION;
 import static com.connect.codeness.global.constants.Constants.AUTHORIZATION;
 import static com.connect.codeness.global.constants.Constants.BEARER;
 import static com.connect.codeness.global.constants.Constants.REFRESH_TOKEN;
 import static com.connect.codeness.global.constants.Constants.REFRESH_TOKEN_EXPIRATION;
 
+import com.connect.codeness.domain.user.entity.User;
+import com.connect.codeness.domain.user.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -27,11 +27,13 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Component
 public class JwtFilter extends OncePerRequestFilter {
 
+	private final UserRepository userRepository;
 	private static final List<String> POST_EXCLUDED_PATHS = List.of("/login", "/signup", "/logout");
 	private static final List<String> GET_EXCLUDED_PATHS = List.of("/posts", "/posts/.*", "/news",
 		"/mentoring/\\d+/reviews", "/mentoring", "/mentoring.*", "/users/schedule");
 	private final JwtProvider jwtProvider;
-	public JwtFilter(JwtProvider jwtProvider) {
+	public JwtFilter(UserRepository userRepository, JwtProvider jwtProvider) {
+		this.userRepository = userRepository;
 		this.jwtProvider = jwtProvider;
 	}
 
@@ -63,14 +65,15 @@ public class JwtFilter extends OncePerRequestFilter {
 				}
 				// Access Token이 만료되었고 Refresh Token이 유효한 경우, 새로운 Access Token 발급
 				else if (refreshToken != null && jwtProvider.validationRefreshToken(refreshToken)) {
-					String email = jwtProvider.extractEmail(refreshToken);
-					String role = jwtProvider.extractRole(refreshToken);
-					Long userId = jwtProvider.extractUserId(refreshToken);
-					String provider = jwtProvider.extractProvider(refreshToken);
+					String userId = jwtProvider.extractUserIdFromRefresh(refreshToken);
+
+					User user = userRepository.findByIdOrElseThrow(Long.valueOf(userId));
 
 					// 새 Access Token 발급
-					String newAccessToken = jwtProvider.regenerateAccessToken(refreshToken, email,
-						role, provider);
+					String newAccessToken = jwtProvider.regenerateAccessToken(refreshToken, user.getEmail(),
+						user.getRole().toString(), user.getProvider().toString());
+
+					log.info("newAccessToken: {}",newAccessToken);
 
 					// 응답 헤더에 새 Access Token 설정
 					response.setHeader(AUTHORIZATION, BEARER + newAccessToken);
@@ -79,7 +82,7 @@ public class JwtFilter extends OncePerRequestFilter {
 					setAuthentication(newAccessToken, request);
 
 					// 새로운 Refresh Token 발급 및 설정
-					String newRefreshToken = jwtProvider.generateRefreshToken(userId);
+					String newRefreshToken = jwtProvider.generateRefreshToken(Long.valueOf(userId));
 					response.addCookie(
 						jwtProvider.createHttpOnlyCookie(REFRESH_TOKEN, newRefreshToken,
 							REFRESH_TOKEN_EXPIRATION));
