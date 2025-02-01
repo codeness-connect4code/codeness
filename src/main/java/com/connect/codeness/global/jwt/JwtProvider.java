@@ -60,6 +60,10 @@ public class JwtProvider {
 		return extractClaims(token).get("userId", Long.class);
 	}
 
+	public String extractUserIdFromRefresh(String token) {
+		return extractClaims(token).getSubject();
+	}
+
 	public String extractEmail(String token) {
 		return extractClaims(token).getSubject();
 	}
