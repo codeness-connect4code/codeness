@@ -21,11 +21,11 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      # 3️⃣ Gradle 빌드 (Spring Boot JAR 파일 생성)
+      # 3️⃣ Gradle 빌드 (Spring Boot JAR 파일 생성, 테스트 제외)
       - name: Build JAR file
         run: |
           chmod +x gradlew
-          ./gradlew build -x test  # 테스트는 제외하고 빌드
+          ./gradlew build -x test
 
       # 4️⃣ Docker 로그인 (GitHub Secrets 사용)
       - name: Login to Docker Hub
@@ -54,7 +54,8 @@ jobs:
             docker stop backend-container || true
             docker rm backend-container || true
 
-            # firebase-codeness-key.json 파일은 이제 JAR 내 포함되어 있으므로 별도 마운트 없이 실행
+            # .env 파일을 통해 FIRE_DB_URL, FIRE_PATH 등 환경변수를 전달합니다.
+            # Firebase 키 파일은 JAR 내 포함되어 있으므로 별도 마운트 없이 실행합니다.
             docker run -d -p 8080:8080 \
               --env-file /home/ubuntu/codeness/.env \
               --name backend-container ${{ secrets.DOCKER_USERNAME }}/my-backend:latest
