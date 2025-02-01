@@ -5,8 +5,10 @@ import static com.connect.codeness.global.constants.Constants.BEARER;
 import static com.connect.codeness.global.constants.Constants.REFRESH_TOKEN;
 import static com.connect.codeness.global.constants.Constants.REFRESH_TOKEN_EXPIRATION;
 
+import com.connect.codeness.domain.user.dto.UserLoginDto;
 import com.connect.codeness.domain.user.entity.User;
 import com.connect.codeness.domain.user.repository.UserRepository;
+import com.connect.codeness.global.service.RedisLoginService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -32,9 +34,13 @@ public class JwtFilter extends OncePerRequestFilter {
 	private static final List<String> GET_EXCLUDED_PATHS = List.of("/posts", "/posts/.*", "/news",
 		"/mentoring/\\d+/reviews", "/mentoring", "/mentoring.*", "/users/schedule");
 	private final JwtProvider jwtProvider;
-	public JwtFilter(UserRepository userRepository, JwtProvider jwtProvider) {
+	private final RedisLoginService redisLoginService;
+
+	public JwtFilter(UserRepository userRepository, JwtProvider jwtProvider,
+		RedisLoginService redisLoginService) {
 		this.userRepository = userRepository;
 		this.jwtProvider = jwtProvider;
+		this.redisLoginService = redisLoginService;
 	}
 
 	@Override
@@ -59,10 +65,19 @@ public class JwtFilter extends OncePerRequestFilter {
 
 		try {
 			if (accessToken != null) {
+
+				//redis 중복 로그인 검증
+				if (!redisLoginService.validateToken(jwtProvider.extractUserId(accessToken), accessToken)){
+					log.warn("redis 에서 토큰 검증이 되지 않음, 중복 로그인 감지");
+					response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+					return;
+				}
+
 				// Access Token이 유효한 경우, 인증 정보 설정
 				if (jwtProvider.validationAccessToken(accessToken)) {
 					setAuthentication(accessToken, request);
 				}
+
 				// Access Token이 만료되었고 Refresh Token이 유효한 경우, 새로운 Access Token 발급
 				else if (refreshToken != null && jwtProvider.validationRefreshToken(refreshToken)) {
 					String userId = jwtProvider.extractUserIdFromRefresh(refreshToken);
@@ -86,7 +101,16 @@ public class JwtFilter extends OncePerRequestFilter {
 					response.addCookie(
 						jwtProvider.createHttpOnlyCookie(REFRESH_TOKEN, newRefreshToken,
 							REFRESH_TOKEN_EXPIRATION));
+
+					UserLoginDto newLoginDto = UserLoginDto.builder()
+						.id(user.getId())
+						.accessToken(newAccessToken)
+						.refreshToken(newRefreshToken)
+						.build();
+
+					redisLoginService.saveLoginInfo(newLoginDto);
 				}
+
 			}
 		} catch (Exception e) {
 			log.error("Cannot set user authentication: {}", e.getMessage());

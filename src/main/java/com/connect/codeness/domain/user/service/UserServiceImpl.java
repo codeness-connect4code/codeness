@@ -5,13 +5,9 @@ import static com.connect.codeness.global.constants.Constants.REFRESH_TOKEN_EXPI
 import static com.connect.codeness.global.enums.UserProvider.GOOGLE;
 
 import com.connect.codeness.domain.file.entity.ImageFile;
-import com.connect.codeness.domain.file.repository.FileRepository;
-import com.connect.codeness.domain.file.service.FileService;
-import com.connect.codeness.domain.file.service.FileServiceImpl;
 import com.connect.codeness.domain.mentoringpost.dto.MentoringPostRecommendResponseDto;
 import com.connect.codeness.domain.mentoringpost.repository.MentoringPostRepository;
 import com.connect.codeness.domain.user.dto.GoogleUserUpdateRequestDto;
-import com.connect.codeness.domain.user.dto.LoginCheckResponseDto;
 import com.connect.codeness.domain.user.dto.LoginRequestDto;
 import com.connect.codeness.domain.user.dto.UserBankUpdateRequestDto;
 import com.connect.codeness.domain.user.dto.UserCreateRequestDto;
@@ -46,20 +42,15 @@ public class UserServiceImpl implements UserService {
 	private final PasswordEncoder passwordEncoder;
 	private final AuthenticationManager authenticationManager;
 	private final JwtProvider jwtProvider;
-	private final FileRepository fileRepository;
-	private final FileService fileService;
 	private final MentoringPostRepository mentoringPostRepository;
 
 	public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder,
 		AuthenticationManager authenticationManager, JwtProvider jwtProvider,
-		FileRepository fileRepository, FileServiceImpl fileService,
 		MentoringPostRepository mentoringPostRepository) {
 		this.userRepository = userRepository;
 		this.passwordEncoder = passwordEncoder;
 		this.authenticationManager = authenticationManager;
 		this.jwtProvider = jwtProvider;
-		this.fileRepository = fileRepository;
-		this.fileService = fileService;
 		this.mentoringPostRepository = mentoringPostRepository;
 	}
 
@@ -272,21 +263,5 @@ public class UserServiceImpl implements UserService {
 			Math.min(3, commendMentoringPost.size()));
 
 		return CommonResponseDto.builder().msg("멘토링 공고 추천에 성공했습니다.").data(randList).build();
-	}
-
-	@Override
-	public CommonResponseDto<?> loginCheck(Long userId) {
-
-		User user = userRepository.findByIdOrElseThrow(userId);
-		LoginCheckResponseDto dto = LoginCheckResponseDto.builder()
-			.id(user.getId())
-			.provider(user.getProvider())
-			.role(user.getRole())
-			.build();
-
-		return CommonResponseDto.builder()
-			.msg("로그인 확인")
-			.data(dto)
-			.build();
 	}
 }
