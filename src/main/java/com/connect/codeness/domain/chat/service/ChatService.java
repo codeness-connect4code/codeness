@@ -20,5 +20,6 @@ public interface ChatService {
 
 	CommonResponseDto deleteChatRoom(Long userId, String chatRoomId);
 
+	void autoCleanupExpiredRooms();
 }
 

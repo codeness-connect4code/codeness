@@ -32,6 +32,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,7 +45,7 @@ public class ChatServiceImpl implements ChatService {
 	private final FirebaseDatabase firebaseDatabase;
 	private final UserRepository userRepository;
 	private final ChatRoomHistoryRepository chatRoomHistoryRepository;
-
+	private static final int BATCH_SIZE = 1000;
 
 	public ChatServiceImpl(FirebaseDatabase firebaseDatabase,
 		UserRepository userRepository, ChatRoomHistoryRepository chatRoomHistoryRepository
@@ -287,6 +290,45 @@ public class ChatServiceImpl implements ChatService {
 		chatRooms.updateChildrenAsync(usersStatus);
 
 		return CommonResponseDto.builder().msg("채팅방이 삭제되었습니다.").build();
+	}
+
+	//만료된 채팅방 자동 삭제(soft-delete)
+	@Override
+	@Scheduled(cron = "0 0 2 * * *")
+	public void autoCleanupExpiredRooms() {
+		log.info("--만료일이 지난 채팅방 삭제 시작--");
+		LocalDateTime now = LocalDateTime.now();
+
+		int totalProcessed = 0;
+		int page = 0;
+
+		try{
+			while(true) {
+				//삭제될 채팅방 로깅
+				Page<ChatRoomHistory> expiredRooms = chatRoomHistoryRepository.findExpiredRooms(now, PageRequest.of(page, BATCH_SIZE));
+
+				if(expiredRooms.isEmpty()){
+					break;
+				}
+
+				//채팅방 삭제 -> 파이어베이스 DB isActive -> false
+				for (ChatRoomHistory expiredRoom : expiredRooms.getContent()) {
+
+					deleteChatRoom(expiredRoom.getUser().getId(),expiredRoom.getChatRoomId());
+				}
+
+				totalProcessed += expiredRooms.getNumberOfElements();
+
+				log.info("처리된 배치 번호 {} : {} 개수", page+1, expiredRooms.getNumberOfElements());
+
+				page++;
+				Thread.sleep(100);
+			}
+
+			log.info("삭제 완료. 총 처리된 개수: {}",totalProcessed);
+		} catch (Exception e) {
+			log.error("삭제 도중 발생 에러: ", e);
+		}
 	}
 
 

@@ -1,7 +1,10 @@
 package com.connect.codeness.domain.chat.repository;
 
 import com.connect.codeness.domain.chat.entity.ChatRoomHistory;
+import java.time.LocalDateTime;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -21,4 +24,7 @@ public interface ChatRoomHistoryRepository extends JpaRepository<ChatRoomHistory
 	List<String> findChatRoomIdByUserId(@Param("userId") Long userId);
 
 	List<ChatRoomHistory> findByChatRoomId(String chatRoomId);
+
+	@Query("SELECT c FROM ChatRoomHistory c WHERE c.expireAt < :date")
+	Page<ChatRoomHistory> findExpiredRooms(LocalDateTime date, Pageable pageable);
 }
