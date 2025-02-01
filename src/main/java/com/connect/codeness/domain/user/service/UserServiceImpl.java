@@ -12,6 +12,7 @@ import com.connect.codeness.domain.user.dto.LoginRequestDto;
 import com.connect.codeness.domain.user.dto.UserBankUpdateRequestDto;
 import com.connect.codeness.domain.user.dto.UserCreateRequestDto;
 import com.connect.codeness.domain.user.dto.UserDeleteResponseDto;
+import com.connect.codeness.domain.user.dto.UserLoginDto;
 import com.connect.codeness.domain.user.dto.UserPasswordUpdateRequestDto;
 import com.connect.codeness.domain.user.dto.UserResponseDto;
 import com.connect.codeness.domain.user.dto.UserUpdateRequestDto;
@@ -22,6 +23,8 @@ import com.connect.codeness.global.enums.UserProvider;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
 import com.connect.codeness.global.jwt.JwtProvider;
+import com.connect.codeness.global.service.RedisLoginService;
+import io.lettuce.core.RedisException;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collections;
@@ -43,15 +46,17 @@ public class UserServiceImpl implements UserService {
 	private final AuthenticationManager authenticationManager;
 	private final JwtProvider jwtProvider;
 	private final MentoringPostRepository mentoringPostRepository;
+	private final RedisLoginService redisLoginService;
 
 	public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder,
 		AuthenticationManager authenticationManager, JwtProvider jwtProvider,
-		MentoringPostRepository mentoringPostRepository) {
+		MentoringPostRepository mentoringPostRepository, RedisLoginService redisLoginService) {
 		this.userRepository = userRepository;
 		this.passwordEncoder = passwordEncoder;
 		this.authenticationManager = authenticationManager;
 		this.jwtProvider = jwtProvider;
 		this.mentoringPostRepository = mentoringPostRepository;
+		this.redisLoginService = redisLoginService;
 	}
 
 	/**
@@ -107,10 +112,25 @@ public class UserServiceImpl implements UserService {
 			throw new BusinessException(ExceptionType.GOOGLE_PROVIDER);
 		}
 
+		redisLoginService.removeLoginInfo(user.getId());
+
 		// 로그인 성공 시 토큰 생성 후 반환
 		String accessToken = jwtProvider.generateAccessToken(user.getEmail(), user.getId(),
 			user.getRole().toString(), UserProvider.LOCAL.toString());
 		String refreshToken = jwtProvider.generateRefreshToken(user.getId());
+
+		UserLoginDto loginDto = UserLoginDto.builder()
+			.id(user.getId())
+			.accessToken(accessToken)
+			.refreshToken(refreshToken)
+			.build();
+
+		try {
+			redisLoginService.saveLoginInfo(loginDto);
+		}catch (RedisException e){
+			log.error("redis 저장 실패 : {}", user.getId());
+			throw new BusinessException(ExceptionType.REDIS_SERVER_ERROR);
+		}
 
 		// 리프레시 토큰을 HTTP-Only 쿠키에 저장
 		response.addCookie(jwtProvider.createHttpOnlyCookie(REFRESH_TOKEN, refreshToken,
