@@ -51,8 +51,9 @@ public class MentoringSchedule extends CreateTimeEntity {
 	}
 
 	/**
-	 * 결제 환불시 스케쥴 상태 변경
+	 * 결제 스케쥴 상태 변경
 	 * - BOOKED -> EMPTY
+	 * - BOOKED -> IN_PROGRESS
 	 */
 	public void updateBookedStatus(BookedStatus bookedStatus) {
 		this.bookedStatus = bookedStatus;
