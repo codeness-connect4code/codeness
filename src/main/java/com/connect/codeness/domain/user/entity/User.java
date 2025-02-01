@@ -6,6 +6,7 @@ import com.connect.codeness.domain.user.dto.GoogleUserUpdateRequestDto;
 import com.connect.codeness.domain.user.dto.UserUpdateRequestDto;
 import com.connect.codeness.global.entity.BaseEntity;
 import com.connect.codeness.global.enums.FieldType;
+import com.connect.codeness.global.enums.UserProvider;
 import com.connect.codeness.global.enums.UserRole;
 import com.connect.codeness.global.enums.UserStatus;
 import jakarta.persistence.CascadeType;
@@ -82,13 +83,13 @@ public class User extends BaseEntity {
 
 	//소셜 로그인 프로바이더 (현재는 구글만 존재)
 	@Column(nullable = false)
-	private String provider;
+	private UserProvider provider;
 
 	//구글 토큰 저장하는 필드
 	private String googleToken;
 
 	@Builder
-	public User(String email, String password,String name, String userNickname, String phoneNumber, FieldType field, UserRole role, String provider, String googleToken) {
+	public User(String email, String password,String name, String userNickname, String phoneNumber, FieldType field, UserRole role, UserProvider provider, String googleToken) {
 		this.email = email;
 		this.password = password;
 		this.name = name;

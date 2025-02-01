@@ -1,10 +1,13 @@
 package com.connect.codeness.domain.chat.service;
 
-import com.connect.codeness.domain.chat.entity.ChatRoomHistory;
+import static com.connect.codeness.global.constants.Constants.RETENTION_DAYS;
+import static com.connect.codeness.global.constants.Constants.SCHEDULE_TIME;
+
 import com.connect.codeness.domain.chat.dto.ChatCreateRequestDto;
 import com.connect.codeness.domain.chat.dto.ChatMessageDto;
 import com.connect.codeness.domain.chat.dto.ChatRoomCreateRequestDto;
 import com.connect.codeness.domain.chat.dto.ChatRoomDto;
+import com.connect.codeness.domain.chat.entity.ChatRoomHistory;
 import com.connect.codeness.domain.chat.repository.ChatRoomHistoryRepository;
 import com.connect.codeness.domain.file.entity.ImageFile;
 import com.connect.codeness.domain.user.entity.User;
@@ -40,6 +43,7 @@ public class ChatServiceImpl implements ChatService {
 	private final UserRepository userRepository;
 	private final ChatRoomHistoryRepository chatRoomHistoryRepository;
 
+
 	public ChatServiceImpl(FirebaseDatabase firebaseDatabase,
 		UserRepository userRepository, ChatRoomHistoryRepository chatRoomHistoryRepository
 	) {
@@ -60,7 +64,11 @@ public class ChatServiceImpl implements ChatService {
 
 		//생성된 채팅방 ID가 이미 존재하는지 확인
 		if (chatRoomHistoryRepository.existsByChatRoomId(chatRoomId)) {
-			throw new BusinessException(ExceptionType.ALREADY_EXIST_CHATROOM);
+
+			chatRoomHistoryRepository.findByChatRoomId(chatRoomId)
+				.forEach(chatRoom -> chatRoom.updateExpireAt(getExpireAt(dto)));
+
+			return CommonResponseDto.builder().msg("채팅방 이미 존재").build();
 		}
 
 		//유저 정보 가져오기(나, 상대방)
@@ -94,8 +102,8 @@ public class ChatServiceImpl implements ChatService {
 		Ref.child(String.valueOf(partnerId)).child(chatRoomId).setValueAsync(partnerData);
 
 		//채팅방 이력에 저장(나, 상대방)
-		ChatRoomHistory myChatRoomHistory = createChatRoomHistory(myInfo, chatRoomId);
-		ChatRoomHistory partnerChatRoomHistory = createChatRoomHistory(partnerInfo, chatRoomId);
+		ChatRoomHistory myChatRoomHistory = createChatRoomHistory(myInfo, chatRoomId, dto);
+		ChatRoomHistory partnerChatRoomHistory = createChatRoomHistory(partnerInfo, chatRoomId, dto);
 
 		chatRoomHistoryRepository.save(myChatRoomHistory);
 		chatRoomHistoryRepository.save(partnerChatRoomHistory);
@@ -393,10 +401,14 @@ public class ChatServiceImpl implements ChatService {
 	}
 
 	//ChatRoomHistory 객체 생성
-	private ChatRoomHistory createChatRoomHistory(User myInfo, String chatRoomId) {
+	private ChatRoomHistory createChatRoomHistory(User myInfo, String chatRoomId, ChatRoomCreateRequestDto dto) {
+
+		LocalDateTime expireAt = getExpireAt(dto);
+
 		return ChatRoomHistory.builder()
 			.user(myInfo)
 			.chatRoomId(chatRoomId)
+			.expireAt(expireAt)
 			.build();
 	}
 
@@ -414,6 +426,13 @@ public class ChatServiceImpl implements ChatService {
 		if (!chatRoomHistoryRepository.existsByUserId(userId)) {
 			throw new BusinessException(exType);
 		}
+	}
+
+	//채팅방 만료시간 얻기
+	private static LocalDateTime getExpireAt(ChatRoomCreateRequestDto dto) {
+		return LocalDateTime.of(dto.getMentoringDate(), dto.getMentoringTime())
+			.plusHours(SCHEDULE_TIME)
+			.plusDays(RETENTION_DAYS);
 	}
 }
 

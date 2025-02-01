@@ -1,6 +1,8 @@
 package com.connect.codeness.domain.paymenthistory.dto;
 
+import com.connect.codeness.domain.file.entity.ImageFile;
 import com.connect.codeness.domain.paymenthistory.entity.PaymentHistory;
+import com.connect.codeness.global.enums.FileCategory;
 import com.connect.codeness.global.enums.PaymentStatus;
 import com.connect.codeness.global.enums.ReviewStatus;
 import java.time.LocalDate;
@@ -32,12 +34,15 @@ public class PaymentHistoryMenteeResponseDto {
 
 	private LocalTime mentoringTime; //멘토링 스케쥴 시간
 
+	private String profileUrl; //멘토 프로필 url
+
 	/**
 	 * 결제 전체 조회 메서드 사용
 	 * 멘티 응답 DTO
 	 * paymentHistory 객체 -> PaymentHistoryResponseDto 변환
 	 */
-	public static PaymentHistoryMenteeResponseDto from(PaymentHistory paymentHistory){
+	public static PaymentHistoryMenteeResponseDto from(PaymentHistory paymentHistory, String profileUrl){
+
 		return PaymentHistoryMenteeResponseDto.builder()
 			.id(paymentHistory.getId())
 			.paymentId(paymentHistory.getPayment().getId())
@@ -45,10 +50,11 @@ public class PaymentHistoryMenteeResponseDto {
 			.paymentStatus(paymentHistory.getPaymentStatus())
 			.reviewStatus(paymentHistory.getReviewStatus())
 			.mentoringPostId(paymentHistory.getPayment().getMentoringSchedule().getMentoringPost().getId())
-			.userNickname(paymentHistory.getPayment().getUser().getUserNickname())
+			.userNickname(paymentHistory.getUser().getUserNickname())
 			.title(paymentHistory.getPayment().getMentoringSchedule().getMentoringPost().getTitle())
 			.mentoringDate(paymentHistory.getPayment().getMentoringSchedule().getMentoringDate())
 			.mentoringTime(paymentHistory.getPayment().getMentoringSchedule().getMentoringTime())
+			.profileUrl(profileUrl)
 			.build();
 	}
 }

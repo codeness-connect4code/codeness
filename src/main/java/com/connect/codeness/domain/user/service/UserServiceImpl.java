@@ -1,12 +1,17 @@
 package com.connect.codeness.domain.user.service;
 
+import static com.connect.codeness.global.constants.Constants.REFRESH_TOKEN;
+import static com.connect.codeness.global.constants.Constants.REFRESH_TOKEN_EXPIRATION;
+import static com.connect.codeness.global.enums.UserProvider.GOOGLE;
+
+import com.connect.codeness.domain.file.entity.ImageFile;
 import com.connect.codeness.domain.file.repository.FileRepository;
 import com.connect.codeness.domain.file.service.FileService;
 import com.connect.codeness.domain.file.service.FileServiceImpl;
-import com.connect.codeness.domain.file.entity.ImageFile;
-import com.connect.codeness.domain.mentoringpost.repository.MentoringPostRepository;
 import com.connect.codeness.domain.mentoringpost.dto.MentoringPostRecommendResponseDto;
+import com.connect.codeness.domain.mentoringpost.repository.MentoringPostRepository;
 import com.connect.codeness.domain.user.dto.GoogleUserUpdateRequestDto;
+import com.connect.codeness.domain.user.dto.LoginCheckResponseDto;
 import com.connect.codeness.domain.user.dto.LoginRequestDto;
 import com.connect.codeness.domain.user.dto.UserBankUpdateRequestDto;
 import com.connect.codeness.domain.user.dto.UserCreateRequestDto;
@@ -16,18 +21,16 @@ import com.connect.codeness.domain.user.dto.UserResponseDto;
 import com.connect.codeness.domain.user.dto.UserUpdateRequestDto;
 import com.connect.codeness.domain.user.entity.User;
 import com.connect.codeness.domain.user.repository.UserRepository;
-import com.connect.codeness.global.jwt.JwtUtil;
 import com.connect.codeness.global.dto.CommonResponseDto;
+import com.connect.codeness.global.enums.UserProvider;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
+import com.connect.codeness.global.jwt.JwtProvider;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.loader.ast.spi.CollectionLoader;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -42,18 +45,19 @@ public class UserServiceImpl implements UserService {
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final AuthenticationManager authenticationManager;
-	private final JwtUtil jwtUtil;
+	private final JwtProvider jwtProvider;
 	private final FileRepository fileRepository;
 	private final FileService fileService;
 	private final MentoringPostRepository mentoringPostRepository;
 
 	public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder,
-		AuthenticationManager authenticationManager, JwtUtil jwtUtil, FileRepository fileRepository,
-		FileServiceImpl fileService, MentoringPostRepository mentoringPostRepository) {
+		AuthenticationManager authenticationManager, JwtProvider jwtProvider,
+		FileRepository fileRepository, FileServiceImpl fileService,
+		MentoringPostRepository mentoringPostRepository) {
 		this.userRepository = userRepository;
 		this.passwordEncoder = passwordEncoder;
 		this.authenticationManager = authenticationManager;
-		this.jwtUtil = jwtUtil;
+		this.jwtProvider = jwtProvider;
 		this.fileRepository = fileRepository;
 		this.fileService = fileService;
 		this.mentoringPostRepository = mentoringPostRepository;
@@ -61,22 +65,24 @@ public class UserServiceImpl implements UserService {
 
 	/**
 	 * 유저 회원가입
+	 *
 	 * @param dto
 	 * @return
 	 */
 	@Override
 	@Transactional
-	public CommonResponseDto createUser(UserCreateRequestDto dto) {
+	public CommonResponseDto<?> createUser(UserCreateRequestDto dto) {
 		//비밀번호 암호화
 		String encodedPassword = passwordEncoder.encode(dto.getPassword());
 
 		//이메일 중복여부 확인
-		if(userRepository.existsByEmail(dto.getEmail())){
+		if (userRepository.existsByEmail(dto.getEmail())) {
 			throw new BusinessException(ExceptionType.ALREADY_EXIST_EMAIL);
 		}
 
 		//user 객체 생성 후 DB에 저장
-		User user = new User().builder()
+		new User();
+		User user = User.builder()
 			.email(dto.getEmail())
 			.password(encodedPassword)
 			.name(dto.getName())
@@ -84,8 +90,7 @@ public class UserServiceImpl implements UserService {
 			.phoneNumber(dto.getPhoneNumber())
 			.field(dto.getField())
 			.role(dto.getUserRole())
-			.provider("LOCAL")
-			.build();
+			.provider(UserProvider.LOCAL).build();
 
 		userRepository.save(user);
 
@@ -94,56 +99,58 @@ public class UserServiceImpl implements UserService {
 
 	/**
 	 * 로그인
+	 *
 	 * @param dto
 	 * @return
 	 */
 	@Override
-	public String login(LoginRequestDto dto) {
-		//이메일, 비밀번호 검증
+	public String login(LoginRequestDto dto, HttpServletResponse response) throws IOException {
+		// 이메일, 비밀번호 검증
 		Authentication authentication = authenticationManager.authenticate(
-			new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword())
-		);
+			new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword()));
 
 		User user = userRepository.findByEmailOrElseThrow(dto.getEmail());
 
-		//구글 회원가입 유저일시 예외반환
-		if (user.getProvider().equals("google")){
+		// 구글 회원가입 유저일 시 예외 반환
+		if (user.getProvider().equals(GOOGLE)) {
 			throw new BusinessException(ExceptionType.GOOGLE_PROVIDER);
 		}
 
-		//로그인 성공시 토큰 생성 후 반환
-		String token = jwtUtil.generateToken(user.getEmail(),user.getId(),user.getRole().toString(), user.getProvider());
+		// 로그인 성공 시 토큰 생성 후 반환
+		String accessToken = jwtProvider.generateAccessToken(user.getEmail(), user.getId(),
+			user.getRole().toString(), UserProvider.LOCAL.toString());
+		String refreshToken = jwtProvider.generateRefreshToken(user.getId());
 
-		return token;
+		// 리프레시 토큰을 HTTP-Only 쿠키에 저장
+		response.addCookie(jwtProvider.createHttpOnlyCookie(REFRESH_TOKEN, refreshToken,
+			REFRESH_TOKEN_EXPIRATION));
+
+		// 액세스 토큰은 응답 바디로 반환하여 클라이언트가 상태 관리
+		return accessToken;
 	}
+
 
 	/**
 	 * 유저 정보 조회
+	 *
 	 * @param userId
 	 * @return
 	 */
 	@Override
-	public CommonResponseDto getUser(Long userId) {
+	public CommonResponseDto<?> getUser(Long userId) {
 		User user = userRepository.findByIdOrElseThrow(userId);
 
-		UserResponseDto userResponseDto = UserResponseDto.builder()
-			.name(user.getName())
-			.userNickname(user.getUserNickname())
-			.email(user.getEmail())
-			.phoneNumber(user.getPhoneNumber())
-			.region(user.getRegion())
-			.field(user.getField())
-			.career(user.getCareer())
-			.mbti(user.getMbti())
-			.siteLink(user.getSiteLink()).build();
+		UserResponseDto userResponseDto = UserResponseDto.builder().name(user.getName())
+			.userNickname(user.getUserNickname()).email(user.getEmail())
+			.phoneNumber(user.getPhoneNumber()).region(user.getRegion()).field(user.getField())
+			.career(user.getCareer()).mbti(user.getMbti()).siteLink(user.getSiteLink()).build();
 
-		return CommonResponseDto.builder()
-			.msg("마이프로필 조회 성공")
-			.data(userResponseDto).build();
+		return CommonResponseDto.builder().msg("마이프로필 조회 성공").data(userResponseDto).build();
 	}
 
 	/**
 	 * 유저 정보 수정
+	 *
 	 * @param userId
 	 * @param dto
 	 * @param imageFile
@@ -152,8 +159,8 @@ public class UserServiceImpl implements UserService {
 	 */
 	@Override
 	@Transactional
-	public CommonResponseDto updateUser(Long userId, UserUpdateRequestDto dto, ImageFile imageFile)
-		throws IOException {
+	public CommonResponseDto<?> updateUser(Long userId, UserUpdateRequestDto dto,
+		ImageFile imageFile) throws IOException {
 		User user = userRepository.findByIdOrElseThrow(userId);
 		user.update(dto, imageFile);
 		userRepository.save(user);
@@ -161,7 +168,8 @@ public class UserServiceImpl implements UserService {
 	}
 
 	/**
-	 *  구글 유저 정보 수정
+	 * 구글 유저 정보 수정
+	 *
 	 * @param userId
 	 * @param dto
 	 * @param imageFile
@@ -170,11 +178,11 @@ public class UserServiceImpl implements UserService {
 	 */
 	@Override
 	@Transactional
-	public CommonResponseDto updateGoogleUser(Long userId, GoogleUserUpdateRequestDto dto, ImageFile imageFile)
-		throws IOException {
+	public CommonResponseDto<?> updateGoogleUser(Long userId, GoogleUserUpdateRequestDto dto,
+		ImageFile imageFile) throws IOException {
 		User user = userRepository.findByIdOrElseThrow(userId);
 
-		if (!user.getProvider().equals("GOOGLE")){
+		if (!user.getProvider().equals(UserProvider.GOOGLE)) {
 			throw new BusinessException(ExceptionType.BAD_REQUEST);
 		}
 
@@ -185,23 +193,23 @@ public class UserServiceImpl implements UserService {
 
 	/**
 	 * 유저 비밀번호 변경
+	 *
 	 * @param userId
 	 * @param dto
 	 * @return
 	 */
 	@Override
 	@Transactional
-	public CommonResponseDto updatePassword(Long userId,
-		UserPasswordUpdateRequestDto dto) {
+	public CommonResponseDto<?> updatePassword(Long userId, UserPasswordUpdateRequestDto dto) {
 		User user = userRepository.findByIdOrElseThrow(userId);
 
 		//구글 로그인시 비밀번호 변경 x
-		if (user.getProvider().equals("google")){
+		if (user.getProvider().equals(UserProvider.GOOGLE)) {
 			throw new BusinessException(ExceptionType.GOOGLE_PROVIDER);
 		}
 
 		//패스워드 확인
-		if(!passwordEncoder.matches(dto.getCurrentPassword(),user.getPassword())){
+		if (!passwordEncoder.matches(dto.getCurrentPassword(), user.getPassword())) {
 			throw new BusinessException(ExceptionType.UNAUTHORIZED_PASSWORD);
 		}
 		//새로 입력한 패스워드 암호화
@@ -213,31 +221,32 @@ public class UserServiceImpl implements UserService {
 
 	/**
 	 * 유저 계좌번호 변경
+	 *
 	 * @param userId
 	 * @param dto
 	 * @return
 	 */
 	@Override
 	@Transactional
-	public CommonResponseDto updateBankAccount(Long userId,
-		UserBankUpdateRequestDto dto) {
+	public CommonResponseDto<?> updateBankAccount(Long userId, UserBankUpdateRequestDto dto) {
 		User user = userRepository.findByIdOrElseThrow(userId);
-		user.updateBank(dto.getBankName(),dto.getBankAccount());
+		user.updateBank(dto.getBankName(), dto.getBankAccount());
 		userRepository.save(user);
 		return CommonResponseDto.builder().msg("계좌 입력 완료").build();
 	}
 
 	/**
 	 * 유저 탈퇴(soft delete)
+	 *
 	 * @param userId
 	 * @param dto
 	 * @return
 	 */
 	@Override
 	@Transactional
-	public CommonResponseDto deleteUser(Long userId, UserDeleteResponseDto dto) {
+	public CommonResponseDto<?> deleteUser(Long userId, UserDeleteResponseDto dto) {
 		User user = userRepository.findByIdOrElseThrow(userId);
-		if (!passwordEncoder.matches(dto.getPassword(),user.getPassword())){
+		if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
 			throw new BusinessException(ExceptionType.UNAUTHORIZED_PASSWORD);
 		}
 		user.deleteUser();
@@ -247,22 +256,37 @@ public class UserServiceImpl implements UserService {
 
 	/**
 	 * 유저 멘토링 공고 추천
+	 *
 	 * @param userId
 	 * @return
 	 */
 	@Override
-	public CommonResponseDto getMentoring(Long userId) {
+	public CommonResponseDto<?> getMentoring(Long userId) {
 		User user = userRepository.findByIdOrElseThrow(userId);
 
-		List<MentoringPostRecommendResponseDto> commendMentoringPost =
-			mentoringPostRepository.findByFilter(user.getField(),user.getRegion());
+		List<MentoringPostRecommendResponseDto> commendMentoringPost = mentoringPostRepository.findByFilter(
+			user.getField(), user.getRegion());
 
 		Collections.shuffle(commendMentoringPost);
-		List<MentoringPostRecommendResponseDto> randList
-			= commendMentoringPost.subList(0, Math.min(3, commendMentoringPost.size()));
+		List<MentoringPostRecommendResponseDto> randList = commendMentoringPost.subList(0,
+			Math.min(3, commendMentoringPost.size()));
+
+		return CommonResponseDto.builder().msg("멘토링 공고 추천에 성공했습니다.").data(randList).build();
+	}
+
+	@Override
+	public CommonResponseDto<?> loginCheck(Long userId) {
+
+		User user = userRepository.findByIdOrElseThrow(userId);
+		LoginCheckResponseDto dto = LoginCheckResponseDto.builder()
+			.id(user.getId())
+			.provider(user.getProvider())
+			.role(user.getRole())
+			.build();
 
 		return CommonResponseDto.builder()
-			.msg("멘토링 공고 추천에 성공했습니다.")
-			.data(randList).build();
+			.msg("로그인 확인")
+			.data(dto)
+			.build();
 	}
 }

@@ -1,5 +1,6 @@
 package com.connect.codeness.domain.post.controller;
 
+import static com.connect.codeness.global.constants.Constants.ACCESS_TOKEN;
 import static com.connect.codeness.global.constants.Constants.AUTHORIZATION;
 import static com.connect.codeness.global.constants.Constants.PAGE_NUMBER;
 import static com.connect.codeness.global.constants.Constants.PAGE_SIZE;
@@ -10,9 +11,10 @@ import com.connect.codeness.domain.post.dto.PostFindResponseDto;
 import com.connect.codeness.domain.post.dto.PostUpdateRequestDto;
 import com.connect.codeness.domain.post.service.PostService;
 import com.connect.codeness.global.dto.PaginationResponseDto;
-import com.connect.codeness.global.jwt.JwtUtil;
+import com.connect.codeness.global.jwt.JwtProvider;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.enums.PostType;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.data.domain.PageRequest;
@@ -36,20 +38,20 @@ import org.springframework.web.bind.annotation.RestController;
 public class PostController {
 
 	private PostService postService;
-	private JwtUtil jwtUtil;
+	private JwtProvider jwtProvider;
 
-	public PostController(PostService postService, JwtUtil jwtUtil) {
+	public PostController(PostService postService, JwtProvider jwtProvider) {
 		this.postService = postService;
-		this.jwtUtil = jwtUtil;
+		this.jwtProvider = jwtProvider;
 	}
 
 	// 게시글 생성
 	@PostMapping
 	public ResponseEntity<CommonResponseDto> createPost(
 		@Valid @RequestBody PostCreateRequestDto dto,
-		@RequestHeader("Authorization") String token) {
+		@RequestHeader(AUTHORIZATION) String authorizationHeader) {
 
-		Long userId = jwtUtil.extractUserId(token);
+		Long userId = jwtProvider.extractUserId(authorizationHeader);
 
 		CommonResponseDto responseDto = postService.createPost(userId, dto);
 
@@ -92,13 +94,13 @@ public class PostController {
 	}
 
 	// 게시글 수정
-	@PatchMapping("/{postId}")
+	@PatchMapping("/{postId}/update")
 	public ResponseEntity<CommonResponseDto> updatePost(
 		@Valid @RequestBody PostUpdateRequestDto dto,
 		@PathVariable Long postId,
-		@RequestHeader(AUTHORIZATION) String token) {
+		@RequestHeader(AUTHORIZATION) String authorizationHeader) {
 
-		Long userId = jwtUtil.extractUserId(token);
+		Long userId = jwtProvider.extractUserId(authorizationHeader);
 
 		CommonResponseDto responseDto = postService.updatePost(userId, postId, dto);
 
@@ -107,10 +109,9 @@ public class PostController {
 
 	@DeleteMapping("/{postId}")
 	public ResponseEntity<CommonResponseDto> deletePost(
-		@PathVariable Long postId,
-		@RequestHeader(AUTHORIZATION) String token) {
+		@PathVariable Long postId, @RequestHeader(AUTHORIZATION) String authorizationHeader){
 
-		Long userId = jwtUtil.extractUserId(token);
+		Long userId = jwtProvider.extractUserId(authorizationHeader);
 
 		CommonResponseDto responseDto = postService.deletePost(userId, postId);
 
