@@ -72,10 +72,8 @@ public class JwtFilter extends OncePerRequestFilter {
 					String newAccessToken = jwtProvider.regenerateAccessToken(refreshToken, email,
 						role, provider);
 
-					// 응답 쿠키에 새 Access Token 설정
-					response.addCookie(
-						jwtProvider.createHttpOnlyCookie(ACCESS_TOKEN, newAccessToken,
-							ACCESS_TOKEN_EXPIRATION));
+					// 응답 헤더에 새 Access Token 설정
+					response.setHeader(AUTHORIZATION, BEARER + newAccessToken);
 
 					// 새 Access Token을 사용하여 인증 정보 설정
 					setAuthentication(newAccessToken, request);
