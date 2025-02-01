@@ -1,10 +1,10 @@
-version: "3"
+version: '3.8'
+
 services:
-  app:
+  backend:
     image: my-backend
     build: .
     ports:
-      - "3000:3000"
+      - "8080:8080"
     env_file:
-      - .env  # 환경 변수 로드
-    restart: always
+      - .env
