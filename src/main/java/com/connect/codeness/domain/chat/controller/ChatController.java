@@ -1,6 +1,5 @@
 package com.connect.codeness.domain.chat.controller;
 
-import static com.connect.codeness.global.constants.Constants.ACCESS_TOKEN;
 import static com.connect.codeness.global.constants.Constants.AUTHORIZATION;
 
 import com.connect.codeness.domain.chat.dto.ChatCreateRequestDto;
@@ -10,7 +9,6 @@ import com.connect.codeness.domain.chat.dto.ChatRoomDto;
 import com.connect.codeness.domain.chat.service.ChatService;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.jwt.JwtProvider;
-import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,25 +36,25 @@ public class ChatController {
 	//TODO:나중에 지울 것
 	//채팅방 생성
 	@PostMapping
-	public ResponseEntity<CommonResponseDto> createChatRoom(
+	public ResponseEntity<CommonResponseDto<?>> createChatRoom(
 		@RequestHeader(AUTHORIZATION) String authorizationHeader,
 		@RequestBody ChatRoomCreateRequestDto dto
 	) {
 		Long userId = jwtProvider.extractUserId(authorizationHeader);
-		CommonResponseDto responseDto = chatService.createChatRoom(userId, dto);
+		CommonResponseDto<?> responseDto = chatService.createChatRoom(userId, dto);
 
 		return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
 	}
 
 	//채팅 보내기
 	@PostMapping("/chat")
-	public ResponseEntity<CommonResponseDto> sendMessage(
+	public ResponseEntity<CommonResponseDto<?>> sendMessage(
 		@RequestHeader(AUTHORIZATION) String authorizationHeader,
 		@RequestBody ChatCreateRequestDto dto
 	) {
 		Long userId = jwtProvider.extractUserId(authorizationHeader);
 
-		CommonResponseDto commonResponseDto = chatService.sendMessage(userId, dto);
+		CommonResponseDto<?> commonResponseDto = chatService.sendMessage(userId, dto);
 
 		return new ResponseEntity<>(commonResponseDto, HttpStatus.CREATED);
 	}
@@ -90,14 +88,14 @@ public class ChatController {
 	}
 
 	@DeleteMapping("/{chatRoomId}")
-	public ResponseEntity<CommonResponseDto> deleteChatRoom(
+	public ResponseEntity<CommonResponseDto<?>> deleteChatRoom(
 		@RequestHeader(AUTHORIZATION) String authorizationHeader,
 		@PathVariable String chatRoomId
 	) {
 
 		Long userId = jwtProvider.extractUserId(authorizationHeader);
 
-		CommonResponseDto responseDto = chatService.deleteChatRoom(userId, chatRoomId);
+		CommonResponseDto<?> responseDto = chatService.deleteChatRoom(userId, chatRoomId);
 
 		return new ResponseEntity<>(responseDto, HttpStatus.OK);
 	}

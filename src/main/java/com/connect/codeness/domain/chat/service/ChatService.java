@@ -12,13 +12,14 @@ public interface ChatService {
 
 	CommonResponseDto<List<ChatRoomDto>> getChatRooms(long userId);
 
-	CommonResponseDto sendMessage(Long userId, ChatCreateRequestDto dto);
+	CommonResponseDto<?> sendMessage(Long userId, ChatCreateRequestDto dto);
 
 	CommonResponseDto<List<ChatMessageDto>> getChats(Long userId, String chatRoomId);
 
-	CommonResponseDto createChatRoom(Long userId, ChatRoomCreateRequestDto dto);
+	CommonResponseDto<?> createChatRoom(Long userId, ChatRoomCreateRequestDto dto);
 
-	CommonResponseDto deleteChatRoom(Long userId, String chatRoomId);
+	CommonResponseDto<?> deleteChatRoom(Long userId, String chatRoomId);
 
+	void autoCleanupExpiredRooms();
 }
 
