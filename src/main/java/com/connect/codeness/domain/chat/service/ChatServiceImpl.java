@@ -10,10 +10,13 @@ import com.connect.codeness.domain.chat.dto.ChatRoomDto;
 import com.connect.codeness.domain.chat.entity.ChatRoomHistory;
 import com.connect.codeness.domain.chat.repository.ChatRoomHistoryRepository;
 import com.connect.codeness.domain.file.entity.ImageFile;
+import com.connect.codeness.domain.paymenthistory.entity.PaymentHistory;
+import com.connect.codeness.domain.paymenthistory.repository.PaymentHistoryRepository;
 import com.connect.codeness.domain.user.entity.User;
 import com.connect.codeness.domain.user.repository.UserRepository;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.enums.FileCategory;
+import com.connect.codeness.global.enums.UserRole;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
 import com.google.firebase.database.DataSnapshot;
@@ -45,24 +48,42 @@ public class ChatServiceImpl implements ChatService {
 	private final FirebaseDatabase firebaseDatabase;
 	private final UserRepository userRepository;
 	private final ChatRoomHistoryRepository chatRoomHistoryRepository;
+	private final PaymentHistoryRepository paymentHistoryRepository;
 	private static final int BATCH_SIZE = 1000;
 
 	public ChatServiceImpl(FirebaseDatabase firebaseDatabase,
-		UserRepository userRepository, ChatRoomHistoryRepository chatRoomHistoryRepository
+		UserRepository userRepository, ChatRoomHistoryRepository chatRoomHistoryRepository,
+		PaymentHistoryRepository paymentHistoryRepository
 	) {
 		this.firebaseDatabase = firebaseDatabase;
 		this.userRepository = userRepository;
 		this.chatRoomHistoryRepository = chatRoomHistoryRepository;
+		this.paymentHistoryRepository = paymentHistoryRepository;
 	}
 
 
 	//채팅방 생성
 	@Transactional
 	@Override
-	public CommonResponseDto createChatRoom(Long myId, ChatRoomCreateRequestDto dto) {
+	public CommonResponseDto<?> createChatRoom(Long myId, ChatRoomCreateRequestDto dto) {
+
+		//멘토인 경우 채팅방 생성 불가 & 유저 정보 가져오기(나)
+		User myInfo = userRepository.findByIdOrElseThrow(myId);
+
+		if(myInfo.getRole() == UserRole.MENTOR){
+			throw new BusinessException(ExceptionType.UNAUTHORIZED_POST_REQUEST);
+		}
+
+		//결제내역이 없는 경우, 채팅방 생성 불가
+		PaymentHistory paymentHistory = paymentHistoryRepository.findByIdOrElseThrow(dto.getPaymentHistoryId());
+
+		if(!Objects.equals(paymentHistory.getPayment().getUser().getId(), myId)){
+			throw new BusinessException(ExceptionType.UNAUTHORIZED_POST_REQUEST);
+		}
+
 
 		//채팅방ID를 생성한다.(유저 ID가 각각 1,2 이면 -> 1_2)
-		Long partnerId = dto.getPartnerId();
+		Long partnerId = paymentHistory.getUser().getId();
 		String chatRoomId = generateChatRoomId(myId, partnerId);
 
 		//생성된 채팅방 ID가 이미 존재하는지 확인
@@ -74,8 +95,7 @@ public class ChatServiceImpl implements ChatService {
 			return CommonResponseDto.builder().msg("채팅방 이미 존재").build();
 		}
 
-		//유저 정보 가져오기(나, 상대방)
-		User myInfo = userRepository.findByIdOrElseThrow(myId);
+		//유저 정보 가져오기(상대방)
 		User partnerInfo = userRepository.findByIdOrElseThrow(partnerId);
 
 		//프로필 파일 가져오기(내 사진, 상대방 사진)
@@ -118,7 +138,7 @@ public class ChatServiceImpl implements ChatService {
 
 	//채팅 전송(비동기 처리)
 	@Override
-	public CommonResponseDto sendMessage(Long userId, ChatCreateRequestDto dto) {
+	public CommonResponseDto<?> sendMessage(Long userId, ChatCreateRequestDto dto) {
 		//내가 전송할 권한이 없으면 예외 처리
 		checkAuthorizationOrElseThrow(userId, dto.getFirebaseChatRoomId(), ExceptionType.UNAUTHORIZED_POST_REQUEST);
 
@@ -270,7 +290,7 @@ public class ChatServiceImpl implements ChatService {
 
 	//채팅방 삭제
 	@Override
-	public CommonResponseDto deleteChatRoom(Long userId, String chatRoomId) {
+	public CommonResponseDto<?> deleteChatRoom(Long userId, String chatRoomId) {
 		//내가 삭제할 권한이 없으면 예외 처리
 		//TODO: 삭제는 나중에 서비스 단에서만 제공하기 때문에 굳이 예외처리를 안해줘도 되긴 함.
 		checkAuthorizationOrElseThrow(userId, chatRoomId, ExceptionType.UNAUTHORIZED_DELETE_REQUEST);
