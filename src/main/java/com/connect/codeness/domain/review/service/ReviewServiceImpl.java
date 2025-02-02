@@ -46,7 +46,7 @@ public class ReviewServiceImpl implements ReviewService {
 
 	@Transactional
 	@Override
-	public CommonResponseDto createReview(Long userId, Long paymentHistoryId,
+	public CommonResponseDto<?> createReview(Long userId, Long paymentHistoryId,
 		ReviewCreateRequestDto dto) {
 		//리뷰를 생성할 거래 내역 가져오기
 		PaymentHistory paymentHistory = paymentHistoryRepository.findByIdOrElseThrow(paymentHistoryId);
@@ -113,7 +113,7 @@ public class ReviewServiceImpl implements ReviewService {
 
 	@Transactional
 	@Override
-	public CommonResponseDto deleteReview(Long userId, Long reviewId) {
+	public CommonResponseDto<?> deleteReview(Long userId, Long reviewId) {
 		Review review = reviewRepository.findByIdOrElseThrow(reviewId);
 
 		//내가 작성한 리뷰가 아니면 삭제 못함!

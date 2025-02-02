@@ -1,5 +1,8 @@
 package com.connect.codeness.domain.chat.service;
 
+import static com.connect.codeness.global.constants.Constants.AUTO_DELETE_WAITING;
+import static com.connect.codeness.global.constants.Constants.CHATROOMS_LOAD_TIME;
+import static com.connect.codeness.global.constants.Constants.CHATS_LOAD_TIME;
 import static com.connect.codeness.global.constants.Constants.RETENTION_DAYS;
 import static com.connect.codeness.global.constants.Constants.SCHEDULE_TIME;
 
@@ -103,18 +106,24 @@ public class ChatServiceImpl implements ChatService {
 		ImageFile partnerImageFile = findProfileImage(partnerInfo);
 
 		//파일 경로 추출(프로필 주소)
-		String myProfileUrl = (myImageFile == null) ? null : myImageFile.getFilePath();
-		String partnerProfileUrl = (partnerImageFile == null) ? null : partnerImageFile.getFilePath();
+		String myProfileUrl = myImageFile == null ? null : myImageFile.getFilePath();
+		String partnerProfileUrl = partnerImageFile == null ? null : partnerImageFile.getFilePath();
 
 		//채팅방에 넣을 데이터(내 채팅방 데이터, 상대방 채팅방 데이터)
 		ChatRoomDto myData = ChatRoomDto.builder()
-			.partnerId(partnerId).partnerProfileUrl(partnerProfileUrl)
-			.unreadCount(0).isActive(true).partnerNick(partnerInfo.getUserNickname())
+			.partnerId(partnerId)
+			.partnerProfileUrl(partnerProfileUrl)
+			.unreadCount(0)
+			.isActive(true)
+			.partnerNick(partnerInfo.getUserNickname())
 			.build();
 
 		ChatRoomDto partnerData = ChatRoomDto.builder()
-			.partnerId(myId).partnerProfileUrl(myProfileUrl)
-			.unreadCount(0).isActive(true).partnerNick(myInfo.getUserNickname())
+			.partnerId(myId)
+			.partnerProfileUrl(myProfileUrl)
+			.unreadCount(0)
+			.isActive(true)
+			.partnerNick(myInfo.getUserNickname())
 			.build();
 
 		//파이어베이스의 참조 노드 설정
@@ -151,7 +160,8 @@ public class ChatServiceImpl implements ChatService {
 		ChatMessageDto message = ChatMessageDto.builder()
 			.senderId(userId)
 			.content(dto.getMessage())
-			.timestamp(LocalDateTime.now().toString()).build();
+			.timestamp(LocalDateTime.now().toString())
+			.build();
 
 		//메시지 보내기
 		reference.push().setValue(message, (databaseError, databaseReference) -> {
@@ -217,7 +227,7 @@ public class ChatServiceImpl implements ChatService {
 
 		try {
 			// 데이터를 기다림 (최대 5초)
-			List<ChatRoomDto> myChatRooms = future.get(10, TimeUnit.SECONDS);
+			List<ChatRoomDto> myChatRooms = future.get(CHATROOMS_LOAD_TIME, TimeUnit.SECONDS);
 
 			log.info("사용자 ID: {}의 채팅방 정보 조회에 성공했습니다.", userId);
 
@@ -270,7 +280,7 @@ public class ChatServiceImpl implements ChatService {
 		});
 
 		try {
-			List<ChatMessageDto> myChats = future.get(10, TimeUnit.SECONDS);
+			List<ChatMessageDto> myChats = future.get(CHATS_LOAD_TIME, TimeUnit.SECONDS);
 
 			//채팅방에서의 나의 읽지 않은 메시지 갯수 초기화 -> 0
 			updateChatRoomInfoWhenGet(userId, chatRoomId);
@@ -342,7 +352,7 @@ public class ChatServiceImpl implements ChatService {
 				log.info("처리된 배치 번호 {} : {} 개수", page+1, expiredRooms.getNumberOfElements());
 
 				page++;
-				Thread.sleep(100);
+				Thread.sleep(AUTO_DELETE_WAITING);
 			}
 
 			log.info("삭제 완료. 총 처리된 개수: {}",totalProcessed);
