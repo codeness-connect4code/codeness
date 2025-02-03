@@ -113,6 +113,9 @@ public class UserServiceImpl implements UserService {
 			throw new BusinessException(ExceptionType.GOOGLE_PROVIDER);
 		}
 
+		//기존 리프레시 토큰 삭제
+		response.addCookie(jwtProvider.createHttpOnlyCookie(REFRESH_TOKEN,"",0));
+
 		// 로그인 성공 시 토큰 생성 후 반환
 		String accessToken = jwtProvider.generateAccessToken(user.getEmail(), user.getId(),
 			user.getRole().toString(), UserProvider.LOCAL.toString());
