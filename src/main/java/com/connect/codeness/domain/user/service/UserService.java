@@ -9,6 +9,7 @@ import com.connect.codeness.domain.user.dto.UserDeleteResponseDto;
 import com.connect.codeness.domain.user.dto.UserPasswordUpdateRequestDto;
 import com.connect.codeness.domain.user.dto.UserUpdateRequestDto;
 import com.connect.codeness.global.dto.CommonResponseDto;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
@@ -22,6 +23,5 @@ public interface UserService {
 	CommonResponseDto<?> updateBankAccount(Long userId, UserBankUpdateRequestDto userBankUpdateRequestDto);
 	CommonResponseDto<?> deleteUser(Long userId, UserDeleteResponseDto userDeleteResponseDto);
 	CommonResponseDto<?> getMentoring(Long userId);
-	CommonResponseDto<?> loginCheck(Long userId);
 }
 

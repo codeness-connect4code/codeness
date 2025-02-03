@@ -77,7 +77,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 			String jwtRefreshToken = jwtProvider.generateRefreshToken(user.getId());
 
 			// 리프레시 토큰을 HttpOnly 쿠키에 저장
-			jwtProvider.createHttpOnlyCookie(REFRESH_TOKEN, jwtRefreshToken, REFRESH_TOKEN_EXPIRATION);
+			response.addCookie(jwtProvider.createHttpOnlyCookie(REFRESH_TOKEN, jwtRefreshToken, REFRESH_TOKEN_EXPIRATION));
 
 			// 프론트엔드로 리다이렉트하면서 액세스 토큰을 쿼리 파라미터로 전달
 			String redirectUrl = UriComponentsBuilder.fromUriString(
