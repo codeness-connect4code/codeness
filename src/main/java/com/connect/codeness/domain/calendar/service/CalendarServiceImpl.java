@@ -1,8 +1,10 @@
 package com.connect.codeness.domain.calendar.service;
 
 import com.connect.codeness.domain.calendar.dto.CalendarEventDto;
+import com.connect.codeness.domain.calendar.dto.CalendarEventStringDto;
 import com.connect.codeness.domain.user.entity.User;
 import com.connect.codeness.domain.user.repository.UserRepository;
+import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
 import com.google.api.client.auth.oauth2.Credential;
@@ -16,6 +18,7 @@ import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.CalendarScopes;
 import com.google.api.services.calendar.model.Event;
+import com.google.api.services.calendar.model.EventDateTime;
 import com.google.api.services.calendar.model.Events;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -24,9 +27,12 @@ import java.io.InputStreamReader;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 public class CalendarServiceImpl implements CalendarService {
 	private final UserRepository userRepository;
@@ -39,84 +45,102 @@ public class CalendarServiceImpl implements CalendarService {
 		this.userRepository = userRepository;
 	}
 
-	/**
-	 * 구글 캘린더 일정을 리스트로 조회
-	 * @param tokenId 유저 고유 식별자
-	 * @param startDate 조회 시작 날짜
-	 * @param endDate 조회 끝 날짜
-	 * @return dto 리스트
-	 */
 	@Override
 	public List<CalendarEventDto> getEvents(Long tokenId, String startDate, String endDate) {
 		try {
 			User user = userRepository.findByIdOrElseThrow(tokenId);
+			validateGoogleToken(user);
 
-			//유저에 구글 토큰이 없을시 예외처리
-			if (user.getGoogleToken() == null) {
-				throw new BusinessException(ExceptionType.NOT_FOUND_GOOGLE_TOKEN);
-			}
+			Calendar service = initializeCalendarService(user.getGoogleToken());
 
-			//OAuth2 구글 토큰을 기반으로 Credential 객체 생성
-			Credential credential = getCredentials(user.getGoogleToken(), GoogleNetHttpTransport.newTrustedTransport());
-
-			//구글 캘린더 객체 생성
-			Calendar service = getCalendarService(credential);
-
-			//조회할 날짜를 설정, 구글 캘린더의 RFC 3339 형식으로 변환
 			DateTime start = DateTime.parseRfc3339(startDate + "T00:00:00Z");
 			DateTime end = DateTime.parseRfc3339(endDate + "T23:59:59Z");
 
-			//구글 캘린더 API 사용해 범위내의 일정들 조회
-			Events events = service.events().list("primary") //기본 캘린더(primary)에서 조회
+			Events events = service.events().list("primary")
 				.setTimeMin(start)
 				.setTimeMax(end)
 				.setOrderBy("startTime")
-				.setSingleEvents(true) //반복 이벤트를 개별 이벤트로 분리해 가져옴
+				.setSingleEvents(true)
 				.execute();
 
-			//일정 목록을 DTO 리스트로 변환해 반환
 			return events.getItems().stream()
 				.map(this::mapToCalendarEvent)
 				.collect(Collectors.toList());
 		} catch (IOException | GeneralSecurityException e) {
+			log.error("캘린더 이벤트 조회 실패", e);
 			throw new BusinessException(ExceptionType.NOT_FOUND);
 		}
 	}
 
-	/**
-	 * Credential 객체를 구글 Calendar 객체로 변환
-	 * @param credential
-	 * @return
-	 * @throws GeneralSecurityException
-	 * @throws IOException
-	 */
+	@Override
+	public CommonResponseDto<?> createEvent(Long userId, CalendarEventStringDto eventDto) {
+		try {
+			User user = userRepository.findByIdOrElseThrow(userId);
+			validateGoogleToken(user);
+
+			Calendar service = initializeCalendarService(user.getGoogleToken());
+			Event event = createEventFromDto(eventDto);
+			Event createdEvent = service.events().insert("primary", event).execute();
+
+			return CommonResponseDto.builder()
+				.msg("일정 생성 완료")
+				.data(mapToCalendarEventStringDto(createdEvent))
+				.build();
+
+		} catch (GeneralSecurityException | IOException e) {
+			log.error("Google Calendar 이벤트 생성 실패", e);
+			throw new BusinessException(ExceptionType.GOOGLE_CALENDAR_ERROR);
+		}
+	}
+
+	private Calendar initializeCalendarService(String googleToken) throws IOException, GeneralSecurityException {
+		final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+		Credential credential = getCredentials(googleToken, HTTP_TRANSPORT);
+		return getCalendarService(credential);
+	}
+
+	private void validateGoogleToken(User user) {
+		if (user.getGoogleToken() == null) {
+			throw new BusinessException(ExceptionType.NOT_FOUND_GOOGLE_TOKEN);
+		}
+	}
+
+	private Event createEventFromDto(CalendarEventStringDto eventDto) {
+		DateTime startDateTime = new DateTime(eventDto.getStartTime());
+		DateTime endDateTime = new DateTime(eventDto.getEndTime());
+
+		EventDateTime start = new EventDateTime()
+			.setDateTime(startDateTime)
+			.setTimeZone("Asia/Seoul");
+
+		EventDateTime end = new EventDateTime()
+			.setDateTime(endDateTime)
+			.setTimeZone("Asia/Seoul");
+
+		return new Event()
+			.setSummary(eventDto.getSummary())
+			.setDescription(eventDto.getDescription())
+			.setStart(start)
+			.setEnd(end);
+	}
+
 	private Calendar getCalendarService(Credential credential) throws GeneralSecurityException, IOException {
 		return new Calendar.Builder(
-			GoogleNetHttpTransport.newTrustedTransport(),  //HTTP 트랜스포트 설정
-			GsonFactory.getDefaultInstance(),  //JSON 파서 설정
-			credential) //인증 정보 설정
-			.setApplicationName(APPLICATION_NAME) //애플리케이션 이름 설정
+			GoogleNetHttpTransport.newTrustedTransport(),
+			GsonFactory.getDefaultInstance(),
+			credential)
+			.setApplicationName(APPLICATION_NAME)
 			.build();
 	}
 
-	/**
-	 * 구글 토큰에서 인증정보를 가져옴
-	 * @param accessToken
-	 * @param HTTP_TRANSPORT
-	 * @return
-	 * @throws IOException
-	 */
 	private Credential getCredentials(String accessToken, final NetHttpTransport HTTP_TRANSPORT) throws IOException {
-		//resources 의 credentials.json 파일을 읽어옴
 		InputStream in = CalendarServiceImpl.class.getResourceAsStream(CREDENTIALS_FILE_PATH);
 		if (in == null) {
-			throw new FileNotFoundException("credentials.json not found");  //json 파일이 없을시 예외처리
+			throw new FileNotFoundException("credentials.json not found");
 		}
 
-		//구글 클라이언트 시크릿 정보를 로드
 		GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
 
-		//구글 OAuth2 인증정보를 기반으로 Credential 객체 생성
 		GoogleCredential credential = new GoogleCredential.Builder()
 			.setTransport(HTTP_TRANSPORT)
 			.setJsonFactory(JSON_FACTORY)
@@ -126,25 +150,40 @@ public class CalendarServiceImpl implements CalendarService {
 			.setAccessToken(accessToken);
 
 		if (credential.getAccessToken() == null) {
-			throw new BusinessException(ExceptionType.NOT_FOUND_GOOGLE_TOKEN); //구글 토큰 없을시 예외처리
+			throw new BusinessException(ExceptionType.NOT_FOUND_GOOGLE_TOKEN);
 		}
 
 		return credential;
 	}
 
-	/**
-	 * event 객체를 캘린더 dto로 변환
-	 * @param event
-	 * @return
-	 */
 	private CalendarEventDto mapToCalendarEvent(Event event) {
 		return CalendarEventDto.builder()
 			.id(event.getId())
 			.title(event.getSummary())
 			.summary(event.getSummary())
 			.description(event.getDescription())
-			.startTime(event.getStart().getDateTime())
-			.endTime(event.getEnd().getDateTime())
+			.startTime(Optional.ofNullable(event.getStart())
+				.map(EventDateTime::getDateTime)
+				.orElse(null))
+			.endTime(Optional.ofNullable(event.getEnd())
+				.map(EventDateTime::getDateTime)
+				.orElse(null))
+			.build();
+	}
+
+	private CalendarEventStringDto mapToCalendarEventStringDto(Event event) {
+		return CalendarEventStringDto.builder()
+			.id(event.getId())
+			.summary(event.getSummary())
+			.description(event.getDescription())
+			.startTime(Optional.ofNullable(event.getStart())
+				.map(EventDateTime::getDateTime)
+				.map(DateTime::toString)
+				.orElse(null))
+			.endTime(Optional.ofNullable(event.getEnd())
+				.map(EventDateTime::getDateTime)
+				.map(DateTime::toString)
+				.orElse(null))
 			.build();
 	}
 }
