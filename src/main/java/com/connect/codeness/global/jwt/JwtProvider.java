@@ -109,21 +109,4 @@ public class JwtProvider {
 		}
 		return null;
 	}
-
-	public Long getCookieReturnUserId(HttpServletRequest request, String name) {
-		String token = null;
-		Cookie[] cookies = request.getCookies();
-		if (cookies != null) {
-			for (Cookie cookie : cookies) {
-				if (cookie.getName().equals(name)) {
-					token = cookie.getValue();
-					break;
-				}
-			}
-		}
-		if (token == null || !validationAccessToken(token)) {
-			throw new BusinessException(ExceptionType.INVALID_TOKEN);
-		}
-		return extractUserId(token);
-	}
 }

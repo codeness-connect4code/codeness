@@ -5,17 +5,14 @@ import static com.connect.codeness.global.constants.Constants.REFRESH_TOKEN_EXPI
 import static com.connect.codeness.global.enums.UserProvider.GOOGLE;
 
 import com.connect.codeness.domain.file.entity.ImageFile;
-import com.connect.codeness.domain.file.repository.FileRepository;
-import com.connect.codeness.domain.file.service.FileService;
-import com.connect.codeness.domain.file.service.FileServiceImpl;
 import com.connect.codeness.domain.mentoringpost.dto.MentoringPostRecommendResponseDto;
 import com.connect.codeness.domain.mentoringpost.repository.MentoringPostRepository;
 import com.connect.codeness.domain.user.dto.GoogleUserUpdateRequestDto;
-import com.connect.codeness.domain.user.dto.LoginCheckResponseDto;
 import com.connect.codeness.domain.user.dto.LoginRequestDto;
 import com.connect.codeness.domain.user.dto.UserBankUpdateRequestDto;
 import com.connect.codeness.domain.user.dto.UserCreateRequestDto;
 import com.connect.codeness.domain.user.dto.UserDeleteResponseDto;
+import com.connect.codeness.domain.user.dto.UserLoginDto;
 import com.connect.codeness.domain.user.dto.UserPasswordUpdateRequestDto;
 import com.connect.codeness.domain.user.dto.UserResponseDto;
 import com.connect.codeness.domain.user.dto.UserUpdateRequestDto;
@@ -26,6 +23,9 @@ import com.connect.codeness.global.enums.UserProvider;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
 import com.connect.codeness.global.jwt.JwtProvider;
+import com.connect.codeness.global.service.RedisLoginService;
+import io.lettuce.core.RedisException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collections;
@@ -46,21 +46,18 @@ public class UserServiceImpl implements UserService {
 	private final PasswordEncoder passwordEncoder;
 	private final AuthenticationManager authenticationManager;
 	private final JwtProvider jwtProvider;
-	private final FileRepository fileRepository;
-	private final FileService fileService;
 	private final MentoringPostRepository mentoringPostRepository;
+	private final RedisLoginService redisLoginService;
 
 	public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder,
 		AuthenticationManager authenticationManager, JwtProvider jwtProvider,
-		FileRepository fileRepository, FileServiceImpl fileService,
-		MentoringPostRepository mentoringPostRepository) {
+		MentoringPostRepository mentoringPostRepository, RedisLoginService redisLoginService) {
 		this.userRepository = userRepository;
 		this.passwordEncoder = passwordEncoder;
 		this.authenticationManager = authenticationManager;
 		this.jwtProvider = jwtProvider;
-		this.fileRepository = fileRepository;
-		this.fileService = fileService;
 		this.mentoringPostRepository = mentoringPostRepository;
+		this.redisLoginService = redisLoginService;
 	}
 
 	/**
@@ -116,10 +113,26 @@ public class UserServiceImpl implements UserService {
 			throw new BusinessException(ExceptionType.GOOGLE_PROVIDER);
 		}
 
+		//기존 리프레시 토큰 삭제
+		response.addCookie(jwtProvider.createHttpOnlyCookie(REFRESH_TOKEN,"",0));
+
 		// 로그인 성공 시 토큰 생성 후 반환
 		String accessToken = jwtProvider.generateAccessToken(user.getEmail(), user.getId(),
 			user.getRole().toString(), UserProvider.LOCAL.toString());
 		String refreshToken = jwtProvider.generateRefreshToken(user.getId());
+
+		UserLoginDto loginDto = UserLoginDto.builder()
+			.id(user.getId())
+			.accessToken(accessToken)
+			.refreshToken(refreshToken)
+			.build();
+
+		try {
+			redisLoginService.saveLoginInfo(loginDto);
+		}catch (RedisException e){
+			log.error("redis 저장 실패 : {}", user.getId());
+			throw new BusinessException(ExceptionType.REDIS_SERVER_ERROR);
+		}
 
 		// 리프레시 토큰을 HTTP-Only 쿠키에 저장
 		response.addCookie(jwtProvider.createHttpOnlyCookie(REFRESH_TOKEN, refreshToken,
@@ -272,21 +285,5 @@ public class UserServiceImpl implements UserService {
 			Math.min(3, commendMentoringPost.size()));
 
 		return CommonResponseDto.builder().msg("멘토링 공고 추천에 성공했습니다.").data(randList).build();
-	}
-
-	@Override
-	public CommonResponseDto<?> loginCheck(Long userId) {
-
-		User user = userRepository.findByIdOrElseThrow(userId);
-		LoginCheckResponseDto dto = LoginCheckResponseDto.builder()
-			.id(user.getId())
-			.provider(user.getProvider())
-			.role(user.getRole())
-			.build();
-
-		return CommonResponseDto.builder()
-			.msg("로그인 확인")
-			.data(dto)
-			.build();
 	}
 }
