@@ -37,13 +37,13 @@ public class ReviewController {
 	}
 
 	@PostMapping("/payment-history/{paymentHistoryId}/reviews")
-	public ResponseEntity<CommonResponseDto> createReview(
+	public ResponseEntity<CommonResponseDto<?>> createReview(
 		@PathVariable Long paymentHistoryId,
 		@RequestHeader(AUTHORIZATION) String authorizationHeader,
 		@Valid @RequestBody ReviewCreateRequestDto dto
 	) {
 		Long userId = jwtProvider.extractUserId(authorizationHeader);
-		CommonResponseDto commonResponseDto = reviewService.createReview(userId, paymentHistoryId,
+		CommonResponseDto<?> commonResponseDto = reviewService.createReview(userId, paymentHistoryId,
 			dto);
 
 		return new ResponseEntity<>(commonResponseDto, HttpStatus.CREATED);
@@ -75,12 +75,12 @@ public class ReviewController {
 	}
 
 	@DeleteMapping("/reviews/{reviewId}")
-	public ResponseEntity<CommonResponseDto> deleteReview(
+	public ResponseEntity<CommonResponseDto<?>> deleteReview(
 		@PathVariable Long reviewId,
 		@RequestHeader(AUTHORIZATION) String authorizationHeader
 	) {
 		Long userId = jwtProvider.extractUserId(authorizationHeader);
-		CommonResponseDto commonResponseDto = reviewService.deleteReview(userId, reviewId);
+		CommonResponseDto<?> commonResponseDto = reviewService.deleteReview(userId, reviewId);
 
 		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
 	}

@@ -9,7 +9,7 @@ import lombok.Getter;
 @Builder
 public class ChatRoomCreateRequestDto {
 
-	private final Long partnerId;
+	private final Long paymentHistoryId;
 	private final LocalDate mentoringDate;
 	private final LocalTime mentoringTime;
 }

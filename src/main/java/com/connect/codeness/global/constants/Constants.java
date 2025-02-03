@@ -19,4 +19,12 @@ public interface Constants {
     //멘토링 스케줄 상수
     Long SCHEDULE_TIME = 1L;
     Long RETENTION_DAYS = 30L;
+
+    //채팅 관련 상수
+    long AUTO_DELETE_WAITING = 100;
+    long CHATROOMS_LOAD_TIME = 10;
+    long CHATS_LOAD_TIME = 10;
+
+    //뉴스 관련 상수
+    long NEWS_TO_KST_HOURS = 32400;
 }
