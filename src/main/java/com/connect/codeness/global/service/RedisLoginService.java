@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 @Slf4j
 @Service
@@ -28,6 +29,7 @@ public class RedisLoginService {
 			String oldValue = redisTemplate.opsForValue().get(key);
 			if(oldValue != null){
 				UserLoginDto oldLoginDto = objectMapper.readValue(oldValue, UserLoginDto.class);
+				removeLoginInfo(oldLoginDto.getId());
 			}
 
 			redisTemplate.opsForValue().set(key,value,24, TimeUnit.HOURS);
@@ -65,5 +67,4 @@ public class RedisLoginService {
 			.map(loginDto -> loginDto.getAccessToken().equals(accessToken))
 			.orElse(false);
 	}
-
 }

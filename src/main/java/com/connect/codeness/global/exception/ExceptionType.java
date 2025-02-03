@@ -77,6 +77,7 @@ public enum ExceptionType {
 	DUPLICATE_(HttpStatus.CONFLICT, "이미 신청이 완료된 스케쥴입니다."),
 	CONCURRENT_PAYMENT_ATTEMPT(HttpStatus.CONFLICT, "동시에 결제가 시도되었습니다."),
 	DUPLICATE_PAYMENT(HttpStatus.CONFLICT, "중복되는 결제 입니다."),
+	DUPLICATE_LOGIN(HttpStatus.CONFLICT,"이미 다른 기기에서 로그인되어 있습니다."),
 
 	// 500 INTERNAL_SERVER_ERROR
 	LOAD_FAIL_CHATROOMLIST(HttpStatus.INTERNAL_SERVER_ERROR, "채팅방 정보를 가져오기에 실패했습니다."),

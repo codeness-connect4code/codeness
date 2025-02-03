@@ -70,6 +70,9 @@ public class JwtFilter extends OncePerRequestFilter {
 				if (!redisLoginService.validateToken(jwtProvider.extractUserId(accessToken), accessToken)){
 					log.warn("redis 에서 토큰 검증이 되지 않음, 중복 로그인 감지");
 					response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+					response.setContentType("application/json;charset=UTF-8");
+					response.getWriter().write("{\"message\":\"다른 기기에서 로그인이 감지되어 로그아웃됩니다.\"}");
+					response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 					return;
 				}
 

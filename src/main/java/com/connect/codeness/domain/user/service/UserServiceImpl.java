@@ -25,6 +25,7 @@ import com.connect.codeness.global.exception.ExceptionType;
 import com.connect.codeness.global.jwt.JwtProvider;
 import com.connect.codeness.global.service.RedisLoginService;
 import io.lettuce.core.RedisException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collections;
@@ -111,8 +112,6 @@ public class UserServiceImpl implements UserService {
 		if (user.getProvider().equals(GOOGLE)) {
 			throw new BusinessException(ExceptionType.GOOGLE_PROVIDER);
 		}
-
-		redisLoginService.removeLoginInfo(user.getId());
 
 		// 로그인 성공 시 토큰 생성 후 반환
 		String accessToken = jwtProvider.generateAccessToken(user.getEmail(), user.getId(),
