@@ -5,11 +5,13 @@ import static com.connect.codeness.global.constants.Constants.FRONTEND_URL;
 import static com.connect.codeness.global.constants.Constants.REFRESH_TOKEN;
 import static com.connect.codeness.global.constants.Constants.REFRESH_TOKEN_EXPIRATION;
 
+import com.connect.codeness.domain.user.dto.UserLoginDto;
 import com.connect.codeness.domain.user.entity.User;
 import com.connect.codeness.domain.user.repository.UserRepository;
 import com.connect.codeness.global.enums.UserProvider;
 import com.connect.codeness.global.enums.UserRole;
 import com.connect.codeness.global.jwt.JwtProvider;
+import com.connect.codeness.global.service.RedisLoginService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -31,12 +33,14 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 	private final JwtProvider jwtProvider;
 	private final UserRepository userRepository;
 	private final OAuth2AuthorizedClientService authorizedClientService;
+	private final RedisLoginService redisLoginService;
 
 	public OAuth2SuccessHandler(JwtProvider jwtProvider, UserRepository userRepository,
-		OAuth2AuthorizedClientService authorizedClientService) {
+		OAuth2AuthorizedClientService authorizedClientService, RedisLoginService redisLoginService) {
 		this.jwtProvider = jwtProvider;
 		this.userRepository = userRepository;
 		this.authorizedClientService = authorizedClientService;
+		this.redisLoginService = redisLoginService;
 	}
 
 	@Override
@@ -88,6 +92,13 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
 			log.info("Redirect URL: {}", redirectUrl);
 			response.sendRedirect(redirectUrl);
+
+			UserLoginDto loginDto = UserLoginDto.builder()
+				.id(user.getId())
+				.accessToken(jwtAccessToken)
+				.refreshToken(jwtRefreshToken)
+				.build();
+			redisLoginService.saveLoginInfo(loginDto);
 
 		} catch (Exception e) {
 			log.error("OAuth2 로그인 처리 중 오류", e);
