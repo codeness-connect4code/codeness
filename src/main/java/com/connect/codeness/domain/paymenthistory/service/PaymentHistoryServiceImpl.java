@@ -46,7 +46,7 @@ public class PaymentHistoryServiceImpl implements PaymentHistoryService {
 		//유저 조회
 		User user = userRepository.findByIdOrElseThrow(userId);
 
-		if(user.getRole().equals(UserRole.MENTEE)){
+		if (user.getRole().equals(UserRole.MENTEE)) {
 
 			//로그인한 유저 id로 결제 list를 조회
 			List<Payment> payments = paymentRepository.findAllByUserId(user.getId());
@@ -60,7 +60,7 @@ public class PaymentHistoryServiceImpl implements PaymentHistoryService {
 				.map(paymentHistory -> {
 					//멘토 정보
 					User mentor = paymentHistory.getUser();
-					
+
 					//멘토 프로필 이미지 조회
 					String profileUrl = mentor.getImageFiles().stream()
 						.filter(imageFile -> imageFile.getFileCategory().equals(FileCategory.PROFILE))
@@ -76,9 +76,9 @@ public class PaymentHistoryServiceImpl implements PaymentHistoryService {
 				.msg("멘티 결제 내역이 전체 조회 되었습니다.").data(paymentHistoryMenteeResponseDtos).build();
 		}
 		//멘토의 경우
-		if(user.getRole().equals(UserRole.MENTOR)){
+		if (user.getRole().equals(UserRole.MENTOR)) {
 			//로그인한 userId로 결제내역 list를 조회
-			List<PaymentHistory> paymentHistoryList =  paymentHistoryRepository.findAllByUserId(userId);
+			List<PaymentHistory> paymentHistoryList = paymentHistoryRepository.findAllByUserId(userId);
 
 			List<PaymentHistoryMentorResponseDto> paymentHistoryMentorResponseDtos = paymentHistoryList.stream()
 				.map(PaymentHistoryMentorResponseDto::from)
@@ -105,7 +105,7 @@ public class PaymentHistoryServiceImpl implements PaymentHistoryService {
 		List<Payment> payments = paymentRepository.findAllByUserId(user.getId());
 
 		//결제 데이터가 없을 경우 예외처리
-		if(payments.isEmpty()){
+		if (payments.isEmpty()) {
 			throw new BusinessException(ExceptionType.NOT_FOUND_PAYMENT);
 		}
 

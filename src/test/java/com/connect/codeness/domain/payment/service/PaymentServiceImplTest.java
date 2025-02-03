@@ -7,12 +7,14 @@ import java.math.BigDecimal;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+@Slf4j
 @SpringBootTest
 class PaymentServiceImplTest {
 
@@ -63,14 +65,14 @@ class PaymentServiceImplTest {
 				.paymentCard("신용카드")
 				.build();
 			try {
-				System.out.println("[Thread " + index + "] 결제 시도 중 -----------");
+				log.info("[Thread " + index + "] 결제 시도 중 -----------");
 				if (paymentService.createPayment(menteeId, paymentRequestDto) != null) {
 					successCount.incrementAndGet(); //성공 스레드 개수 증가
-					System.out.println("✨ [Thread " + index + "] 결제 성공 -----------");
+					log.info("✨ [Thread " + index + "] 결제 성공 -----------");
 				}
 			} catch (Exception e) {
 				failureCount.incrementAndGet(); //실패 스레드 개수 증가
-				System.out.println("⛔ [Thread " + index + "] 결제 실패: " + e.getMessage());
+				log.error("⛔ [Thread " + index + "] 결제 실패: " + e.getMessage());
 			} finally {
 				latch.countDown(); // 스레드 종료되면 감소
 			}
@@ -101,7 +103,7 @@ class PaymentServiceImplTest {
 		//나머지 스레드는 결제 생성 요청 실패했는지 검증
 		assertThat(failureCount.get()).isEqualTo(threadCount - 1);
 		
-		System.out.println("🎉 총 결제 성공: " + successCount.get());
-		System.out.println("⛔ 총 결제 실패: " + failureCount.get());
+		log.info("🎉 총 결제 성공: " + successCount.get());
+		log.error("⛔ 총 결제 실패: " + failureCount.get());
 	}
 }

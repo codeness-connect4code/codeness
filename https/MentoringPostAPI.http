@@ -146,15 +146,15 @@ Authorization: Bearer {{token}}
 
 {
     "company" : "어쩌구회사",
-	"title" : "커리어 10년차 멘토에게 받아보세요",
+	"title" : "커리어 10년차 프론트엔드 개발자에게 멘토링 받아보세요",
 	"field" : "FRONTEND",
 	"career" : 10,
-	"region" : "서울, 경기 남부",
+	"region" : "서울",
 	"price" : 1,
-	"startDate" : "2026-01-28",
-	"endDate" : "2026-01-29",
-	"startTime" : "13:00",
-	"endTime" : "15:00",
+	"startDate" : "2025-02-01",
+	"endDate" : "2025-02-02",
+	"startTime" : "22:00",
+	"endTime" : "23:00",
 	"description" : "멘토링 받으러 오세요~😊"
 }
 
@@ -171,10 +171,10 @@ Authorization: Bearer {{token}}
   "career" : 5,
   "region" : "서울, 경기 남부",
   "price" : 1,
-  "startDate" : "2025-02-01",
+  "startDate" : "2025-02-02",
   "endDate" : "2025-02-02",
-  "startTime" : "15:00",
-  "endTime" : "17:00",
+  "startTime" : "18:00",
+  "endTime" : "19:00",
   "description" : "멘토링 받으러 오세요~😊"
 }
 
@@ -199,7 +199,7 @@ GET localhost:8080/mentoring/10
 Content-Type: application/json
 
 ### 멘토링 공고 삭제하기
-PATCH localhost:8080/mentoring/3
+PATCH localhost:8080/mentoring/4
 Content-Type: application/json
 Authorization: Bearer {{token}}
 

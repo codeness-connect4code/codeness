@@ -6,7 +6,6 @@ import com.connect.codeness.domain.mentoringpost.repository.MentoringPostReposit
 import com.connect.codeness.domain.mentoringpost.dto.MentoringPostCreateRequestDto;
 import com.connect.codeness.domain.mentoringpost.dto.MentoringPostDetailResponseDto;
 import com.connect.codeness.domain.mentoringpost.dto.MentoringPostSearchResponseDto;
-import com.connect.codeness.domain.payment.entity.Payment;
 import com.connect.codeness.domain.payment.repository.PaymentRepository;
 import com.connect.codeness.domain.review.repository.ReviewRepository;
 import com.connect.codeness.global.dto.PaginationResponseDto;
@@ -16,7 +15,6 @@ import com.connect.codeness.domain.user.entity.User;
 import com.connect.codeness.domain.user.repository.UserRepository;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.enums.BookedStatus;
-import com.connect.codeness.global.enums.FieldType;
 import com.connect.codeness.global.enums.MentoringPostStatus;
 import com.connect.codeness.global.enums.MentoringScheduleStatus;
 import com.connect.codeness.global.enums.UserRole;
@@ -61,14 +59,9 @@ public class MentoringPostServiceImpl implements MentoringPostService {
 	 */
 	@Override
 	@Transactional
-	public CommonResponseDto createMentoringPost(long userId, MentoringPostCreateRequestDto requestDto) {
-		//유저 조회
-		User user = userRepository.findByIdOrElseThrow(userId);
-
-		//유저가 멘티일 경우 예외처리
-		if (user.getRole().equals(UserRole.MENTEE)) {
-			throw new BusinessException(ExceptionType.FORBIDDEN_MENTORING_CREATE_ACCESS);
-		}
+	public CommonResponseDto<?> createMentoringPost(long userId, MentoringPostCreateRequestDto requestDto) {
+		//유저 조회 & 롤 검증(멘토만 가능)
+		User user = getVaildatedUser(userId, UserRole.MENTEE, ExceptionType.FORBIDDEN_MENTORING_CREATE_ACCESS);
 
 		//로그인한 유저가 멘토 공고를 생성했고, 상태가 DISPLAYED면 예외
 		if (mentoringPostRepository.findMentoringPostStatusByUserId(user.getId())) {
@@ -81,23 +74,21 @@ public class MentoringPostServiceImpl implements MentoringPostService {
 		//시작 날짜와 시간 검증하기
 		LocalDate startDate = requestDto.getStartDate();
 		LocalTime startTime = requestDto.getStartTime();
+
 		//현재 날짜이면서 현재 시간보다 이전일 경우
 		if (startDate.isEqual(now.toLocalDate()) && startTime.isBefore(now.toLocalTime())) {
 			throw new BusinessException(ExceptionType.INVALID_START_DATE_TIME);
 		}
 		//과거 날짜일 경우
-		if(startDate.isBefore(now.toLocalDate())){
+		if (startDate.isBefore(now.toLocalDate())) {
 			throw new BusinessException(ExceptionType.INVALID_START_DATE_TIME);
 		}
-
-		// 분야 타입 변환
-		FieldType fieldType = FieldType.fromString(requestDto.getField().name());
 
 		MentoringPost mentoringPost = MentoringPost.builder()
 			.user(user)
 			.title(requestDto.getTitle())
 			.company(requestDto.getCompany())
-			.field(fieldType)
+			.field(requestDto.getField())
 			.career(requestDto.getCareer())
 			.region(requestDto.getRegion())
 			.price(requestDto.getPrice())
@@ -188,7 +179,7 @@ public class MentoringPostServiceImpl implements MentoringPostService {
 	 */
 	@Transactional
 	@Override
-	public CommonResponseDto deleteMentoringPost(Long userId, Long mentoringPostId) {
+	public CommonResponseDto<?> deleteMentoringPost(Long userId, Long mentoringPostId) {
 
 		//멘토링 공고 조회
 		MentoringPost mentoringPost = mentoringPostRepository.findById(mentoringPostId)
@@ -283,12 +274,8 @@ public class MentoringPostServiceImpl implements MentoringPostService {
 	@Override
 	public CommonResponseDto<MyMentoringPostResponseDto> findMentoringPostByMentorId(Long userId) {
 
-		//유저 조회
-		User user = userRepository.findByIdOrElseThrow(userId);
-		//멘토인지 검증
-		if (user.getRole().equals(UserRole.MENTEE)) {
-			throw new BusinessException(ExceptionType.UNAUTHORIZED_GET_REQUEST);
-		}
+		//유저 조회 & 멘티인지 검증(멘토만 가능)
+		User user = getVaildatedUser(userId, UserRole.MENTEE, ExceptionType.UNAUTHORIZED_GET_REQUEST);
 
 		//삭제되지 않은 멘토링 공고 조회
 		MentoringPost mentoringPost = mentoringPostRepository.findByUserIdAndMentoringPostStatus(user.getId(),
@@ -322,12 +309,8 @@ public class MentoringPostServiceImpl implements MentoringPostService {
 		//페이징
 		Pageable pageable = PageRequest.of(pageNumber, pageSize);
 
-		//유저 조회
-		User user = userRepository.findByIdOrElseThrow(userId);
-		//멘티인지 검증
-		if (user.getRole().equals(UserRole.MENTOR)) {
-			throw new BusinessException(ExceptionType.UNAUTHORIZED_GET_REQUEST);
-		}
+		//유저 조회 & 멘토인지 검증(멘티만 가능)
+		User user = getVaildatedUser(userId, UserRole.MENTOR, ExceptionType.UNAUTHORIZED_GET_REQUEST);
 
 		//결제한 스케쥴 조회
 		List<Long> mentoringScheduleIds = paymentRepository.findMentoringScheduleByUserId(user.getId());
@@ -349,4 +332,16 @@ public class MentoringPostServiceImpl implements MentoringPostService {
 			.data(paginationResponseDto).build();
 	}
 
+	/**
+	 * 유저 역할 검증 메서드
+	 */
+	private User getVaildatedUser(Long userId, UserRole userRole, ExceptionType exceptionType) {
+		User user = userRepository.findByIdOrElseThrow(userId);
+
+		if (user.getRole().equals(userRole)) {
+			throw new BusinessException(exceptionType);
+		}
+
+		return user;
+	}
 }

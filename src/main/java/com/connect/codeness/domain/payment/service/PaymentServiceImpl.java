@@ -3,7 +3,6 @@ package com.connect.codeness.domain.payment.service;
 
 import com.connect.codeness.domain.mentoringschedule.entity.MentoringSchedule;
 import com.connect.codeness.domain.mentoringschedule.repository.MentoringScheduleRepository;
-import com.connect.codeness.domain.payment.dto.PaymentResponseDto;
 import com.connect.codeness.domain.payment.entity.Payment;
 import com.connect.codeness.domain.payment.repository.PaymentRepository;
 import com.connect.codeness.domain.payment.dto.PaymentDeleteRequestDto;
@@ -84,15 +83,15 @@ public class PaymentServiceImpl implements PaymentService {
 
 		//redis 락 획득 (최대 5초 대기, 락 보유 시간 60초)
 		boolean isLocked = redisLockService.acquireLock(lockKey, 5000, 60000);
-		System.out.println("락 획득 시도: " + lockKey + " -> 결과: " + isLocked);
+		log.info("락 획득 시도: " + lockKey + " -> 결과: " + isLocked);
 
-		if(!isLocked){
-			System.out.println("락 획득 실패: " + lockKey);
+		if (!isLocked) {
+			log.info("락 획득 실패: " + lockKey);
 			throw new BusinessException(ExceptionType.CONCURRENT_PAYMENT_ATTEMPT);
 		}
 
-		try{
-			System.out.println("락 획득 성공: " + lockKey);
+		try {
+			log.info("락 획득 성공: " + lockKey);
 
 			//유저 조회
 			User user = userRepository.findByIdOrElseThrow(userId);
@@ -105,7 +104,7 @@ public class PaymentServiceImpl implements PaymentService {
 			MentoringSchedule mentoringSchedule = mentoringScheduleRepository.findByIdOrElseThrow(requestDto.getMentoringScheduleId());
 
 			//멘토링 스케쥴이 예약 진행중이면 예외 -> 중복 결제 방지
-			if(mentoringSchedule.getBookedStatus().equals(BookedStatus.IN_PROGRESS)){
+			if (mentoringSchedule.getBookedStatus().equals(BookedStatus.IN_PROGRESS)) {
 				throw new BusinessException(ExceptionType.DUPLICATE_PAYMENT);
 			}
 
@@ -129,7 +128,7 @@ public class PaymentServiceImpl implements PaymentService {
 
 			return CommonResponseDto.builder().msg("멘토링 스케쥴이 신청 되었습니다.").data(payment.getId()).build();
 		} catch (Exception exception) {
-			System.out.println("트랜잭션 롤백 발생: " + exception.getMessage());
+			log.info("트랜잭션 롤백 발생: " + exception.getMessage());
 			throw exception;
 		}
 	}
@@ -144,7 +143,7 @@ public class PaymentServiceImpl implements PaymentService {
 			public void afterCommit() {
 				if (redissonClient.getLock(lockKey).isHeldByCurrentThread()) {
 					redissonClient.getLock(lockKey).unlock();
-					System.out.println("트랜잭션 완료 후 락 해제: " + lockKey);
+					log.info("트랜잭션 완료 후 락 해제: " + lockKey);
 				}
 			}
 		});
@@ -201,7 +200,7 @@ public class PaymentServiceImpl implements PaymentService {
 	 */
 	@Transactional
 	@Override
-	public CommonResponseDto<PaymentResponseDto> verifyPayment(Long paymentId, PaymentRequestDto requestDto) {
+	public CommonResponseDto<?> verifyPayment(Long paymentId, PaymentRequestDto requestDto) {
 		//ImpUid 유효성 검사
 		if (requestDto.getImpUid() == null || requestDto.getImpUid().isEmpty()) {
 			throw new BusinessException(ExceptionType.NOT_FOUND_IMPUID);
@@ -268,25 +267,17 @@ public class PaymentServiceImpl implements PaymentService {
 		//정산 저장
 		settlementRepository.save(settlement);
 
-		//dto 생성
-		PaymentResponseDto paymentResponseDto = PaymentResponseDto.builder()
-			.partnerId(mentor.getId())
-			.mentoringDate(payment.getMentoringSchedule().getMentoringDate())
-			.mentoringTime(payment.getMentoringSchedule().getMentoringTime())
-			.build();
-
-		return CommonResponseDto.<PaymentResponseDto>builder().msg("결제가 완료되었습니다.").data(paymentResponseDto).build();
+		return CommonResponseDto.builder().msg("결제가 완료되었습니다.").data(paymentHistory.getId()).build();
 	}
 
 	/**
 	 * 결제 환불 서비스 메서드
 	 * - 결제 완료 후 환불 진행 : 결제 내역 테이블에서 조회 및 진행
-	 * - TODO : 멘토링 스케쥴 시간 검증
 	 */
 
 	@Transactional
 	@Override
-	public CommonResponseDto<PaymentResponseDto> refundPayment(Long userId, Long paymentId, PaymentRefundRequestDto requestDto) {
+	public CommonResponseDto<?> refundPayment(Long userId, Long paymentId, PaymentRefundRequestDto requestDto) {
 
 		//결제 조회 - 로그인한 유저 ID & 결제 ID
 		Payment payment = paymentRepository.findByIdAndUserId(userId, paymentId)
@@ -306,7 +297,7 @@ public class PaymentServiceImpl implements PaymentService {
 			throw new BusinessException(ExceptionType.MENTORING_SCHEDULE_EXPIRED);
 		}
 
- 		//pgTid 유효성 검사
+		//pgTid 유효성 검사
 		if (payment.getPgTid() == null || payment.getPgTid().isEmpty()) {
 			throw new BusinessException(ExceptionType.NOT_FOUND_PGTID);
 		}
@@ -350,14 +341,7 @@ public class PaymentServiceImpl implements PaymentService {
 		//결제 업데이트 : 취소일
 		payment.updatePaymentCanceledAt();
 
-		//dto 생성
-		PaymentResponseDto paymentResponseDto = PaymentResponseDto.builder()
-			.partnerId(paymentHistory.getUser().getId())
-			.mentoringDate(payment.getMentoringSchedule().getMentoringDate())
-			.mentoringTime(payment.getMentoringSchedule().getMentoringTime())
-			.build();
-
-		return CommonResponseDto.<PaymentResponseDto>builder().msg("결제가 환불되었습니다.").data(paymentResponseDto).build();
+		return CommonResponseDto.builder().msg("결제가 환불되었습니다.").build();
 	}
 
 }

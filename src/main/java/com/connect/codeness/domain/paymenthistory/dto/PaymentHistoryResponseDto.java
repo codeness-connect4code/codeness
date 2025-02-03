@@ -59,7 +59,7 @@ public class PaymentHistoryResponseDto {
 			.paymentStatus(paymentHistory.getPaymentStatus())
 			.createdAt(paymentHistory.getCreatedAt())
 			.canceledAt(paymentHistory.getCanceledAt())
-			.userNickname(paymentHistory.getPayment().getUser().getUserNickname())
+			.userNickname(paymentHistory.getUser().getUserNickname())
 			.title(paymentHistory.getPayment().getMentoringSchedule().getMentoringPost().getTitle())
 			.mentoringDate(paymentHistory.getPayment().getMentoringSchedule().getMentoringDate())
 			.mentoringTime(paymentHistory.getPayment().getMentoringSchedule().getMentoringTime())
