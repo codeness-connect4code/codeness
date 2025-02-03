@@ -32,7 +32,7 @@ public class NewsServiceImpl implements NewsService {
 
 			int totalCount = allNewsIds.length;
 
-			if (allNewsIds == null || totalCount == 0) {
+			if (totalCount == 0) {
 				throw new BusinessException(ExceptionType.NOT_FOUND_NEWS);
 			}
 

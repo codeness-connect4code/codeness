@@ -1,5 +1,6 @@
 name: Deploy to AWS EC2
 
+
 on:
   pull_request:
     branches:
@@ -13,24 +14,44 @@ jobs:
     runs-on: ubuntu-latest  # GitHub Actions가 실행될 환경
 
     steps:
+      # 1️⃣ GitHub 저장소 코드 가져오기
       - name: Checkout Repository
-        uses: actions/checkout@v2  # GitHub 저장소의 코드를 체크아웃 (가져오기)
+        uses: actions/checkout@v2
 
+      # 2️⃣ JDK 17 설정
+      - name: Set up JDK 17
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      # 3️⃣ Gradle 빌드 (Spring Boot JAR 파일 생성, 테스트 제외)
+      - name: Build JAR file
+        run: |
+          chmod +x gradlew
+          ./gradlew build -x test
+
+      # 4️⃣ Docker 로그인 (GitHub Secrets 사용)
+      - name: Login to Docker Hub
+        run: |
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      # 5️⃣ Docker 이미지 빌드 & 푸시
       - name: Build and Push Docker Image
         run: |
-          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-          docker build -t my-backend .  # Docker 이미지 빌드
-          docker tag my-backend ${{ secrets.DOCKER_USERNAME }}/my-backend:latest  # 태그 설정
-          docker push ${{ secrets.DOCKER_USERNAME }}/my-backend:latest  # Docker Hub에 푸시
+          docker build --no-cache -t ${{ secrets.DOCKER_USERNAME }}/my-backend .
+          docker tag ${{ secrets.DOCKER_USERNAME }}/my-backend:latest ${{ secrets.DOCKER_USERNAME }}/my-backend:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/my-backend:latest
 
-      - name: SSH into EC2 and Deploy
-        uses: appleboy/ssh-action@master  # SSH로 EC2에 접속
+      # 6️⃣ EC2에 SSH 접속 후 docker-compose를 사용하여 배포
+      - name: Deploy to EC2 using docker-compose
+        uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.EC2_HOST }}  # EC2 퍼블릭 IP
-          username: ubuntu  # EC2 기본 사용자명
-          key: ${{ secrets.EC2_PRIVATE_KEY }}  # EC2의 SSH Key
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: |
-            docker pull ${{ secrets.DOCKER_USERNAME }}/my-backend:latest  # 최신 이미지 가져오기
-            docker stop backend-container || true  # 기존 컨테이너 중지 (없어도 에러 발생 안 함)
-            docker rm backend-container || true  # 기존 컨테이너 삭제
-            docker run -d -p 3000:3000 --env-file .env --name backend-container ${{ secrets.DOCKER_USERNAME }}/my-backend:latest  # 새 컨테이너 실행
+            cd /home/ubuntu/codeness
+            docker-compose pull
+            docker-compose down
+            docker-compose up -d

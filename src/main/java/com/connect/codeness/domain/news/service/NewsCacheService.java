@@ -1,5 +1,7 @@
 package com.connect.codeness.domain.news.service;
 
+import static com.connect.codeness.global.constants.Constants.NEWS_TO_KST_HOURS;
+
 import com.connect.codeness.domain.news.dto.NewsResponseDto;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.time.LocalDateTime;
@@ -46,10 +48,10 @@ public class NewsCacheService {
 			}
 
 			// 필드 존재 여부 확인
-			Long storyId = response.has("id") ? response.get("id").asLong() : null;
-			String title = response.has("title") ? response.get("title").asText() : "";
-			String by = response.has("by") ? response.get("by").asText() : "";
-			String newsUrl = response.has("url") ? response.get("url").asText() : "";
+			String storyId = getValue(response,"id");
+			String title = getValue(response, "title");
+			String by = getValue(response, "by");
+			String newsUrl = getValue(response, "url");
 
 			if (storyId == null || title.isEmpty()) {
 				return null;
@@ -57,12 +59,12 @@ public class NewsCacheService {
 
 			// 시간 변환
 			LocalDateTime dateTime = LocalDateTime.ofEpochSecond(
-				response.get("time").asLong()+32400, 0, ZoneOffset.UTC);
+				response.get("time").asLong()+NEWS_TO_KST_HOURS, 0, ZoneOffset.UTC);
 			String time = dateTime.atZone(ZoneId.of("Asia/Seoul"))
 				.format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH:mm"));
 
 			return NewsResponseDto.builder()
-				.id(storyId)
+				.id(Long.valueOf(storyId))
 				.title(title)
 				.by(by)
 				.time(time)
@@ -73,5 +75,9 @@ public class NewsCacheService {
 			log.error("Error fetching story id: {}", id, e);
 			return null;
 		}
+	}
+
+	private static String getValue(JsonNode response, String title) {
+		return response.has(title) ? response.get(title).asText() : "";
 	}
 }
