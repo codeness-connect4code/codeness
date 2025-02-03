@@ -40,6 +40,15 @@ public class FileServiceImpl implements FileService{
 	@Value("${spring.cloud.aws.region.static}")
 	private String region;
 
+	private class FileInfo {
+		private final String name;
+		private final String extension;
+		public FileInfo(String name, String extension) {
+			this.name = name;
+			this.extension = extension;
+		}
+	}
+
 	// 파일 업로드 메서드
 	@Override
 	public CommonResponseDto createFile(MultipartFile inputFile, Long userId, FileCategory category) throws IOException {
@@ -51,8 +60,10 @@ public class FileServiceImpl implements FileService{
 			throw new BusinessException(ExceptionType.NOT_FOUND_FILE);
 		}
 
+		FileInfo fileInfo = this.getFileInfo(inputFile.getOriginalFilename());
+
 		// 파일 확장자 가져오기
-		String fileExtension = getFileExtension(inputFile.getOriginalFilename());
+		String fileExtension = fileInfo.extension;
 
 		// 파일 확장자 지원 여부 검증
 		checkExtension(fileExtension);
@@ -75,9 +86,9 @@ public class FileServiceImpl implements FileService{
 
 		String fileUrl = getPublicUrl(s3Key);
 
-		ImageFile imageFile = new ImageFile().builder()
+		ImageFile imageFile = ImageFile.builder()
 			.user(user)
-			.fileName(getFilename(inputFile.getOriginalFilename()))
+			.fileName(fileInfo.name)
 			.fileType(fileExtension)
 			.fileSize(inputFile.getSize())
 			.fileKey(s3Key)
@@ -117,22 +128,6 @@ public class FileServiceImpl implements FileService{
 			.build();
 	}
 
-
-	// 파일 확장자 가져오기
-	private String getFileExtension(String originalFilename) {
-
-		// 전체 이름 중 마지막 . 찾기 (확장자의 시작 부분)
-		int dotIndex = originalFilename.lastIndexOf(".");
-
-		// 확장자가 없을 경우 예외 발생 (.이 없을 경우)
-		if (dotIndex == -1) {
-			throw new BusinessException(ExceptionType.NOT_SUPPORT_EXTENSION);
-		}
-
-		// 확장자 반환 (.부터 반환)
-		return originalFilename.substring(dotIndex);
-	}
-
 	// 파일 확장자 지원 여부 검증
 	private void checkExtension(String fileExtension) {
 
@@ -143,9 +138,7 @@ public class FileServiceImpl implements FileService{
 		}
 	}
 
-	// 파일 확장자 가져오기
-	private String getFilename(String originalFilename) {
-
+	private FileInfo getFileInfo(String originalFilename) {
 		// 전체 이름 중 마지막 . 찾기 (확장자의 시작 부분)
 		int dotIndex = originalFilename.lastIndexOf(".");
 
@@ -154,8 +147,9 @@ public class FileServiceImpl implements FileService{
 			throw new BusinessException(ExceptionType.NOT_SUPPORT_EXTENSION);
 		}
 
-		// 파일이름 반환 (.앞까지 반환)
-		return originalFilename.substring(0, dotIndex);
+		String filename = originalFilename.substring(0, dotIndex);
+		String extension = originalFilename.substring(dotIndex);
+		return new FileInfo(filename, extension);
 	}
 
 	// url 받기
