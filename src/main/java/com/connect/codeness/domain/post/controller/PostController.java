@@ -35,8 +35,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/posts")
 public class PostController {
 
-	private PostService postService;
-	private JwtProvider jwtProvider;
+	private final PostService postService;
+	private final JwtProvider jwtProvider;
 
 	public PostController(PostService postService, JwtProvider jwtProvider) {
 		this.postService = postService;
