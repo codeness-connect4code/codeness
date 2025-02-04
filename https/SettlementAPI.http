@@ -35,3 +35,11 @@ Authorization: Bearer {{token}}
 {
 
 }
+
+### 멘토 정산 내역 조회 - 미정산
+GET localhost:8080/mentors/mentoring/payment-history/settles-unprocessed
+Authorization: Bearer {{token}}
+
+### 멘토 정산 내역 조회 - 정산완료
+GET localhost:8080/mentors/mentoring/payment-history/settles-complete
+Authorization: Bearer {{token}}

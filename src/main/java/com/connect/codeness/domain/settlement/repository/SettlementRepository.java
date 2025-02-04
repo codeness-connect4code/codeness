@@ -2,6 +2,7 @@ package com.connect.codeness.domain.settlement.repository;
 
 import com.connect.codeness.domain.admin.dto.AdminSettlementListResponseDto;
 import com.connect.codeness.domain.admin.dto.AdminSettlementResponseDto;
+import com.connect.codeness.domain.settlement.dto.SettlementResponseDto;
 import com.connect.codeness.domain.settlement.entity.Settlement;
 import com.connect.codeness.global.enums.SettlementStatus;
 import java.util.List;
@@ -36,4 +37,13 @@ public interface SettlementRepository extends JpaRepository<Settlement, Long> {
 			AND s.user.id = :mentorId
 			""")
 	List<AdminSettlementResponseDto> findByUserIdAndSettleStatus(Long mentorId, SettlementStatus settlementStatus);
+
+	@Query("""
+		SELECT new com.connect.codeness.domain.settlement.dto.SettlementResponseDto(
+		COUNT(s), SUM(s.paymentHistory.paymentCost), s.user.account)
+		FROM Settlement s
+		WHERE s.user.id = :userId
+		AND s.settlementStatus = :settlementStatus
+""")
+	SettlementResponseDto findByUserIdAndSettleStatusMentor(Long userId, SettlementStatus settlementStatus);
 }

@@ -85,6 +85,7 @@ public enum ExceptionType {
 	TIME_OUT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "타임 아웃 또는 인터럽트가 발생했습니다." ),
 	REDIS_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "redis 서버에서 오류가 발생했습니다."),
 	GOOGLE_CALENDAR_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"google calendar 서버에서 오류가 발생했습니다.")
+
 	;
 
 	private final HttpStatus httpStatus;
