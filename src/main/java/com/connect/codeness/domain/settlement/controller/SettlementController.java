@@ -2,7 +2,6 @@ package com.connect.codeness.domain.settlement.controller;
 
 import static com.connect.codeness.global.constants.Constants.AUTHORIZATION;
 
-import com.connect.codeness.domain.settlement.dto.SettlementGetDto;
 import com.connect.codeness.domain.settlement.service.SettlementService;
 import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.enums.SettlementStatus;
