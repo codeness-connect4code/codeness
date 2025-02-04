@@ -151,7 +151,7 @@ Authorization: Bearer {{token}}
 	"career" : 10,
 	"region" : "서울, 경기 남부",
 	"price" : 1,
-	"startDate" : "2026-01-28",
+	"startDate" : "2026-01-10",
 	"endDate" : "2026-01-29",
 	"startTime" : "13:00",
 	"endTime" : "15:00",
