@@ -68,7 +68,6 @@ public class SecurityConfig {
 								+ exception.getMessage() + "\"}}";
 						response.getWriter().write(errorMessage);
 					}).userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService())))
-			.addFilterBefore(new CorsFilter(corsConfigurationSource()), JwtFilter.class)
 			.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
@@ -100,8 +99,7 @@ public class SecurityConfig {
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.setAllowedOrigins(
-			List.of("https://api.codeness.kr", "https://www.codeness.kr"));
+		configuration.setAllowedOriginPatterns(List.of("https://*.codeness.kr"));
 		configuration.setAllowedMethods(
 			Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
 		configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With"));
