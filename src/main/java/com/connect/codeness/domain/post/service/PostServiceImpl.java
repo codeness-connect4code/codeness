@@ -28,9 +28,9 @@ import org.springframework.data.domain.Pageable;
 @Service
 public class PostServiceImpl implements PostService {
 
-	private PostRepository postRepository;
-	private UserRepository userRepository;
-	private FileRepository fileRepository;
+	private final PostRepository postRepository;
+	private final UserRepository userRepository;
+	private final FileRepository fileRepository;
 
 	public PostServiceImpl(PostRepository postRepository, UserRepository userRepository, FileRepository fileRepository) {
 		this.postRepository = postRepository;
@@ -44,11 +44,11 @@ public class PostServiceImpl implements PostService {
 
 		User user = userRepository.findByIdOrElseThrow(userId);
 
-		if (dto.getPostType()==PostType.NOTICE&&user.getRole()!= UserRole.ADMIN){
+		if (dto.getPostType() == PostType.NOTICE && user.getRole() != UserRole.ADMIN) {
 			throw new BusinessException(ExceptionType.FORBIDDEN_ADMIN_ACCESS);
 		}
 
-		Post post = new Post().builder()
+		Post post = Post.builder()
 			.user(user)
 			.title(dto.getTitle())
 			.content(dto.getContent())
@@ -114,7 +114,7 @@ public class PostServiceImpl implements PostService {
 
 		ImageFile writerProfile = fileRepository.findByUserId(userId);
 
-		post.increaseView(post.getView());
+		postRepository.increaseViewCount(postId);
 
 		PostFindResponseDto postFindResult= PostFindResponseDto.builder()
 			.postId(post.getId())
