@@ -101,7 +101,7 @@ public class SecurityConfig {
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
 		configuration.setAllowedOrigins(
-			List.of("http://localhost:3000", "https://codeness-front.vercel.app/"));
+			List.of("http://localhost:3000", "https://codeness-front.vercel.app/", "https://www.codeness.kr/"));
 		configuration.setAllowedMethods(
 			Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
 		configuration.setAllowedHeaders(List.of("*"));
