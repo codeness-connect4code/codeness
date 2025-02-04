@@ -1,7 +1,5 @@
 package com.connect.codeness.global.config;
 
-import static com.connect.codeness.global.constants.Constants.AUTHORIZATION;
-
 import com.connect.codeness.global.handler.OAuth2SuccessHandler;
 import com.connect.codeness.global.jwt.JwtFilter;
 import jakarta.servlet.http.HttpServletResponse;
@@ -27,6 +25,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
 @Configuration
 public class SecurityConfig {
@@ -42,7 +41,7 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-		http.cors(corsCustomizer -> corsCustomizer.configurationSource(corsConfigurationSource()))
+		http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
 			.csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests(
 				auth -> auth.requestMatchers("/api/**").authenticated()
 					.requestMatchers("/signup", "/login", "/api/login", "/users/**", "/oauth2/**",
@@ -69,6 +68,7 @@ public class SecurityConfig {
 								+ exception.getMessage() + "\"}}";
 						response.getWriter().write(errorMessage);
 					}).userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService())))
+			.addFilterBefore(new CorsFilter(corsConfigurationSource()), JwtFilter.class)
 			.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
@@ -101,10 +101,10 @@ public class SecurityConfig {
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
 		configuration.setAllowedOrigins(
-			List.of("https://api.codeness.kr"));
+			List.of("https://api.codeness.kr", "https://www.codeness.kr"));
 		configuration.setAllowedMethods(
 			Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-		configuration.setAllowedHeaders(List.of("*"));
+		configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With"));
 		configuration.setAllowCredentials(true);
 		configuration.setExposedHeaders(List.of("Authorization"));
 
