@@ -129,7 +129,7 @@ public class PaymentHistoryServiceImpl implements PaymentHistoryService {
 	 *
 	 */
 	@Override
-	public CommonResponseDto<MentorPaymentHistoryResponseDto> getPaymentHistoryFromMentor(Long userId, Long paymentHistoryId) {
+	public CommonResponseDto<MentorPaymentHistoryResponseDto> getPaymentHistoryForMentor(Long userId, Long paymentHistoryId) {
 		//유저 조회
 		User user = userRepository.findByIdOrElseThrow(userId);
 

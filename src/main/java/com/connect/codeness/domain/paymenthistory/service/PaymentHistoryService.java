@@ -22,7 +22,7 @@ public interface PaymentHistoryService {
 	 * 결제내역 단건 조회 메서드
 	 * - 멘토
 	 */
-	CommonResponseDto<MentorPaymentHistoryResponseDto> getPaymentHistoryFromMentor(Long userId, Long paymentHistoryId);
+	CommonResponseDto<MentorPaymentHistoryResponseDto> getPaymentHistoryForMentor(Long userId, Long paymentHistoryId);
 
 }
 

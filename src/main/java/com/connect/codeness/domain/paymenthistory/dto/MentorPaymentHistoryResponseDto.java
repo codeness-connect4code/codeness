@@ -1,6 +1,5 @@
 package com.connect.codeness.domain.paymenthistory.dto;
 
-import com.connect.codeness.domain.payment.entity.Payment;
 import com.connect.codeness.domain.paymenthistory.entity.PaymentHistory;
 import com.connect.codeness.global.enums.PaymentStatus;
 import java.math.BigDecimal;

@@ -56,11 +56,11 @@ public class PaymentHistoryController {
 	 * - 멘토가 조회 : 멘티의 결제 내역 조회됨
 	 */
 	@GetMapping("/payment-history/{paymentHistoryId}/mentors")
-	public ResponseEntity<CommonResponseDto<MentorPaymentHistoryResponseDto>> getPaymentHistoryFromMentor(@RequestHeader(AUTHORIZATION) String authorizationHeader,
+	public ResponseEntity<CommonResponseDto<MentorPaymentHistoryResponseDto>> getPaymentHistoryForMentor(@RequestHeader(AUTHORIZATION) String authorizationHeader,
 		@PathVariable Long paymentHistoryId) {
 		Long userId = jwtProvider.extractUserId(authorizationHeader);
 
-		CommonResponseDto<MentorPaymentHistoryResponseDto> responseDto = paymentHistoryService.getPaymentHistoryFromMentor(userId, paymentHistoryId);
+		CommonResponseDto<MentorPaymentHistoryResponseDto> responseDto = paymentHistoryService.getPaymentHistoryForMentor(userId, paymentHistoryId);
 		return new ResponseEntity<>(responseDto, HttpStatus.OK);
 	}
 }
