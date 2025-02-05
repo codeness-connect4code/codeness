@@ -44,7 +44,7 @@ public class SecurityConfig {
 				auth -> auth
 					.requestMatchers("/signup", "/login", "/api/login", "/users/**", "/oauth2/**",
 						"/login/oauth2/code/**", "/favicon.ico", "/error", "/posts/**", "/news",
-						"/mentoring", "/mentoring/**", "/users/schedule", "/posts", "/health" ).permitAll()
+						"/mentoring", "/mentoring/**", "/users/schedule", "/posts", "/actuator/health" ).permitAll()
 					.requestMatchers("/api/**").authenticated()
 					.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 					.requestMatchers("/admin/**").hasAuthority("ADMIN")

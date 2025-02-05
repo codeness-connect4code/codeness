@@ -17,4 +17,4 @@ https
 README.md
 
 # 기존 firebase JSON 파일 제외
-firebase-codeness-key.json
+src/main/resources/firebase-codeness-key.json
