@@ -47,7 +47,6 @@ public class SecurityConfig {
 					.requestMatchers("/signup", "/login", "/api/login", "/users/**", "/oauth2/**",
 						"/login/oauth2/code/**", "/favicon.ico", "/error", "/posts/**", "/news",
 						"/mentoring", "/mentoring/**", "/users/schedule", "posts").permitAll()
-					.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 					.requestMatchers("/admin/**").hasAuthority("ADMIN")
 					.requestMatchers(HttpMethod.POST, "/mentoring").hasAuthority("MENTOR")
 					.requestMatchers(HttpMethod.DELETE, "/mentoring").hasAuthority("MENTOR")
