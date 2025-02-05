@@ -28,7 +28,7 @@ public interface PaymentHistoryRepository extends JpaRepository<PaymentHistory, 
 	List<PaymentHistory> findAllByPaymentId(Long paymentId);
 
 	@Query("SELECT p FROM PaymentHistory p WHERE p.id = :paymentHistoryId AND p.user.id = :userId")
-	Optional<PaymentHistory> findByIdAndUserId(Long paymentHistoryId, Long userId);
+	Optional<PaymentHistory> findByIdAndUserId(Long userId, Long paymentHistoryId);
 
 	default PaymentHistory findByIdAndUserIdOrElseThrow(Long userId, Long paymentHistoryId){
 		return findByIdAndUserId(userId, paymentHistoryId).orElseThrow(
