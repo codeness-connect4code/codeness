@@ -3,7 +3,6 @@ package com.connect.codeness.global.config;
 import com.connect.codeness.global.handler.OAuth2SuccessHandler;
 import com.connect.codeness.global.jwt.JwtFilter;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.Arrays;
 import java.util.List;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -42,10 +41,11 @@ public class SecurityConfig {
 
 		http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
 			.csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests(
-				auth -> auth.requestMatchers("/api/**").authenticated()
+				auth -> auth
 					.requestMatchers("/signup", "/login", "/api/login", "/users/**", "/oauth2/**",
 						"/login/oauth2/code/**", "/favicon.ico", "/error", "/posts/**", "/news",
 						"/mentoring", "/mentoring/**", "/users/schedule", "/posts", "/health" ).permitAll()
+					.requestMatchers("/api/**").authenticated()
 					.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 					.requestMatchers("/admin/**").hasAuthority("ADMIN")
 					.requestMatchers(HttpMethod.POST, "/mentoring").hasAuthority("MENTOR")
