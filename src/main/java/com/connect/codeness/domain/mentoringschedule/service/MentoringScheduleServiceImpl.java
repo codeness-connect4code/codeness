@@ -30,20 +30,12 @@ public class MentoringScheduleServiceImpl implements MentoringScheduleService {
 	/**
 	 * 멘토링 공고 스케쥴 전체 조회 메서드
 	 * - 상태 & 현재 날짜, 시간은 거르지 않고 조회
-	 * - DISPLAYED 상태만 조회
-	 * -멘토링 공고 스케쥴 상태 추가 완료 (멘토링 공고가 삭제 상태일 경우 중복되는 데이터가 계속 쌓임)
+	 * - DISPLAYED 상태만 조회 -멘토링 공고 스케쥴 상태 추가 완료 (멘토링 공고가 삭제 상태일 경우 중복되는 데이터가 계속 쌓임)
 	 */
 	@Override
 	public CommonResponseDto<List<MentoringScheduleResponseDto>> getMentoringSchedule(Long mentoringPostId) {
-
-		//멘토링 공고 조회
-		MentoringPost mentoringPost = mentoringPostRepository.findById(mentoringPostId)
-			.orElseThrow(() -> new BusinessException(ExceptionType.NOT_FOUND_MENTORING_POST));
-
-		//멘토링 공고 상태가 삭제면 예외처리
-		if(mentoringPost.getMentoringPostStatus().equals(MentoringPostStatus.DELETED)){
-			throw new BusinessException(ExceptionType.MENTORING_POST_DELETED);
-		}
+		//멘토링 공고 조회 & 검증
+		validatePost(mentoringPostId);
 
 		//멘토링 공고 스케쥴 list 조회
 		List<MentoringSchedule> mentoringSchedule = mentoringScheduleRepository.findByMentoringPostId(mentoringPostId);
@@ -59,7 +51,8 @@ public class MentoringScheduleServiceImpl implements MentoringScheduleService {
 				.build()
 			).toList();
 
-		return CommonResponseDto.<List<MentoringScheduleResponseDto>>builder().msg("멘토링 공고 스케쥴이 조회되었습니다.").data(mentoringScheduleResponseDto).build();
+		return CommonResponseDto.<List<MentoringScheduleResponseDto>>builder().msg("멘토링 공고 스케쥴이 조회되었습니다.")
+			.data(mentoringScheduleResponseDto).build();
 	}
 
 	/**
@@ -69,14 +62,8 @@ public class MentoringScheduleServiceImpl implements MentoringScheduleService {
 	 */
 	@Override
 	public CommonResponseDto<List<MentoringScheduleResponseDto>> findMentoringSchedulesByEmptyStatus(Long mentoringPostId) {
-		//멘토링 공고 조회
-		MentoringPost mentoringPost = mentoringPostRepository.findById(mentoringPostId)
-			.orElseThrow(() -> new BusinessException(ExceptionType.NOT_FOUND_MENTORING_POST));
-
-		//멘토링 공고 상태가 삭제면 예외처리
-		if(mentoringPost.getMentoringPostStatus().equals(MentoringPostStatus.DELETED)){
-			throw new BusinessException(ExceptionType.MENTORING_POST_DELETED);
-		}
+		//멘토링 공고 조회 & 검증
+		validatePost(mentoringPostId);
 
 		//현재 날짜 & 시간
 		LocalDate currentDate = LocalDate.now();
@@ -87,7 +74,7 @@ public class MentoringScheduleServiceImpl implements MentoringScheduleService {
 			BookedStatus.EMPTY, currentDate, currentTime);
 
 		//유효한 스케쥴이 없을 경우
-		if(validMentoringSchedules.isEmpty()){
+		if (validMentoringSchedules.isEmpty()) {
 			throw new BusinessException(ExceptionType.NOT_FOUND_MENTORING_SCHEDULE);
 		}
 
@@ -102,9 +89,22 @@ public class MentoringScheduleServiceImpl implements MentoringScheduleService {
 				.build()
 			).toList();
 
-		return CommonResponseDto.<List<MentoringScheduleResponseDto>>builder().msg("신청이 가능한 멘토링 공고 스케쥴이 조회되었습니다.").data(mentoringScheduleResponseDto).build();
+		return CommonResponseDto.<List<MentoringScheduleResponseDto>>builder().msg("신청이 가능한 멘토링 공고 스케쥴이 조회되었습니다.")
+			.data(mentoringScheduleResponseDto).build();
 	}
 
+	/**
+	 * 멘토링 공고 검증 메서드
+	 */
+	private void validatePost(Long mentoringPostId) {
+		//멘토링 공고 조회
+		MentoringPost mentoringPost = mentoringPostRepository.findById(mentoringPostId)
+			.orElseThrow(() -> new BusinessException(ExceptionType.NOT_FOUND_MENTORING_POST));
 
+		//멘토링 공고 상태가 삭제면 예외처리
+		if (mentoringPost.getMentoringPostStatus().equals(MentoringPostStatus.DELETED)) {
+			throw new BusinessException(ExceptionType.MENTORING_POST_DELETED);
+		}
+	}
 }
 

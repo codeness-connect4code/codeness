@@ -33,6 +33,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
+    //Spring batch
+    implementation 'org.springframework.boot:spring-boot-starter-batch'
+
     //mysql
     runtimeOnly 'com.mysql:mysql-connector-j'
     //junit
@@ -47,6 +50,8 @@ dependencies {
     //lombok
     annotationProcessor 'org.projectlombok:lombok'
     compileOnly 'org.projectlombok:lombok'
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
     //s3
     implementation 'io.awspring.cloud:spring-cloud-aws-starter:3.1.1'
     implementation 'software.amazon.awssdk:s3:2.20.89'
@@ -78,6 +83,7 @@ dependencies {
     //redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.redisson:redisson-spring-boot-starter:3.23.0'
+
 }
 
 tasks.named('test') {

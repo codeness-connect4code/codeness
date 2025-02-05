@@ -1,14 +1,13 @@
 package com.connect.codeness.domain.paymenthistory.controller;
 
 
-import static com.connect.codeness.global.constants.Constants.ACCESS_TOKEN;
 import static com.connect.codeness.global.constants.Constants.AUTHORIZATION;
 
+import com.connect.codeness.domain.paymenthistory.dto.MentorPaymentHistoryResponseDto;
 import com.connect.codeness.domain.paymenthistory.dto.PaymentHistoryResponseDto;
 import com.connect.codeness.domain.paymenthistory.service.PaymentHistoryService;
 import com.connect.codeness.global.jwt.JwtProvider;
 import com.connect.codeness.global.dto.CommonResponseDto;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,16 +27,10 @@ public class PaymentHistoryController {
 	}
 
 	/**
-	 * - 로그인한 유저의 결제 내역 전체 & 단건 조회
-	 * - 특정 유저의 결제 내역 단건 조회 -> 어드민
-	 * - 전체 유저 결제 내역 조회 -> 어드민
-	 */
-
-	/**
 	 * 결제내역 전체 조회 API
 	 * - 멘티 & 멘토별 응답 다름
 	 */
-	@GetMapping("/mentoring/payment-history")
+	@GetMapping("/payment-history")
 	public ResponseEntity<CommonResponseDto<?>> getAllPaymentHistory(@RequestHeader(AUTHORIZATION) String authorizationHeader) {
 		Long userId = jwtProvider.extractUserId(authorizationHeader);
 
@@ -47,14 +40,27 @@ public class PaymentHistoryController {
 
 	/**
 	 * 결제내역 단건 상세 조회 API
-	 * - 멘티 & 멘토 응답 똑같음 - 멘티의 결제 내역
+	 * - 멘티가 조회 : 로그인한 멘티의 결제 내역
 	 */
-	@GetMapping("/mentoring/payment-history/{paymentHistoryId}")
-	public ResponseEntity<CommonResponseDto> getPaymentHistory(@RequestHeader(AUTHORIZATION) String authorizationHeader, @PathVariable Long paymentHistoryId) {
+	@GetMapping("/payment-history/{paymentHistoryId}/mentees")
+	public ResponseEntity<CommonResponseDto<PaymentHistoryResponseDto>> getPaymentHistoryFromMentee(@RequestHeader(AUTHORIZATION) String authorizationHeader,
+		@PathVariable Long paymentHistoryId) {
 		Long userId = jwtProvider.extractUserId(authorizationHeader);
 
 		CommonResponseDto<PaymentHistoryResponseDto> responseDto = paymentHistoryService.getPaymentHistory(userId, paymentHistoryId);
 		return new ResponseEntity<>(responseDto, HttpStatus.OK);
 	}
-	
+
+	/**
+	 * 결제내역 단건 상세 조회 API
+	 * - 멘토가 조회 : 멘티의 결제 내역 조회됨
+	 */
+	@GetMapping("/payment-history/{paymentHistoryId}/mentors")
+	public ResponseEntity<CommonResponseDto<MentorPaymentHistoryResponseDto>> getPaymentHistoryForMentor(@RequestHeader(AUTHORIZATION) String authorizationHeader,
+		@PathVariable Long paymentHistoryId) {
+		Long userId = jwtProvider.extractUserId(authorizationHeader);
+
+		CommonResponseDto<MentorPaymentHistoryResponseDto> responseDto = paymentHistoryService.getPaymentHistoryForMentor(userId, paymentHistoryId);
+		return new ResponseEntity<>(responseDto, HttpStatus.OK);
+	}
 }

@@ -42,20 +42,12 @@ public interface MentoringPostRepository extends JpaRepository<MentoringPost, Lo
 		return findById(mentoringPostId).orElseThrow(() -> new BusinessException(ExceptionType.NOT_FOUND_MENTORING_POST));
 	}
 
-	@Query("SELECT m.user.id FROM MentoringPost m WHERE m.user.id = :userId")
-	Long findUserIdByUserId(long userId);
-
 	@Query("""
 			  SELECT COUNT(mp) > 0
 			  FROM MentoringPost mp
 		      WHERE mp.user.id = :userId AND mp.mentoringPostStatus = 'DISPLAYED'
 		""")
 	boolean findMentoringPostStatusByUserId(long userId);
-
-	/**
-	 * TODO : 필요없으면 삭제
-	 */
-	Optional<MentoringPost> findByUserId(Long userId);
 
 	Optional<MentoringPost> findByUserIdAndMentoringPostStatus(Long userId, MentoringPostStatus mentoringPostStatus);
 
