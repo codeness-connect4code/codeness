@@ -29,9 +29,11 @@ public class SettlementController {
 	 * - 멘토
 	 * - 정산 상태, 정산 요청일
 	 * - 사용자 계좌, 은행명은 유저 테이블쪽에서 가져오기
+	 * 결제내역 정산 신청 API - 멘토 - 정산 상태, 정산 요청일 - 사용자 계좌, 은행명은 유저 테이블쪽에서 가져오기
 	 */
 	@PatchMapping("/mentors/mentoring/payment-history/settles")
-	public ResponseEntity<CommonResponseDto<?>> requestSettlement(@RequestHeader(AUTHORIZATION) String authorizationHeader){
+	public ResponseEntity<CommonResponseDto<?>> requestSettlement(
+		@RequestHeader(AUTHORIZATION) String authorizationHeader) {
 		Long userId = jwtProvider.extractUserId(authorizationHeader);
 
 		CommonResponseDto<?> responseDto = settlementService.requestSettlement(userId);
@@ -47,7 +49,8 @@ public class SettlementController {
 		@RequestHeader(AUTHORIZATION) String authorizationHeader) {
 		Long userId = jwtProvider.extractUserId(authorizationHeader);
 
-		CommonResponseDto<?> responseDto = settlementService.getSettlement(userId, SettlementStatus.UNPROCESSED);
+		CommonResponseDto<?> responseDto = settlementService.getSettlement(userId,
+			SettlementStatus.UNPROCESSED);
 		return new ResponseEntity<>(responseDto, HttpStatus.OK);
 	}
 

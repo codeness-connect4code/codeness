@@ -4,6 +4,8 @@ import com.connect.codeness.domain.admin.dto.AdminMentorListResponseDto;
 import com.connect.codeness.domain.admin.dto.AdminSettlementListResponseDto;
 import com.connect.codeness.domain.admin.dto.AdminSettlementResponseDto;
 import com.connect.codeness.domain.admin.dto.AdminUpdateMentorRequestDto;
+import com.connect.codeness.domain.file.entity.ImageFile;
+import com.connect.codeness.domain.file.repository.FileRepository;
 import com.connect.codeness.global.dto.PaginationResponseDto;
 import com.connect.codeness.domain.mentorrequest.entity.MentorRequest;
 import com.connect.codeness.domain.mentorrequest.repository.MentorRequestRepository;
@@ -15,6 +17,7 @@ import com.connect.codeness.domain.user.entity.User;
 import com.connect.codeness.domain.user.repository.UserRepository;
 import com.connect.codeness.domain.user.dto.UserResponseDto;
 import com.connect.codeness.global.dto.CommonResponseDto;
+import com.connect.codeness.global.enums.FileCategory;
 import com.connect.codeness.global.enums.MentorRequestStatus;
 import com.connect.codeness.global.enums.SettlementStatus;
 import com.connect.codeness.global.enums.UserRole;
@@ -35,14 +38,16 @@ public class AdminServiceImpl implements AdminService {
 	private final MentorRequestRepository mentorRequestRepository;
 	private final PaymentHistoryRepository paymentHistoryRepository;
 	private final SettlementRepository settlementRepository;
+	private final FileRepository fileRepository;
 
 	public AdminServiceImpl(UserRepository userRepository, MentorRequestRepository mentorRequestRepository,
 		PaymentHistoryRepository paymentHistoryRepository,
-		SettlementRepository settlementRepository) {
+		SettlementRepository settlementRepository, FileRepository fileRepository) {
 		this.userRepository = userRepository;
 		this.mentorRequestRepository = mentorRequestRepository;
 		this.paymentHistoryRepository = paymentHistoryRepository;
 		this.settlementRepository = settlementRepository;
+		this.fileRepository = fileRepository;
 	}
 
 	/* -----------------멘토 신청 관련 로직------------------ */
@@ -87,9 +92,11 @@ public class AdminServiceImpl implements AdminService {
 		if (user.getRole() != UserRole.MENTOR) {
 			throw new BusinessException(ExceptionType.NOT_MENTOR);
 		}
+
+		ImageFile file = fileRepository.findByUserIdAndFileCategoryOrElseThrow(mentorId, FileCategory.PROFILE);
 		return CommonResponseDto.builder()
 			.msg("멘토 상세 조회가 되었습니다.")
-			.data(new UserResponseDto(user)).build();
+			.data(new UserResponseDto(user,file.getFilePath())).build();
 	}
 
 	/**
