@@ -33,9 +33,10 @@ jobs:
           ./gradlew build -x test
 
       # FireBase 키 적용
-      - name: Decode Firebase Key
+      - name: Decode and Save Firebase Key
         run: |
-          echo "${{ secrets.FIREBASE_KEY_JSON }}" | base64 --decode > src/main/resources/firebase-codeness-key.json    
+          echo "${{ secrets.FIREBASE_KEY_BASE64 }}" | base64 --decode > src/main/resources/firebase-codeness-key.json
+          ls -l src/main/resources/firebase-codeness-key.json   
 
       # 5️⃣ Docker 이미지 빌드 & 푸시
       - name: Build and Push Docker Image

@@ -1,12 +1,16 @@
-version: '3.8'
-
 services:
   backend:
-    image: my-backend
-    build: .
+    image: "$DOCKER_USERNAME/my-backend:latest"
+    restart: always
     ports:
       - "8080:8080"
     env_file:
-      - .env
+      - .env  # .env 파일에서 환경 변수 불러오기
     environment:
       - FIREBASE_CONFIG_BASE64=${FIREBASE_CONFIG_BASE64}
+    volumes:
+      - ./entrypoint.sh:/entrypoint.sh  # 호스트의 entrypoint.sh를 컨테이너 내부로 마운트
+    entrypoint: ["/bin/sh", "/entrypoint.sh"]
+    depends_on:
+      - redis
+      - mysql
