@@ -22,7 +22,16 @@ Content-Type: application/json
 %}
 
 ### 결제 내역 전체 조회
-GET localhost:8080/mentoring/payment-history
+GET localhost:8080/payment-history
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+
+}
+
+### 결제 내역 단건 조회 - 멘티
+GET localhost:8080/payment-history/1/mentees
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
@@ -32,6 +41,10 @@ Authorization: Bearer {{token}}
 
 ### 결제 내역 단건 조회
 GET localhost:8080/mentoring/payment-history/1
+
+
+### 결제 내역 단건 조회 - 멘토 (멘티의 결제 내역이 조회됨)
+GET localhost:8080/payment-history/1/mentors
 Content-Type: application/json
 Authorization: Bearer {{token}}
 

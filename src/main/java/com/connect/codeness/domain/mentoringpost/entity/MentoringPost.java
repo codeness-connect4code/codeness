@@ -33,11 +33,6 @@ public class MentoringPost extends CreateTimeEntity {
 	@JoinColumn(name = "mentor_id")
 	private User user;//멘토 id
 
-	//TODO : 멘토링 공고가 소프트 딜리트로 변경 - 스케쥴도 상태 추가 고민
-	//멘토링 공고 삭제시, 멘토링 스케쥴도 삭제
-//	@OneToMany(mappedBy = "mentoringPost", orphanRemoval = true, cascade = CascadeType.REMOVE)
-//	private List<MentoringSchedule> mentoringSchedule = new ArrayList<>();
-
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private FieldType field;//분야

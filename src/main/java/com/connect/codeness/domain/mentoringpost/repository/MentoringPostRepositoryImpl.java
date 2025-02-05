@@ -33,15 +33,15 @@ public class MentoringPostRepositoryImpl implements MentoringPostRepositoryCusto
 	//QueryDSL 사용
 	@Override
 	public Page<MentoringPostSearchResponseDto> findAllBySearchParameters(String title, String field, String nickname, Pageable pageable) {
-		
+
 		//조건을 동적으로 추가
-		BooleanExpression condition = Expressions.asBoolean(true).isTrue(); // condition 초기화
+		BooleanExpression condition = Expressions.asBoolean(true).isTrue(); //condition 초기화
 
 		//개별 조건 추가
 		if (!(title == null || title.isEmpty())) {
 			condition = condition.and(filterByTitle(title)); //제목
 		}
-		if  (!(field == null || field.isEmpty())) {
+		if (!(field == null || field.isEmpty())) {
 			condition = condition.and(filterByField(field)); //분야
 		}
 		if (!(nickname == null || nickname.isEmpty())) {
@@ -54,16 +54,16 @@ public class MentoringPostRepositoryImpl implements MentoringPostRepositoryCusto
 
 		//쿼리 생성 & Projections 사용 &  평균 별점 계산 & 상태가 존재인 것만
 		JPQLQuery<MentoringPostSearchResponseDto> jpqlQuery = jpaQueryFactory.select(
-			//Projections.fields - 필드 이름으로 DTO 매핑
-			Projections.fields(MentoringPostSearchResponseDto.class,
-				mentoringPost.id.as("mentoringPostId"),
-				mentoringPost.user.userNickname.as("userNickname"),
-				mentoringPost.title.as("title"),
-				mentoringPost.field.stringValue().as("field"), //enum에서 string으로 변환
-				mentoringPost.career.as("career"),
-				review.starRating.avg().coalesce(0.0).as("starRating")//null 처리하기
-			)
-		).from(mentoringPost)
+				//Projections.fields - 필드 이름으로 DTO 매핑
+				Projections.fields(MentoringPostSearchResponseDto.class,
+					mentoringPost.id.as("mentoringPostId"),
+					mentoringPost.user.userNickname.as("userNickname"),
+					mentoringPost.title.as("title"),
+					mentoringPost.field.stringValue().as("field"), //enum에서 string으로 변환
+					mentoringPost.career.as("career"),
+					review.starRating.avg().coalesce(0.0).as("starRating")//null 처리하기
+				)
+			).from(mentoringPost)
 			.leftJoin(review).on(review.mentoringPost.eq(mentoringPost))
 			.join(mentoringPost.user)
 			.where(condition) //필터
@@ -111,7 +111,7 @@ public class MentoringPostRepositoryImpl implements MentoringPostRepositoryCusto
 	}
 
 	//멘토링 상태
-	private BooleanExpression filterByMentoringPostStatus(MentoringPostStatus mentoringPostStatus){
+	private BooleanExpression filterByMentoringPostStatus(MentoringPostStatus mentoringPostStatus) {
 		return mentoringPost.mentoringPostStatus.eq(mentoringPostStatus);
 	}
 

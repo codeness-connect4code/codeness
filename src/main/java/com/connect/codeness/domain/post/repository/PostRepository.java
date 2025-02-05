@@ -32,9 +32,9 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
 	@Query("SELECT new com.connect.codeness.domain.post.dto.PostFindAllResponseDto(p.id, p.title, p.writer, p.view, p.createdAt) " +
 		"FROM Post p " +
-		"WHERE (COALESCE(:type, p.postType) = p.postType) " +
-		"AND (COALESCE(:keyword, '') = '' OR LOWER(p.title) LIKE LOWER(CONCAT(:keyword, '%'))) " +
-		"AND (COALESCE(:writer, '') = '' OR LOWER(p.writer) LIKE LOWER(CONCAT(:writer, '%'))) " +
+		"WHERE (:type IS NULL OR p.postType = :type) " +
+		"AND (:keyword IS NULL OR p.title LIKE CONCAT(:keyword, '%')) " +
+		"AND (:writer IS NULL OR p.writer LIKE CONCAT(:writer, '%')) " +
 		"AND p.postStatus = 'DISPLAYED'")
 	Page<PostFindAllResponseDto> findByTypeAndKeyword(
 		@Param("type") PostType type,

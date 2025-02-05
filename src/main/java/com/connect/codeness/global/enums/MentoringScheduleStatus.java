@@ -2,7 +2,8 @@ package com.connect.codeness.global.enums;
 
 public enum MentoringScheduleStatus {
 	DELETED("삭제"),
-	DISPLAYED("존재");
+	DISPLAYED("존재"),
+	EXPIRED("만료");
 
 	private final String MentoringScheduleStatusText;
 

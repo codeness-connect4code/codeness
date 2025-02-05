@@ -15,7 +15,7 @@ import org.springframework.web.client.RestTemplate;
 @Configuration
 @EnableCaching
 @Slf4j
-public class NewsConfig {
+public class CacheConfig {
 
 	@Bean
 	public RestTemplate restTemplate() {
@@ -31,16 +31,24 @@ public class NewsConfig {
 		CaffeineCacheManager cacheManager = new CaffeineCacheManager();
 
 		Cache<Object, Object> newStoriesCache = Caffeine.newBuilder()
-				.expireAfterAccess(2,TimeUnit.MINUTES)
-				.expireAfterWrite(5,TimeUnit.MINUTES)
-				.maximumSize(1)
-				.build();
+			.expireAfterAccess(2,TimeUnit.MINUTES)
+			.expireAfterWrite(5,TimeUnit.MINUTES)
+			.maximumSize(1)
+			.build();
 
 		Cache<Object, Object> storiesCache = Caffeine.newBuilder()
 			.expireAfterWrite(30,TimeUnit.MINUTES)
 			.maximumSize(200)
 			.build();
 
+		Cache<Object, Object> postCache = Caffeine.newBuilder()
+			.expireAfterWrite(5, TimeUnit.MINUTES)
+			.expireAfterAccess(2, TimeUnit.MINUTES)
+			.maximumSize(200)
+			.build();
+
+
+		cacheManager.registerCustomCache("posts", postCache);
 		cacheManager.registerCustomCache("newStories", newStoriesCache);
 		cacheManager.registerCustomCache("stories", storiesCache);
 

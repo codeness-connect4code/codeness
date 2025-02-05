@@ -21,6 +21,8 @@ import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Pageable;
@@ -40,6 +42,7 @@ public class PostServiceImpl implements PostService {
 
 	// 게시글 생성 메서드
 	@Override
+	@CacheEvict(value = "postCache", allEntries = true)
 	public CommonResponseDto createPost(Long userId, PostCreateRequestDto dto){
 
 		User user = userRepository.findByIdOrElseThrow(userId);
@@ -69,6 +72,7 @@ public class PostServiceImpl implements PostService {
 
 	// 게시글 목록 조회
 	@Override
+	@Cacheable(value = "postCache", key = "{#postType, #keyword, #writer, #pageable.pageNumber, #pageable.pageSize}")
 	public CommonResponseDto<PaginationResponseDto<PostFindAllResponseDto>> findAllPost(PostType postType, String keyword, String writer, Pageable pageable) {
 
 		// DB 에서 게시글 가져오기
@@ -140,6 +144,7 @@ public class PostServiceImpl implements PostService {
 	// 게시글 수정
 	@Override
 	@Transactional
+	@CacheEvict(value = "postCache", allEntries = true)
 	public CommonResponseDto updatePost(Long userId, Long postId, PostUpdateRequestDto dto) {
 
 		User user = userRepository.findByIdOrElseThrow(userId);
@@ -159,6 +164,7 @@ public class PostServiceImpl implements PostService {
 	// 게시글 삭제
 	@Override
 	@Transactional
+	@CacheEvict(value = "postCache", allEntries = true)
 	public CommonResponseDto deletePost(Long userId, Long postId) {
 
 		User user = userRepository.findByIdOrElseThrow(userId);
@@ -175,4 +181,3 @@ public class PostServiceImpl implements PostService {
 			.build();
 	}
 }
-
