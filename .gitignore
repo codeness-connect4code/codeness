@@ -42,6 +42,5 @@ out/
 .DS_Store
 ### fire-base-key ###
 src/main/resources/firebase-codeness-key.json
-firebase-codeness-key.json
 ### 구글 소셜 로그인 ###
 src/main/resources/credentials.json
