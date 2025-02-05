@@ -50,7 +50,7 @@ public class SecurityConfig {
 						"/mentoring", "/mentoring/**", "/users/schedule").permitAll()
 					.requestMatchers("/admin/**").hasAuthority("ADMIN")
 					.requestMatchers(HttpMethod.POST, "/mentoring").hasAuthority("MENTOR")
-					.requestMatchers(HttpMethod.DELETE, "/mentoring").hasAuthority("MENTOR")
+					.requestMatchers(HttpMethod.PATCH, "/mentoring").hasAuthority("MENTOR")
 					.requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
 					.anyRequest().authenticated()).exceptionHandling(
 				exceptionHandling -> exceptionHandling.authenticationEntryPoint(

@@ -22,9 +22,9 @@ Content-Type: application/json
 }
 
 > {%
-  client.global.set("token",response.body.token);
+  client.global.set("token",response.body.data);
   client.log("Token saved: " + client.global.get("token"));
-%}
+%}%}
 
 ### 멘토 정산 처리 API
 PATCH localhost:8080/admin/mentors/2/settlements
