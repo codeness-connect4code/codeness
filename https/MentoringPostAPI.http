@@ -78,7 +78,7 @@ Content-Type: application/json
 }
 
 > {%
-  client.global.set("token",response.body.token);
+  client.global.set("token",response.body.data);
   client.log("Token saved: " + client.global.get("token"));
 %}
 
@@ -93,7 +93,7 @@ Content-Type: application/json
 }
 
 > {%
-  client.global.set("token",response.body.token);
+  client.global.set("token",response.body.data);
   client.log("Token saved: " + client.global.get("token"));
 %}
 
@@ -107,7 +107,7 @@ Content-Type: application/json
 }
 
 > {%
-  client.global.set("token",response.body.token);
+  client.global.set("token",response.body.data);
   client.log("Token saved: " + client.global.get("token"));
 %}
 
@@ -121,7 +121,7 @@ Content-Type: application/json
 }
 
 > {%
-  client.global.set("token",response.body.token);
+  client.global.set("token",response.body.data);
   client.log("Token saved: " + client.global.get("token"));
 %}
 
@@ -135,7 +135,7 @@ Content-Type: application/json
 }
 
 > {%
-  client.global.set("token",response.body.token);
+  client.global.set("token",response.body.data);
   client.log("Token saved: " + client.global.get("token"));
 %}
 

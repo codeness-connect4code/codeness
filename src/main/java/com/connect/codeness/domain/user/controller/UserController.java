@@ -76,12 +76,14 @@ public class UserController {
 	 * @throws IOException
 	 */
 	@PostMapping("/login")
-	public ResponseEntity<JwtResponseDto> login(@RequestBody LoginRequestDto loginRequestDto,
+	public ResponseEntity<CommonResponseDto> login(@RequestBody LoginRequestDto loginRequestDto,
 		HttpServletResponse response) throws IOException {
-		JwtResponseDto jwtResponseDto = JwtResponseDto.builder()
-			.token(userService.login(loginRequestDto, response))
-			.dto(CommonResponseDto.builder().msg("로그인 성공").build()).build();
-		return new ResponseEntity<>(jwtResponseDto, HttpStatus.OK);
+//		JwtResponseDto jwtResponseDto = JwtResponseDto.builder()
+//			.token(userService.login(loginRequestDto, response))
+//			.dto(CommonResponseDto.builder().msg("로그인 성공").build()).build();
+		String token = userService.login(loginRequestDto, response);
+		CommonResponseDto commonResponseDto = CommonResponseDto.builder().msg("로그인 성공").data(token).build();
+		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
 	}
 
 	/**
