@@ -102,7 +102,7 @@ public class SecurityConfig {
 		configuration.setAllowedOriginPatterns(List.of("https://*.codeness.kr"));
 		configuration.setAllowedMethods(
 			Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-		configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With"));
+		configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With", "Access-Control-Allow-Headers", "Access-Control-Allow-Origin"));
 		configuration.setAllowCredentials(true);
 		configuration.setExposedHeaders(List.of("Authorization"));
 
