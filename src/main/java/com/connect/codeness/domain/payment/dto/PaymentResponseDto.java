@@ -9,6 +9,9 @@ import lombok.Getter;
 @Builder
 public class PaymentResponseDto {
 
+	/**
+	 * TODO : 필요없으면 지우기
+	 */
 	private Long partnerId; //멘토 id
 
 	private LocalDate mentoringDate; //멘토링 날짜

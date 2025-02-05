@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class MentoringScheduleController {
+
 	private final MentoringScheduleService mentoringScheduleService;
 
 	public MentoringScheduleController(MentoringScheduleService mentoringScheduleService) {
@@ -24,7 +25,7 @@ public class MentoringScheduleController {
 	 * - 삭제된 공고의 스케쥴은 조회 x
 	 */
 	@GetMapping("/mentoring/{mentoringPostId}/mentoring-schedule")
-	public ResponseEntity<CommonResponseDto<List<MentoringScheduleResponseDto>>> getMentoringSchedule(@PathVariable Long mentoringPostId){
+	public ResponseEntity<CommonResponseDto<List<MentoringScheduleResponseDto>>> getMentoringSchedule(@PathVariable Long mentoringPostId) {
 
 		CommonResponseDto<List<MentoringScheduleResponseDto>> responseDto = mentoringScheduleService.getMentoringSchedule(mentoringPostId);
 
@@ -37,9 +38,11 @@ public class MentoringScheduleController {
 	 * - 멘토링 신청 페이지에서 호출됨
 	 */
 	@GetMapping("/mentoring/{mentoringPostId}/mentoring-schedule/empty-status")
-	public ResponseEntity<CommonResponseDto<List<MentoringScheduleResponseDto>>> findMentoringSchedulesByEmptyStatus(@PathVariable Long mentoringPostId){
+	public ResponseEntity<CommonResponseDto<List<MentoringScheduleResponseDto>>> findMentoringSchedulesByEmptyStatus(
+		@PathVariable Long mentoringPostId) {
 
-		CommonResponseDto<List<MentoringScheduleResponseDto>> responseDto = mentoringScheduleService.findMentoringSchedulesByEmptyStatus(mentoringPostId);
+		CommonResponseDto<List<MentoringScheduleResponseDto>> responseDto = mentoringScheduleService.findMentoringSchedulesByEmptyStatus(
+			mentoringPostId);
 
 		return new ResponseEntity<>(responseDto, HttpStatus.OK);
 	}

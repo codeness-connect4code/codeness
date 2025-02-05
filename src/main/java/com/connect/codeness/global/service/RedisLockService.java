@@ -1,10 +1,12 @@
 package com.connect.codeness.global.service;
 
 import java.util.concurrent.TimeUnit;
+import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 public class RedisLockService {
 		private final RedissonClient redissonClient;
@@ -21,13 +23,13 @@ public class RedisLockService {
 				boolean acquired = redisLock.tryLock(waitTime, leaseTime, TimeUnit.MILLISECONDS);
 
 				if (acquired) {
-					System.out.println("락 획득 성공: " + key);
+					log.info("락 획득 성공: " + key);
 				} else {
-					System.out.println("락 획득 실패: " + key);
+					log.error("락 획득 실패: " + key);
 				}
 				return acquired;
 			} catch (InterruptedException  exception){
-				System.out.println("락 획득 중 오류 발생: " + key);
+				log.error("락 획득 중 오류 발생: " + key);
 				Thread.currentThread().interrupt();
 				return false;
 			}
@@ -40,12 +42,12 @@ public class RedisLockService {
 			if(redisLock.isHeldByCurrentThread()){
 				try {
 					redisLock.unlock();
-					System.out.println("락 해제: " + key);
+					log.info("락 해제: " + key);
 				} catch (IllegalMonitorStateException exception){
-					System.out.println("락 해제 실패 - 이미 해제되었거나 보유한 락이 아님: " + key);
+					log.error("락 해제 실패 - 이미 해제되었거나 보유한 락이 아님: " + key);
 				}
 			} else {
-				System.out.println("현재 쓰레드가 보유한 락이 아님: " + key);
+				log.info("현재 쓰레드가 보유한 락이 아님: " + key);
 			}
 		}
 

@@ -22,7 +22,7 @@ Content-Type: application/json
 %}
 
 ### 멘토링 신청 (결제 생성) API
-POST localhost:8080/mentoring/payments
+POST localhost:8080/payments/mentoring-schedules
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
@@ -34,7 +34,7 @@ Authorization: Bearer {{token}}
 
 
 ### 환불 요청 API
-POST localhost:8080/mentoring/payments/2/refund
+POST localhost:8080/payments/2/refund
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
