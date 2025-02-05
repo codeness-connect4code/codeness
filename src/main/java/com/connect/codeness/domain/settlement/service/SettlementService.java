@@ -1,6 +1,7 @@
 package com.connect.codeness.domain.settlement.service;
 
 import com.connect.codeness.global.dto.CommonResponseDto;
+import com.connect.codeness.global.enums.SettlementStatus;
 
 public interface SettlementService {
 
@@ -9,4 +10,8 @@ public interface SettlementService {
 	 */
 	CommonResponseDto requestSettlement(Long userId);
 
+	/**
+	 * 정산 내역 조회 메서드
+	 */
+	CommonResponseDto<?> getSettlement(Long userId, SettlementStatus status);
 }
