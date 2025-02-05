@@ -100,10 +100,9 @@ public class SecurityConfig {
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.setAllowedOriginPatterns(List.of("https://www.codeness.kr"));
-		configuration.setAllowedMethods(
-			Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+		configuration.setAllowedOriginPatterns(List.of("*"));
 		configuration.addAllowedHeader("*");
+		configuration.addAllowedMethod("*");
 		configuration.setAllowCredentials(true);
 		configuration.setExposedHeaders(List.of("Authorization"));
 
