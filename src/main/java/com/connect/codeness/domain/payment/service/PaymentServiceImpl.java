@@ -71,7 +71,6 @@ public class PaymentServiceImpl implements PaymentService {
 	/**
 	 * 결제 생성 서비스 메서드
 	 * - 멘토링 스케쥴 신청
-	 * - TODO : 동시성 제어 추가
 	 */
 	@Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
 	@Override

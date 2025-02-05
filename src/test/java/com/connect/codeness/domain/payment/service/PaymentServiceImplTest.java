@@ -34,6 +34,10 @@ class PaymentServiceImplTest {
 		//레디스 초기화
 	}
 
+	/**
+	 * TODO : 최종으로 정리할 때 로그 다 지우기
+	 */
+
 	@Test
 	@DisplayName("결제 생성 동시성 제어 - 중복 예약 방지 테스트")
 	void OnlyOneCreatePaymentForSameMentoringSchedule() throws InterruptedException {

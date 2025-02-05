@@ -18,11 +18,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/mentoring")
 public class PaymentController {
 
 	private final PaymentService paymentService;
@@ -37,7 +35,7 @@ public class PaymentController {
 	 * 결제 생성 API
 	 * - 멘토링 스케쥴 신청
 	 */
-	@PostMapping("/payments")
+	@PostMapping("/payments/mentoring-schedules")
 	public ResponseEntity<CommonResponseDto<?>> createPayment(@RequestHeader(AUTHORIZATION) String authorizationHeader,
 		@RequestBody PaymentRequestDto requestDto) {
 		Long userId = jwtProvider.extractUserId(authorizationHeader);

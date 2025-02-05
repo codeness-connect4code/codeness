@@ -4,6 +4,7 @@ package com.connect.codeness.domain.paymenthistory.service;
 import com.connect.codeness.domain.file.entity.ImageFile;
 import com.connect.codeness.domain.payment.entity.Payment;
 import com.connect.codeness.domain.payment.repository.PaymentRepository;
+import com.connect.codeness.domain.paymenthistory.dto.MentorPaymentHistoryResponseDto;
 import com.connect.codeness.domain.paymenthistory.entity.PaymentHistory;
 import com.connect.codeness.domain.paymenthistory.repository.PaymentHistoryRepository;
 import com.connect.codeness.domain.paymenthistory.dto.PaymentHistoryMenteeResponseDto;
@@ -92,7 +93,7 @@ public class PaymentHistoryServiceImpl implements PaymentHistoryService {
 
 	/**
 	 * 결제내역 단건 상세 조회 서비스 메서드
-	 * - 멘티 & 멘토
+	 *  - 멘티가 조회 : 로그인한 멘티의 결제 내역
 	 * - TODO : 단일 쿼리로 최적화 고민하기
 	 */
 	@Override
@@ -120,6 +121,25 @@ public class PaymentHistoryServiceImpl implements PaymentHistoryService {
 		PaymentHistoryResponseDto paymentHistoryResponseDto = PaymentHistoryResponseDto.from(paymentHistory);
 
 		return CommonResponseDto.<PaymentHistoryResponseDto>builder().msg("결제 내역이 단건 조회 되었습니다.").data(paymentHistoryResponseDto).build();
+	}
+
+	/**
+	 * 결제내역 단건 조회 서비스 메서드
+	 *  - 멘토가 조회 : 멘티의 결제 내역 조회됨
+	 *
+	 */
+	@Override
+	public CommonResponseDto<MentorPaymentHistoryResponseDto> getPaymentHistoryFromMentor(Long userId, Long paymentHistoryId) {
+		//유저 조회
+		User user = userRepository.findByIdOrElseThrow(userId);
+
+		//결제 내역 조회
+		PaymentHistory paymentHistory = paymentHistoryRepository.findByIdAndUserIdOrElseThrow(user.getId(), paymentHistoryId);
+
+		//dto 생성
+		MentorPaymentHistoryResponseDto paymentHistoryResponseDto = MentorPaymentHistoryResponseDto.from(paymentHistory);
+
+		return CommonResponseDto.<MentorPaymentHistoryResponseDto>builder().msg("결제 내역이 단건 조회 되었습니다.").data(paymentHistoryResponseDto).build();
 	}
 
 }
