@@ -24,6 +24,7 @@ import com.connect.codeness.global.enums.UserRole;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -93,10 +94,18 @@ public class AdminServiceImpl implements AdminService {
 			throw new BusinessException(ExceptionType.NOT_MENTOR);
 		}
 
-		ImageFile file = fileRepository.findByUserIdAndFileCategoryOrElseThrow(mentorId, FileCategory.PROFILE);
+		Optional<ImageFile> file = fileRepository.findByUserIdAndFileCategory(mentorId, FileCategory.PROFILE);
+		String fileUrl = "";
+
+		if (file.isEmpty()){
+			fileUrl = "https://codeness.s3.ap-northeast-1.amazonaws.com/Profile/1-Profile.jpg";
+		}else {
+			fileUrl = file.get().getFilePath();
+		}
+
 		return CommonResponseDto.builder()
 			.msg("멘토 상세 조회가 되었습니다.")
-			.data(new UserResponseDto(user,file.getFilePath())).build();
+			.data(new UserResponseDto(user,fileUrl)).build();
 	}
 
 	/**
@@ -199,6 +208,18 @@ public class AdminServiceImpl implements AdminService {
 			settlementRepository.findBySettleStatusMentorGroupList(SettlementStatus.PROCESSING);
 
 		return CommonResponseDto.<List<AdminSettlementListResponseDto>>builder()
+			.msg("멘토 정산 내역이 조회되었습니다.")
+			.data(adminSettlementGetResponseDto).build();
+	}
+
+	@Override
+	public CommonResponseDto<AdminSettlementListResponseDto> getSettlementDetail(
+		Long mentorId) {
+		//대기중(processing)인 정산 요청만 조회
+		AdminSettlementListResponseDto adminSettlementGetResponseDto =
+			settlementRepository.findBySettleStatusMentorDetail(mentorId,SettlementStatus.PROCESSING);
+
+		return CommonResponseDto.<AdminSettlementListResponseDto>builder()
 			.msg("멘토 정산 내역이 조회되었습니다.")
 			.data(adminSettlementGetResponseDto).build();
 	}

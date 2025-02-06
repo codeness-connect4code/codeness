@@ -13,6 +13,7 @@ import com.connect.codeness.global.dto.PaginationResponseDto;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -119,6 +120,12 @@ public class AdminController {
 	@GetMapping("/mentors/settlements")
 	public ResponseEntity<CommonResponseDto<?>> getSettlements() {
 		CommonResponseDto<List<AdminSettlementListResponseDto>> commonResponseDto = adminService.getSettlementList();
+		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
+	}
+
+	@GetMapping("/mentors/settlements-detail/{mentorId}")
+	public ResponseEntity<CommonResponseDto<?>> getSettlementDetail(@PathVariable Long mentorId) {
+		CommonResponseDto<AdminSettlementListResponseDto> commonResponseDto = adminService.getSettlementDetail(mentorId);
 		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
 	}
 

@@ -43,7 +43,7 @@ GET localhost:8080/admin/mentors/mentor-requests
 Authorization: Bearer {{token}}
 
 ### 멘토 신청 상세 조회 API
-GET localhost:8080/admin/mentors/mentor-requests/1
+GET localhost:8080/admin/mentors /mentor-requests/1
 Authorization: Bearer {{token}}
 
 ### 멘토 거절/수락 API
@@ -57,6 +57,10 @@ Content-Type: application/json
 
 ### 멘토 정산 내역 조회 API
 GET localhost:8080/admin/mentors/settlements
+Authorization: Bearer {{token}}
+
+### 맨토 정산 내역 상세 조회 디테일 API
+GET localhost:8080/admin/mentors/settlements-detail/1
 Authorization: Bearer {{token}}
 
 ### 멘토 정산 내역 상세 조회 API
