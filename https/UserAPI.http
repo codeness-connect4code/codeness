@@ -22,7 +22,7 @@ Content-Type: application/json
 }
 
 > {%
-  client.global.set("token",response.body.token);
+  client.global.set("token",response.body.data);
   client.log("Token saved: " + client.global.get("token"));
 %}
 
@@ -102,4 +102,8 @@ Content-Type: application/json
 
 ### 유저 공고 추천 API
 GET localhost:8080/users/mentoring
+Authorization: Bearer {{token}}
+
+### 유저 계좌 조회 API
+GET localhost:8080/users/account
 Authorization: Bearer {{token}}

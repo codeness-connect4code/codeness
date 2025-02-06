@@ -1,6 +1,5 @@
 package com.connect.codeness.domain.paymenthistory.dto;
 
-import com.connect.codeness.domain.payment.entity.Payment;
 import com.connect.codeness.domain.paymenthistory.entity.PaymentHistory;
 import com.connect.codeness.global.enums.PaymentStatus;
 import java.math.BigDecimal;
@@ -12,11 +11,9 @@ import lombok.Getter;
 
 @Builder
 @Getter
-public class PaymentHistoryResponseDto {
+public class MentorPaymentHistoryResponseDto {
 
 	private Long id;//결제 내역 고유 식별자
-
-	private Long paymentId;//결제 고유 식별자 (외래키)
 
 	private Long mentorId;//사용자 고유 식별자 (멘토)
 
@@ -38,21 +35,15 @@ public class PaymentHistoryResponseDto {
 
 	private LocalTime mentoringTime; //멘토링 스케쥴 시간
 
-	private String pgTid; //PG사 발급 거래 ID
-
-	private String impUid; // 거래 요청시 발급되는 포트원 고유 결제 ID
-
 	/**
 	 * 결제 단건 상세 조회 메서드 사용
 	 * 정적 메서드
 	 * paymentHistory 객체 -> PaymentHistoryResponseDto 변환
 	 */
-	public static PaymentHistoryResponseDto from(PaymentHistory paymentHistory) {
-		Payment payment = paymentHistory.getPayment();
+	public static MentorPaymentHistoryResponseDto from(PaymentHistory paymentHistory) {
 
-		return PaymentHistoryResponseDto.builder()
+		return com.connect.codeness.domain.paymenthistory.dto.MentorPaymentHistoryResponseDto.builder()
 			.id(paymentHistory.getId())
-			.paymentId(paymentHistory.getPayment().getId())
 			.mentorId(paymentHistory.getUser().getId())
 			.paymentCost(paymentHistory.getPaymentCost())
 			.paymentCard(paymentHistory.getPaymentCard())
@@ -63,8 +54,6 @@ public class PaymentHistoryResponseDto {
 			.title(paymentHistory.getPayment().getMentoringSchedule().getMentoringPost().getTitle())
 			.mentoringDate(paymentHistory.getPayment().getMentoringSchedule().getMentoringDate())
 			.mentoringTime(paymentHistory.getPayment().getMentoringSchedule().getMentoringTime())
-			.pgTid(paymentHistory.getPgTid())
-			.impUid(payment.getImpUid())
 			.build();
 	}
 }

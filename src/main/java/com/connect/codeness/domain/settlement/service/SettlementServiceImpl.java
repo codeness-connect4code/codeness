@@ -83,9 +83,13 @@ public class SettlementServiceImpl implements SettlementService {
 		return CommonResponseDto.builder().msg("정산 신청이 완료되었습니다.").build();
 	}
 
+	/**
+	 * 정산 내역 조회 서비스 메서드
+	 */
 	@Override
 	public CommonResponseDto<?> getSettlement(Long userId, SettlementStatus status) {
 		SettlementResponseDto settlementResponseDto = settlementRepository.findByUserIdAndSettleStatusMentor(userId, status);
+
 		return CommonResponseDto.builder().msg("정산 조회가 완료되었습니다.").data(settlementResponseDto).build();
 	}
 

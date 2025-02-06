@@ -73,7 +73,7 @@ public class MentoringSchedule extends CreateTimeEntity {
 	}
 
 	/**
-	 * 멘토링 공고 삭제시 멘토링 공고 스케쥴 상태 변경
+	 * 멘토링 공고 스케쥴 상태 변경
 	 */
 	public void updateStatus(MentoringScheduleStatus mentoringScheduleStatus) {
 		this.mentoringScheduleStatus = mentoringScheduleStatus;

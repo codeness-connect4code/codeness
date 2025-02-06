@@ -36,7 +36,7 @@ Content-Type: application/json
 }
 
 > {%
-  client.global.set("token",response.body.token);
+  client.global.set("token",response.body.data);
   client.log("Token saved: " + client.global.get("token"));
 %}
 
@@ -111,5 +111,5 @@ Content-Type: application/json
 
 
 ### 리뷰 삭제하기
-DELETE localhost:8080/reviews/1
+DELETE localhost:8080/reviews/2
 Authorization: Bearer {{token}}
