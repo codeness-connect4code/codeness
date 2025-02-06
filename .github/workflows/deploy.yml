@@ -1,6 +1,5 @@
 name: Deploy to AWS EC2
 
-
 on:
   pull_request:
     branches:
@@ -14,37 +13,30 @@ jobs:
     runs-on: ubuntu-latest  # GitHub Actions가 실행될 환경
 
     steps:
-      # 1️⃣ GitHub 저장소 코드 가져오기
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      # 2️⃣ JDK 17 설정
       - name: Set up JDK 17
         uses: actions/setup-java@v2
         with:
           distribution: 'temurin'
           java-version: '17'
 
-      # 3️⃣ Gradle 빌드 (Spring Boot JAR 파일 생성, 테스트 제외)
       - name: Build JAR file
         run: |
           chmod +x gradlew
           ./gradlew build -x test
 
-      # 4️⃣ Docker 로그인 (GitHub Secrets 사용)
       - name: Login to Docker Hub
         run: |
           echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-      # 5️⃣ Docker 이미지 빌드 & 푸시
       - name: Build and Push Docker Image
         run: |
           docker build --no-cache -t ${{ secrets.DOCKER_USERNAME }}/my-backend .
-          docker tag ${{ secrets.DOCKER_USERNAME }}/my-backend:latest ${{ secrets.DOCKER_USERNAME }}/my-backend:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/my-backend:latest
 
-      # 6️⃣ EC2에 SSH 접속 후 docker-compose를 사용하여 배포
-      - name: Deploy to EC2 using docker-compose
+      - name: Deploy to EC2
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -52,6 +44,7 @@ jobs:
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: |
             cd /home/ubuntu/codeness
+            git pull origin develop
             docker-compose pull
             docker-compose down
             docker-compose up -d

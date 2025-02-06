@@ -1,11 +1,8 @@
 package com.connect.codeness.global.config;
 
-import static com.connect.codeness.global.constants.Constants.AUTHORIZATION;
-
 import com.connect.codeness.global.handler.OAuth2SuccessHandler;
 import com.connect.codeness.global.jwt.JwtFilter;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.Arrays;
 import java.util.List;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -42,12 +39,14 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-		http.cors(corsCustomizer -> corsCustomizer.configurationSource(corsConfigurationSource()))
+		http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
 			.csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests(
-				auth -> auth.requestMatchers("/api/**").authenticated()
+				auth -> auth
 					.requestMatchers("/signup", "/login", "/api/login", "/users/**", "/oauth2/**",
 						"/login/oauth2/code/**", "/favicon.ico", "/error", "/posts/**", "/news",
-						"/mentoring", "/mentoring/**", "/users/schedule").permitAll()
+						"/mentoring", "/mentoring/**", "/users/schedule", "/posts", "/actuator/health" ).permitAll()
+					.requestMatchers("/api/**").authenticated()
+					.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 					.requestMatchers("/admin/**").hasAuthority("ADMIN")
 					.requestMatchers(HttpMethod.POST, "/mentoring").hasAuthority("MENTOR")
 					.requestMatchers(HttpMethod.PATCH, "/mentoring").hasAuthority("MENTOR")
@@ -100,13 +99,11 @@ public class SecurityConfig {
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.setAllowedOrigins(
-			List.of("http://localhost:3000", "https://codeness-front.vercel.app/", "https://www.codeness.kr/"));
-		configuration.setAllowedMethods(
-			Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-		configuration.setAllowedHeaders(List.of("*"));
+		configuration.setAllowedOriginPatterns(List.of("*"));
+		configuration.addAllowedHeader("*");
+		configuration.addAllowedMethod("*");
 		configuration.setAllowCredentials(true);
-		configuration.setExposedHeaders(List.of(AUTHORIZATION));
+//		configuration.addExposedHeader("*");
 
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", configuration);
