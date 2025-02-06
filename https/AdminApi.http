@@ -22,12 +22,12 @@ Content-Type: application/json
 }
 
 > {%
-  client.global.set("token",response.body.token);
+  client.global.set("token",response.body.data);
   client.log("Token saved: " + client.global.get("token"));
-%}
+%}%}
 
 ### 멘토 정산 처리 API
-PATCH localhost:8080/admin/mentors/1/settlements
+PATCH localhost:8080/admin/mentors/2/settlements
 Authorization: Bearer {{token}}
 
 ### 전체 멘토 리스트 조회 API

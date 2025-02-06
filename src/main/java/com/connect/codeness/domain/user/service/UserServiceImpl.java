@@ -5,10 +5,12 @@ import static com.connect.codeness.global.constants.Constants.REFRESH_TOKEN_EXPI
 import static com.connect.codeness.global.enums.UserProvider.GOOGLE;
 
 import com.connect.codeness.domain.file.entity.ImageFile;
+import com.connect.codeness.domain.file.repository.FileRepository;
 import com.connect.codeness.domain.mentoringpost.dto.MentoringPostRecommendResponseDto;
 import com.connect.codeness.domain.mentoringpost.repository.MentoringPostRepository;
 import com.connect.codeness.domain.user.dto.GoogleUserUpdateRequestDto;
 import com.connect.codeness.domain.user.dto.LoginRequestDto;
+import com.connect.codeness.domain.user.dto.UserAccountResponseDto;
 import com.connect.codeness.domain.user.dto.UserBankUpdateRequestDto;
 import com.connect.codeness.domain.user.dto.UserCreateRequestDto;
 import com.connect.codeness.domain.user.dto.UserDeleteResponseDto;
@@ -19,17 +21,18 @@ import com.connect.codeness.domain.user.dto.UserUpdateRequestDto;
 import com.connect.codeness.domain.user.entity.User;
 import com.connect.codeness.domain.user.repository.UserRepository;
 import com.connect.codeness.global.dto.CommonResponseDto;
+import com.connect.codeness.global.enums.FileCategory;
 import com.connect.codeness.global.enums.UserProvider;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
 import com.connect.codeness.global.jwt.JwtProvider;
 import com.connect.codeness.global.service.RedisLoginService;
 import io.lettuce.core.RedisException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -48,16 +51,19 @@ public class UserServiceImpl implements UserService {
 	private final JwtProvider jwtProvider;
 	private final MentoringPostRepository mentoringPostRepository;
 	private final RedisLoginService redisLoginService;
+	private final FileRepository fileRepository;
 
 	public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder,
 		AuthenticationManager authenticationManager, JwtProvider jwtProvider,
-		MentoringPostRepository mentoringPostRepository, RedisLoginService redisLoginService) {
+		MentoringPostRepository mentoringPostRepository, RedisLoginService redisLoginService,
+		FileRepository fileRepository) {
 		this.userRepository = userRepository;
 		this.passwordEncoder = passwordEncoder;
 		this.authenticationManager = authenticationManager;
 		this.jwtProvider = jwtProvider;
 		this.mentoringPostRepository = mentoringPostRepository;
 		this.redisLoginService = redisLoginService;
+		this.fileRepository = fileRepository;
 	}
 
 	/**
@@ -152,11 +158,27 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public CommonResponseDto<?> getUser(Long userId) {
 		User user = userRepository.findByIdOrElseThrow(userId);
+		Optional<ImageFile> file = fileRepository.findByUserIdAndFileCategory(userId, FileCategory.PROFILE);
+		String fileUrl = "";
 
-		UserResponseDto userResponseDto = UserResponseDto.builder().name(user.getName())
-			.userNickname(user.getUserNickname()).email(user.getEmail())
-			.phoneNumber(user.getPhoneNumber()).region(user.getRegion()).field(user.getField())
-			.career(user.getCareer()).mbti(user.getMbti()).siteLink(user.getSiteLink()).build();
+		if (file.isEmpty()){
+			fileUrl = "https://codeness.s3.ap-northeast-1.amazonaws.com/Profile/1-Profile.jpg";
+		}else {
+			fileUrl = file.get().getFilePath();
+		}
+
+		UserResponseDto userResponseDto = UserResponseDto.builder()
+			.name(user.getName())
+			.userNickname(user.getUserNickname())
+			.email(user.getEmail())
+			.phoneNumber(user.getPhoneNumber())
+			.region(user.getRegion())
+			.field(user.getField())
+			.career(user.getCareer())
+			.mbti(user.getMbti())
+			.siteLink(user.getSiteLink())
+			.profileImageLink(fileUrl)
+			.build();
 
 		return CommonResponseDto.builder().msg("마이프로필 조회 성공").data(userResponseDto).build();
 	}
@@ -285,5 +307,14 @@ public class UserServiceImpl implements UserService {
 			Math.min(3, commendMentoringPost.size()));
 
 		return CommonResponseDto.builder().msg("멘토링 공고 추천에 성공했습니다.").data(randList).build();
+	}
+
+	@Override
+	public CommonResponseDto<?> getAccount(Long userId) {
+		User user = userRepository.findByIdOrElseThrow(userId);
+
+		UserAccountResponseDto response = UserAccountResponseDto.builder().account(user.getAccount()).build();
+
+		return CommonResponseDto.builder().msg("유저 계좌 조회에 성공했습니다.").data(response).build();
 	}
 }
