@@ -10,6 +10,7 @@ import com.connect.codeness.domain.mentoringpost.dto.MentoringPostRecommendRespo
 import com.connect.codeness.domain.mentoringpost.repository.MentoringPostRepository;
 import com.connect.codeness.domain.user.dto.GoogleUserUpdateRequestDto;
 import com.connect.codeness.domain.user.dto.LoginRequestDto;
+import com.connect.codeness.domain.user.dto.UserAccountResponseDto;
 import com.connect.codeness.domain.user.dto.UserBankUpdateRequestDto;
 import com.connect.codeness.domain.user.dto.UserCreateRequestDto;
 import com.connect.codeness.domain.user.dto.UserDeleteResponseDto;
@@ -306,5 +307,14 @@ public class UserServiceImpl implements UserService {
 			Math.min(3, commendMentoringPost.size()));
 
 		return CommonResponseDto.builder().msg("멘토링 공고 추천에 성공했습니다.").data(randList).build();
+	}
+
+	@Override
+	public CommonResponseDto<?> getAccount(Long userId) {
+		User user = userRepository.findByIdOrElseThrow(userId);
+
+		UserAccountResponseDto response = UserAccountResponseDto.builder().account(user.getAccount()).build();
+
+		return CommonResponseDto.builder().msg("유저 계좌 조회에 성공했습니다.").data(response).build();
 	}
 }

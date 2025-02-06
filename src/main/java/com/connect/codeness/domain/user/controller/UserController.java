@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @RestController
 @RequestMapping
@@ -221,6 +222,15 @@ public class UserController {
 		Long userId = jwtProvider.extractUserId(authorizationHeader);
 
 		CommonResponseDto<?> commonResponseDto = userService.getMentoring(userId);
+		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
+	}
+
+	@GetMapping("/users/account")
+	public ResponseEntity<CommonResponseDto<?>> getUserAcoount(
+		@RequestHeader(AUTHORIZATION) String authorizationHeader) {
+		Long userId = jwtProvider.extractUserId(authorizationHeader);
+
+		CommonResponseDto<?> commonResponseDto = userService.getAccount(userId);
 		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
 	}
 }

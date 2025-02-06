@@ -23,5 +23,7 @@ public interface UserService {
 	CommonResponseDto<?> updateBankAccount(Long userId, UserBankUpdateRequestDto userBankUpdateRequestDto);
 	CommonResponseDto<?> deleteUser(Long userId, UserDeleteResponseDto userDeleteResponseDto);
 	CommonResponseDto<?> getMentoring(Long userId);
+
+	CommonResponseDto<?> getAccount(Long userId);
 }
 
