@@ -82,6 +82,7 @@ public class User extends BaseEntity {
 	private List<ImageFile> imageFiles = new ArrayList<>();
 
 	//소셜 로그인 프로바이더 (현재는 구글만 존재)
+	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private UserProvider provider;
 
