@@ -31,6 +31,17 @@ public interface SettlementRepository extends JpaRepository<Settlement, Long> {
 		SettlementStatus settlementStatus);
 
 	@Query("""
+			SELECT new com.connect.codeness.domain.admin.dto.AdminSettlementListResponseDto(
+			s.user.id, s.user.name, COUNT(s), SUM(s.paymentHistory.paymentCost), MAX(s.settlementRequestAt), s.user.account)
+			FROM Settlement s
+			WHERE s.user.id = :mentorId
+			AND s.settlementStatus = :settlementStatus
+			GROUP BY s.user.id, s.user.name
+			""")
+	AdminSettlementListResponseDto findBySettleStatusMentorDetail(
+		Long mentorId, SettlementStatus settlementStatus);
+
+	@Query("""
 			SELECT new com.connect.codeness.domain.admin.dto.AdminSettlementResponseDto(s)
 			FROM Settlement s
 			WHERE s.settlementStatus = :settlementStatus

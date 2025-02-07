@@ -66,19 +66,19 @@ public class JwtFilter extends OncePerRequestFilter {
 		try {
 			if (accessToken != null) {
 
-				//redis 중복 로그인 검증
-				if (!redisLoginService.validateToken(jwtProvider.extractUserId(accessToken), accessToken)){
-					log.warn("redis 에서 토큰 검증이 되지 않음, 중복 로그인 감지");
-					response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-					response.setContentType("application/json;charset=UTF-8");
-					response.getWriter().write("{\"message\":\"다른 기기에서 로그인이 감지되어 로그아웃됩니다.\"}");
-					response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-					return;
-				}
-
 				// Access Token이 유효한 경우, 인증 정보 설정
 				if (jwtProvider.validationAccessToken(accessToken)) {
 					setAuthentication(accessToken, request);
+
+					//redis 중복 로그인 검증
+					if (!redisLoginService.validateToken(jwtProvider.extractUserId(accessToken), accessToken)){
+						log.warn("redis 에서 토큰 검증이 되지 않음, 중복 로그인 감지");
+						response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+						response.setContentType("application/json;charset=UTF-8");
+						response.getWriter().write("{\"message\":\"다른 기기에서 로그인이 감지되어 로그아웃됩니다.\"}");
+						response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+						return;
+					}
 				}
 
 				// Access Token이 만료되었고 Refresh Token이 유효한 경우, 새로운 Access Token 발급
@@ -92,6 +92,16 @@ public class JwtFilter extends OncePerRequestFilter {
 						user.getRole().toString(), user.getProvider().toString());
 
 					log.info("newAccessToken: {}",newAccessToken);
+
+					//redis 중복 로그인 검증
+					if (!redisLoginService.validateToken(jwtProvider.extractUserId(accessToken), accessToken)){
+						log.warn("redis 에서 토큰 검증이 되지 않음, 중복 로그인 감지");
+						response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+						response.setContentType("application/json;charset=UTF-8");
+						response.getWriter().write("{\"message\":\"다른 기기에서 로그인이 감지되어 로그아웃됩니다.\"}");
+						response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+						return;
+					}
 
 					// 응답 헤더에 새 Access Token 설정
 					response.setHeader(AUTHORIZATION, BEARER + newAccessToken);

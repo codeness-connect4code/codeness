@@ -17,6 +17,7 @@ public interface AdminService {
 	CommonResponseDto updateMentor(Long mentorId, AdminUpdateMentorRequestDto adminUpdateMentorRequestDto);
 	CommonResponseDto updateSettlements(Long mentorId);
 	CommonResponseDto<List<AdminSettlementListResponseDto>> getSettlementList();
+	CommonResponseDto<AdminSettlementListResponseDto> getSettlementDetail(Long mentorId);
 	CommonResponseDto getSettlement(Long mentorId, int pageNumber, int pageSize);
 }
 
