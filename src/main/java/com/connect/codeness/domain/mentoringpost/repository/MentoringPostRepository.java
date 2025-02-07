@@ -21,10 +21,11 @@ public interface MentoringPostRepository extends JpaRepository<MentoringPost, Lo
        COALESCE((SELECT CAST(AVG(r.starRating) AS DOUBLE) FROM Review r
        WHERE r.mentoringPost.id = m.id), 0.0))
        FROM MentoringPost m
-       WHERE (:field IS NULL AND :region IS NULL) OR
+       WHERE m.mentoringPostStatus = 'DISPLAYED' AND
+       ((:field IS NULL AND :region IS NULL) OR
        (:field IS NOT NULL AND m.field = :field AND :region IS NOT NULL AND m.region LIKE %:region%) OR
        (:field IS NOT NULL AND m.field = :field AND :region IS NULL) OR
-       (:field IS NULL AND :region IS NOT NULL AND m.region LIKE %:region%)
+       (:field IS NULL AND :region IS NOT NULL AND m.region LIKE %:region%))
 """)
 	List<MentoringPostRecommendResponseDto> findByFilter(
 		@Param("field") FieldType field,

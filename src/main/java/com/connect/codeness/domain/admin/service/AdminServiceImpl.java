@@ -10,7 +10,6 @@ import com.connect.codeness.global.dto.PaginationResponseDto;
 import com.connect.codeness.domain.mentorrequest.entity.MentorRequest;
 import com.connect.codeness.domain.mentorrequest.repository.MentorRequestRepository;
 import com.connect.codeness.domain.mentorrequest.dto.MentorRequestResponseDto;
-import com.connect.codeness.domain.paymenthistory.repository.PaymentHistoryRepository;
 import com.connect.codeness.domain.settlement.entity.Settlement;
 import com.connect.codeness.domain.settlement.repository.SettlementRepository;
 import com.connect.codeness.domain.user.entity.User;
@@ -37,16 +36,13 @@ public class AdminServiceImpl implements AdminService {
 
 	private final UserRepository userRepository;
 	private final MentorRequestRepository mentorRequestRepository;
-	private final PaymentHistoryRepository paymentHistoryRepository;
 	private final SettlementRepository settlementRepository;
 	private final FileRepository fileRepository;
 
 	public AdminServiceImpl(UserRepository userRepository, MentorRequestRepository mentorRequestRepository,
-		PaymentHistoryRepository paymentHistoryRepository,
 		SettlementRepository settlementRepository, FileRepository fileRepository) {
 		this.userRepository = userRepository;
 		this.mentorRequestRepository = mentorRequestRepository;
-		this.paymentHistoryRepository = paymentHistoryRepository;
 		this.settlementRepository = settlementRepository;
 		this.fileRepository = fileRepository;
 	}
@@ -132,10 +128,16 @@ public class AdminServiceImpl implements AdminService {
 	@Override
 	public CommonResponseDto<MentorRequestResponseDto> getMentorRequest(Long mentoringRequestId) {
 		MentorRequest mentorRequest = mentorRequestRepository.findByIdOrElseThrow(mentoringRequestId);
-
+		Optional<ImageFile> file = fileRepository.findByUserIdAndFileCategory(mentorRequest.getUser().getId(),FileCategory.EMPLOYEE_CARD);
+		String fileUrl = "";
+		if (file.isEmpty()){
+			fileUrl = "https://codeness.s3.ap-northeast-1.amazonaws.com/Profile/1-Profile.jpg";
+		}else {
+			fileUrl = file.get().getFilePath();
+		}
 		return CommonResponseDto.<MentorRequestResponseDto>builder()
 			.msg("멘토 신청 상세가 조회 되었습니다.")
-			.data(new MentorRequestResponseDto(mentorRequest)).build();
+			.data(new MentorRequestResponseDto(mentorRequest,fileUrl)).build();
 	}
 
 	/**
