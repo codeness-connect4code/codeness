@@ -18,10 +18,9 @@ public class MentorRequestResponseDto {
 	private Integer career;
 	private String companyEmail;
 	private LocalDateTime createdAt;
-	private String profileImageLink;
 
 	@Builder
-	public MentorRequestResponseDto(MentorRequest mentorRequest, String profileImageLink) {
+	public MentorRequestResponseDto(MentorRequest mentorRequest) {
 		this.mentorId = mentorRequest.getId();
 		this.userName = mentorRequest.getUser().getName();
 		this.createdAt = mentorRequest.getCreatedAt();
@@ -31,6 +30,5 @@ public class MentorRequestResponseDto {
 		this.position = mentorRequest.getPosition();
 		this.career = mentorRequest.getCareer();
 		this.companyEmail = mentorRequest.getCompanyEmail();
-		this.profileImageLink = profileImageLink;
 	}
 }
