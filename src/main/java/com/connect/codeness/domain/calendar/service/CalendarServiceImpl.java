@@ -63,12 +63,18 @@ public class CalendarServiceImpl implements CalendarService {
 				.setSingleEvents(true)
 				.execute();
 
-			return events.getItems().stream()
+			List<CalendarEventDto> eventList = Optional.ofNullable(events.getItems())
+				.orElse(Collections.emptyList())  // 일정이 없을 경우 빈 리스트 반환
+				.stream()
 				.map(this::mapToCalendarEvent)
 				.collect(Collectors.toList());
+
+			log.info("조회된 일정 수: {}", eventList.size());
+			return eventList;
+
 		} catch (IOException | GeneralSecurityException e) {
 			log.error("캘린더 이벤트 조회 실패", e);
-			throw new BusinessException(ExceptionType.NOT_FOUND);
+			throw new BusinessException(ExceptionType.GOOGLE_CALENDAR_ERROR);
 		}
 	}
 
