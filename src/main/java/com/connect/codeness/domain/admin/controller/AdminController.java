@@ -6,6 +6,7 @@ import static com.connect.codeness.global.constants.Constants.PAGE_SIZE;
 import com.connect.codeness.domain.admin.dto.AdminMentorListResponseDto;
 import com.connect.codeness.domain.admin.dto.AdminSettlementListResponseDto;
 import com.connect.codeness.domain.admin.dto.AdminUpdateMentorRequestDto;
+import com.connect.codeness.domain.admin.dto.MentorRequestDetailResponseDto;
 import com.connect.codeness.domain.admin.service.AdminService;
 import com.connect.codeness.domain.mentorrequest.dto.MentorRequestResponseDto;
 import com.connect.codeness.global.dto.CommonResponseDto;
@@ -92,7 +93,7 @@ public class AdminController {
 	 */
 	@GetMapping("/mentors/mentor-requests/{mentorRequestId}")
 	public ResponseEntity<CommonResponseDto<?>> getMentorRequest(@PathVariable Long mentorRequestId) {
-		CommonResponseDto<MentorRequestResponseDto> commonResponseDto = adminService.getMentorRequest(
+		CommonResponseDto<MentorRequestDetailResponseDto> commonResponseDto = adminService.getMentorRequest(
 			mentorRequestId);
 		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
 	}

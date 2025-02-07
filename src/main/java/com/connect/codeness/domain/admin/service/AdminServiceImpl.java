@@ -4,6 +4,7 @@ import com.connect.codeness.domain.admin.dto.AdminMentorListResponseDto;
 import com.connect.codeness.domain.admin.dto.AdminSettlementListResponseDto;
 import com.connect.codeness.domain.admin.dto.AdminSettlementResponseDto;
 import com.connect.codeness.domain.admin.dto.AdminUpdateMentorRequestDto;
+import com.connect.codeness.domain.admin.dto.MentorRequestDetailResponseDto;
 import com.connect.codeness.domain.file.entity.ImageFile;
 import com.connect.codeness.domain.file.repository.FileRepository;
 import com.connect.codeness.global.dto.PaginationResponseDto;
@@ -126,7 +127,7 @@ public class AdminServiceImpl implements AdminService {
 	 * @return
 	 */
 	@Override
-	public CommonResponseDto<MentorRequestResponseDto> getMentorRequest(Long mentoringRequestId) {
+	public CommonResponseDto<MentorRequestDetailResponseDto> getMentorRequest(Long mentoringRequestId) {
 		MentorRequest mentorRequest = mentorRequestRepository.findByIdOrElseThrow(mentoringRequestId);
 		Optional<ImageFile> file = fileRepository.findByUserIdAndFileCategory(mentorRequest.getUser().getId(),FileCategory.EMPLOYEE_CARD);
 		String fileUrl = "";
@@ -135,9 +136,9 @@ public class AdminServiceImpl implements AdminService {
 		}else {
 			fileUrl = file.get().getFilePath();
 		}
-		return CommonResponseDto.<MentorRequestResponseDto>builder()
+		return CommonResponseDto.<MentorRequestDetailResponseDto>builder()
 			.msg("멘토 신청 상세가 조회 되었습니다.")
-			.data(new MentorRequestResponseDto(mentorRequest,fileUrl)).build();
+			.data(new MentorRequestDetailResponseDto(mentorRequest,fileUrl)).build();
 	}
 
 	/**
