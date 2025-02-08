@@ -9,6 +9,7 @@ import com.connect.codeness.domain.user.dto.UserLoginDto;
 import com.connect.codeness.domain.user.entity.User;
 import com.connect.codeness.domain.user.repository.UserRepository;
 import com.connect.codeness.global.service.RedisLoginService;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -62,74 +63,85 @@ public class JwtFilter extends OncePerRequestFilter {
 			accessToken = accessToken.substring(BEARER.length());
 		}
 		String refreshToken = getCookie(request, REFRESH_TOKEN);
-
+		
 		try {
-			if (accessToken != null) {
-
-				// Access Token이 유효한 경우, 인증 정보 설정
-				if (jwtProvider.validationAccessToken(accessToken)) {
-					setAuthentication(accessToken, request);
-
-					//redis 중복 로그인 검증
-					if (!redisLoginService.validateToken(jwtProvider.extractUserId(accessToken), accessToken)){
-						log.warn("redis 에서 토큰 검증이 되지 않음, 중복 로그인 감지");
-						response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-						response.setContentType("application/json;charset=UTF-8");
-						response.getWriter().write("{\"message\":\"다른 기기에서 로그인이 감지되어 로그아웃됩니다.\"}");
-						response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-						return;
-					}
-				}
-
-				// Access Token이 만료되었고 Refresh Token이 유효한 경우, 새로운 Access Token 발급
-				else if (refreshToken != null && jwtProvider.validationRefreshToken(refreshToken)) {
-					String userId = jwtProvider.extractUserIdFromRefresh(refreshToken);
-
-					User user = userRepository.findByIdOrElseThrow(Long.valueOf(userId));
-
-					// 새 Access Token 발급
-					String newAccessToken = jwtProvider.regenerateAccessToken(refreshToken, user.getEmail(),
-						user.getRole().toString(), user.getProvider().toString());
-
-					log.info("newAccessToken: {}",newAccessToken);
-
-					//redis 중복 로그인 검증
-					if (!redisLoginService.validateToken(jwtProvider.extractUserId(accessToken), accessToken)){
-						log.warn("redis 에서 토큰 검증이 되지 않음, 중복 로그인 감지");
-						response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-						response.setContentType("application/json;charset=UTF-8");
-						response.getWriter().write("{\"message\":\"다른 기기에서 로그인이 감지되어 로그아웃됩니다.\"}");
-						response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-						return;
-					}
-
-					// 응답 헤더에 새 Access Token 설정
-					response.setHeader(AUTHORIZATION, BEARER + newAccessToken);
-
-					// 새 Access Token을 사용하여 인증 정보 설정
-					setAuthentication(newAccessToken, request);
-
-					// 새로운 Refresh Token 발급 및 설정
-					String newRefreshToken = jwtProvider.generateRefreshToken(Long.valueOf(userId));
-					response.addCookie(
-						jwtProvider.createHttpOnlyCookie(REFRESH_TOKEN, newRefreshToken,
-							REFRESH_TOKEN_EXPIRATION));
-
-					UserLoginDto newLoginDto = UserLoginDto.builder()
-						.id(user.getId())
-						.accessToken(newAccessToken)
-						.refreshToken(newRefreshToken)
-						.build();
-
-					redisLoginService.saveLoginInfo(newLoginDto);
-				}
-
+			//redis 중복 로그인 검증
+			if (checkDuplicateLogin(response, jwtProvider.extractUserId(accessToken), accessToken)) {
+				return;
 			}
-		} catch (Exception e) {
+
+			// Access Token이 유효한 경우, 인증 정보 설정
+			if (jwtProvider.validationAccessToken(accessToken)) {
+				setAuthentication(accessToken, request);
+			}
+		}
+		catch (ExpiredJwtException e) {
+			log.error("Expired access token!");
+			log.error("regenerating access token!");
+			//새 액세스 토큰 발급 로직
+			String userId = jwtProvider.extractUserIdFromRefresh(refreshToken);
+
+			User user = userRepository.findByIdOrElseThrow(Long.valueOf(userId));
+
+			//redis 중복 로그인 검증
+			if (checkDuplicateLogin(response, Long.valueOf(userId), accessToken)) {
+				return;
+			}
+
+			// 새 Access Token 발급
+			String newAccessToken = jwtProvider.regenerateAccessToken(refreshToken, user.getEmail(),
+				user.getRole().toString(), user.getProvider().toString());
+
+			log.info("newAccessToken: {}", newAccessToken);
+
+			// 응답 헤더에 새 Access Token 설정
+			response.setHeader(AUTHORIZATION, BEARER + newAccessToken);
+
+			// 새 Access Token을 사용하여 인증 정보 설정
+			setAuthentication(newAccessToken, request);
+
+			// 새로운 Refresh Token 발급 및 설정
+			String newRefreshToken = jwtProvider.generateRefreshToken(Long.valueOf(userId));
+			response.addCookie(
+				jwtProvider.createHttpOnlyCookie(REFRESH_TOKEN, newRefreshToken,
+					REFRESH_TOKEN_EXPIRATION));
+
+			UserLoginDto newLoginDto = UserLoginDto.builder()
+				.id(user.getId())
+				.accessToken(newAccessToken)
+				.refreshToken(newRefreshToken)
+				.build();
+
+			redisLoginService.saveLoginInfo(newLoginDto);
+
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			response.setContentType("application/json;charset=UTF-8");
+
+			try {
+				String jsonResponse = "{\"message\":\"Access token has expired\",\"status\":401}";
+				response.getWriter().write(jsonResponse);
+			} catch (IOException ex) {
+				log.error("Failed to write error response when generating new access_token", ex);
+			}
+			return;
+		}
+		catch (Exception e) {
 			log.error("Cannot set user authentication: {}", e.getMessage());
 		}
 
 		chain.doFilter(request, response);
+	}
+
+	private boolean checkDuplicateLogin(HttpServletResponse response, Long userId, String accessToken) throws IOException {
+		if (!redisLoginService.validateToken(userId, accessToken)){
+			log.warn("redis 에서 토큰 검증이 되지 않음, 중복 로그인 감지");
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			response.setContentType("application/json;charset=UTF-8");
+			response.getWriter().write("{\"message\":\"다른 기기에서 로그인이 감지되어 로그아웃됩니다.\"}");
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			return true;
+		}
+		return false;
 	}
 
 	private void setAuthentication(String token, HttpServletRequest request) {
