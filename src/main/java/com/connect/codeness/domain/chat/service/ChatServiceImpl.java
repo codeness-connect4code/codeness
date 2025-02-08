@@ -94,8 +94,6 @@ public class ChatServiceImpl implements ChatService {
 
 			chatRoomHistoryRepository.findByChatRoomId(chatRoomId)
 				.forEach(chatRoom -> chatRoom.updateExpireAt(getExpireAt(dto)));
-
-			return CommonResponseDto.builder().msg("채팅방 이미 존재").build();
 		}
 
 		//유저 정보 가져오기(상대방)
