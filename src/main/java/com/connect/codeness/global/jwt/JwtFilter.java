@@ -65,18 +65,20 @@ public class JwtFilter extends OncePerRequestFilter {
 		String refreshToken = getCookie(request, REFRESH_TOKEN);
 
 		try {
-//				//redis 중복 로그인 검증
-//				if (!redisLoginService.validateToken(jwtProvider.extractUserId(accessToken), accessToken)){
-//					log.warn("redis 에서 토큰 검증이 되지 않음, 중복 로그인 감지");
-//					response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-//					response.setContentType("application/json;charset=UTF-8");
-//					response.getWriter().write("{\"message\":\"다른 기기에서 로그인이 감지되어 로그아웃됩니다.\"}");
-//					response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-//					return;
-//				}
+				//redis 중복 로그인 검증
+				if (!redisLoginService.validateToken(jwtProvider.extractUserId(accessToken), accessToken)){
+					log.warn("redis 에서 토큰 검증이 되지 않음, 중복 로그인 감지");
+					response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+					response.setContentType("application/json;charset=UTF-8");
+					response.getWriter().write("{\"message\":\"다른 기기에서 로그인이 감지되어 로그아웃됩니다.\"}");
+					response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+					return;
+				}
 				// Access Token이 유효한 경우, 인증 정보 설정
 				if (jwtProvider.validationAccessToken(accessToken)) {
+
 					setAuthentication(accessToken, request);
+
 				}
 
 		}
@@ -111,6 +113,19 @@ public class JwtFilter extends OncePerRequestFilter {
 
 			// 응답 헤더에 새 Access Token 설정
 			response.setHeader(AUTHORIZATION, BEARER + newAccessToken);
+
+			//redis 중복 로그인 검증
+			if (!redisLoginService.validateToken(jwtProvider.extractUserId(accessToken), accessToken)){
+				log.warn("redis 에서 토큰 검증이 되지 않음, 중복 로그인 감지");
+				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+				response.setContentType("application/json;charset=UTF-8");
+				response.getWriter().write("{\"message\":\"다른 기기에서 로그인이 감지되어 로그아웃됩니다.\"}");
+				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+				return;
+			}
+
+					// 응답 헤더에 새 Access Token 설정
+					response.setHeader(AUTHORIZATION, BEARER + newAccessToken);
 
 			// 새 Access Token을 사용하여 인증 정보 설정
 			setAuthentication(newAccessToken, request);

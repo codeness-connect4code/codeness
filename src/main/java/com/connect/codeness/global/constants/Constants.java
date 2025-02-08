@@ -11,7 +11,7 @@ public interface Constants {
     String BEARER = "Bearer ";
     int ACCESS_TOKEN_EXPIRATION = (int) (15 * 60 * 1000L); // 15분
     int REFRESH_TOKEN_EXPIRATION = (int) (7 * 24 * 60 * 60 * 1000L); // 7일
-    String FRONTEND_URL = "http://localhost:3000";
+    String FRONTEND_URL = "https://www.codeness.kr";
     String ACCESS_TOKEN = "access_token";
     String REFRESH_TOKEN = "refresh_token";
 

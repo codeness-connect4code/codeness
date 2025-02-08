@@ -6,6 +6,7 @@ import static com.connect.codeness.global.constants.Constants.PAGE_SIZE;
 import com.connect.codeness.domain.admin.dto.AdminMentorListResponseDto;
 import com.connect.codeness.domain.admin.dto.AdminSettlementListResponseDto;
 import com.connect.codeness.domain.admin.dto.AdminUpdateMentorRequestDto;
+import com.connect.codeness.domain.admin.dto.MentorRequestDetailResponseDto;
 import com.connect.codeness.domain.admin.service.AdminService;
 import com.connect.codeness.domain.mentorrequest.dto.MentorRequestResponseDto;
 import com.connect.codeness.global.dto.CommonResponseDto;
@@ -13,6 +14,7 @@ import com.connect.codeness.global.dto.PaginationResponseDto;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -91,7 +93,7 @@ public class AdminController {
 	 */
 	@GetMapping("/mentors/mentor-requests/{mentorRequestId}")
 	public ResponseEntity<CommonResponseDto<?>> getMentorRequest(@PathVariable Long mentorRequestId) {
-		CommonResponseDto<MentorRequestResponseDto> commonResponseDto = adminService.getMentorRequest(
+		CommonResponseDto<MentorRequestDetailResponseDto> commonResponseDto = adminService.getMentorRequest(
 			mentorRequestId);
 		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
 	}
@@ -119,6 +121,12 @@ public class AdminController {
 	@GetMapping("/mentors/settlements")
 	public ResponseEntity<CommonResponseDto<?>> getSettlements() {
 		CommonResponseDto<List<AdminSettlementListResponseDto>> commonResponseDto = adminService.getSettlementList();
+		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
+	}
+
+	@GetMapping("/mentors/settlements-detail/{mentorId}")
+	public ResponseEntity<CommonResponseDto<?>> getSettlementDetail(@PathVariable Long mentorId) {
+		CommonResponseDto<AdminSettlementListResponseDto> commonResponseDto = adminService.getSettlementDetail(mentorId);
 		return new ResponseEntity<>(commonResponseDto, HttpStatus.OK);
 	}
 

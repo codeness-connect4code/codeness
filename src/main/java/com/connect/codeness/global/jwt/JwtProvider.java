@@ -72,7 +72,9 @@ public class JwtProvider {
 	}
 
 	public boolean validationAccessToken(String token) {
-		Claims claims = extractClaims(token);
+		Claims claims = Jwts.parserBuilder().setSigningKey(secretKey).build()
+			.parseClaimsJws(token)
+			.getBody();
 		return !claims.getExpiration().before(new Date());
 	}
 

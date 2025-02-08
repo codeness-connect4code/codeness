@@ -4,13 +4,13 @@ import com.connect.codeness.domain.admin.dto.AdminMentorListResponseDto;
 import com.connect.codeness.domain.admin.dto.AdminSettlementListResponseDto;
 import com.connect.codeness.domain.admin.dto.AdminSettlementResponseDto;
 import com.connect.codeness.domain.admin.dto.AdminUpdateMentorRequestDto;
+import com.connect.codeness.domain.admin.dto.MentorRequestDetailResponseDto;
 import com.connect.codeness.domain.file.entity.ImageFile;
 import com.connect.codeness.domain.file.repository.FileRepository;
 import com.connect.codeness.global.dto.PaginationResponseDto;
 import com.connect.codeness.domain.mentorrequest.entity.MentorRequest;
 import com.connect.codeness.domain.mentorrequest.repository.MentorRequestRepository;
 import com.connect.codeness.domain.mentorrequest.dto.MentorRequestResponseDto;
-import com.connect.codeness.domain.paymenthistory.repository.PaymentHistoryRepository;
 import com.connect.codeness.domain.settlement.entity.Settlement;
 import com.connect.codeness.domain.settlement.repository.SettlementRepository;
 import com.connect.codeness.domain.user.entity.User;
@@ -24,6 +24,7 @@ import com.connect.codeness.global.enums.UserRole;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -36,16 +37,13 @@ public class AdminServiceImpl implements AdminService {
 
 	private final UserRepository userRepository;
 	private final MentorRequestRepository mentorRequestRepository;
-	private final PaymentHistoryRepository paymentHistoryRepository;
 	private final SettlementRepository settlementRepository;
 	private final FileRepository fileRepository;
 
 	public AdminServiceImpl(UserRepository userRepository, MentorRequestRepository mentorRequestRepository,
-		PaymentHistoryRepository paymentHistoryRepository,
 		SettlementRepository settlementRepository, FileRepository fileRepository) {
 		this.userRepository = userRepository;
 		this.mentorRequestRepository = mentorRequestRepository;
-		this.paymentHistoryRepository = paymentHistoryRepository;
 		this.settlementRepository = settlementRepository;
 		this.fileRepository = fileRepository;
 	}
@@ -93,10 +91,18 @@ public class AdminServiceImpl implements AdminService {
 			throw new BusinessException(ExceptionType.NOT_MENTOR);
 		}
 
-		ImageFile file = fileRepository.findByUserIdAndFileCategoryOrElseThrow(mentorId, FileCategory.PROFILE);
+		Optional<ImageFile> file = fileRepository.findByUserIdAndFileCategory(mentorId, FileCategory.PROFILE);
+		String fileUrl = "";
+
+		if (file.isEmpty()){
+			fileUrl = "https://codeness.s3.ap-northeast-1.amazonaws.com/Profile/1-Profile.jpg";
+		}else {
+			fileUrl = file.get().getFilePath();
+		}
+
 		return CommonResponseDto.builder()
 			.msg("멘토 상세 조회가 되었습니다.")
-			.data(new UserResponseDto(user,file.getFilePath())).build();
+			.data(new UserResponseDto(user,fileUrl)).build();
 	}
 
 	/**
@@ -121,12 +127,18 @@ public class AdminServiceImpl implements AdminService {
 	 * @return
 	 */
 	@Override
-	public CommonResponseDto<MentorRequestResponseDto> getMentorRequest(Long mentoringRequestId) {
+	public CommonResponseDto<MentorRequestDetailResponseDto> getMentorRequest(Long mentoringRequestId) {
 		MentorRequest mentorRequest = mentorRequestRepository.findByIdOrElseThrow(mentoringRequestId);
-
-		return CommonResponseDto.<MentorRequestResponseDto>builder()
+		Optional<ImageFile> file = fileRepository.findByUserIdAndFileCategory(mentorRequest.getUser().getId(),FileCategory.EMPLOYEE_CARD);
+		String fileUrl = "";
+		if (file.isEmpty()){
+			fileUrl = "https://codeness.s3.ap-northeast-1.amazonaws.com/Profile/1-Profile.jpg";
+		}else {
+			fileUrl = file.get().getFilePath();
+		}
+		return CommonResponseDto.<MentorRequestDetailResponseDto>builder()
 			.msg("멘토 신청 상세가 조회 되었습니다.")
-			.data(new MentorRequestResponseDto(mentorRequest)).build();
+			.data(new MentorRequestDetailResponseDto(mentorRequest,fileUrl)).build();
 	}
 
 	/**
@@ -199,6 +211,18 @@ public class AdminServiceImpl implements AdminService {
 			settlementRepository.findBySettleStatusMentorGroupList(SettlementStatus.PROCESSING);
 
 		return CommonResponseDto.<List<AdminSettlementListResponseDto>>builder()
+			.msg("멘토 정산 내역이 조회되었습니다.")
+			.data(adminSettlementGetResponseDto).build();
+	}
+
+	@Override
+	public CommonResponseDto<AdminSettlementListResponseDto> getSettlementDetail(
+		Long mentorId) {
+		//대기중(processing)인 정산 요청만 조회
+		AdminSettlementListResponseDto adminSettlementGetResponseDto =
+			settlementRepository.findBySettleStatusMentorDetail(mentorId,SettlementStatus.PROCESSING);
+
+		return CommonResponseDto.<AdminSettlementListResponseDto>builder()
 			.msg("멘토 정산 내역이 조회되었습니다.")
 			.data(adminSettlementGetResponseDto).build();
 	}
