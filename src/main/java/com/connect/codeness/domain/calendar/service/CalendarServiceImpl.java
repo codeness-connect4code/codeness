@@ -20,6 +20,7 @@ import com.google.api.services.calendar.CalendarScopes;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventDateTime;
 import com.google.api.services.calendar.model.Events;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -144,14 +145,14 @@ public class CalendarServiceImpl implements CalendarService {
 
 	private Credential getCredentials(String accessToken, final NetHttpTransport HTTP_TRANSPORT) throws IOException {
 
-		InputStream in = loadCredentials();
+		FileInputStream credentialConfig = new FileInputStream(CREDENTIALS_FILE_PATH);
 
 //		InputStream in = CalendarServiceImpl.class.getResourceAsStream(CREDENTIALS_FILE_PATH);
 //		if (in == null) {
 //			throw new FileNotFoundException("credentials.json not found");
 //		}
 
-		GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
+		GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(credentialConfig));
 
 		GoogleCredential credential = new GoogleCredential.Builder()
 			.setTransport(HTTP_TRANSPORT)
@@ -166,17 +167,6 @@ public class CalendarServiceImpl implements CalendarService {
 		}
 
 		return credential;
-	}
-
-	public InputStream loadCredentials() throws IOException {
-
-		Path path = Paths.get(CREDENTIALS_FILE_PATH);
-		if (!Files.exists(path)) {
-			throw new FileNotFoundException("파일을 찾을 수 없습니다. : " + CREDENTIALS_FILE_PATH);
-		}
-
-		System.out.println("파일이 성공적으로 로드되었습니다.");
-		return Files.newInputStream(path);
 	}
 
 	private CalendarEventDto mapToCalendarEvent(Event event) {
