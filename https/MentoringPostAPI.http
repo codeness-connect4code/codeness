@@ -1,9 +1,10 @@
 ### 회원가입 - 멘토
+#POST https://api.codeness.kr/signup
 POST localhost:8080/signup
 Content-Type: application/json
 
 {
-  "email" : "a11@naver.com",
+  "email" : "a123@naver.com",
   "password" : "asdf1234!@",
   "name" : "한철수",
   "nickname" : "철수철수",
@@ -102,7 +103,7 @@ POST localhost:8080/login
 Content-Type: application/json
 
 {
-  "email" : "a11@naver.com",
+  "email" : "a123@naver.com",
   "password" : "asdf1234!@"
 }
 
@@ -146,15 +147,15 @@ Authorization: Bearer {{token}}
 
 {
     "company" : "어쩌구회사",
-	"title" : "커리어 10년차 멘토에게 받아보세요",
+	"title" : "커리어 10년차 김멘토에게 오세요!",
 	"field" : "FRONTEND",
 	"career" : 10,
 	"region" : "서울, 경기 남부",
 	"price" : 1,
-	"startDate" : "2026-01-10",
-	"endDate" : "2026-01-29",
+	"startDate" : "2025-03-10",
+	"endDate" : "2025-03-12",
 	"startTime" : "13:00",
-	"endTime" : "15:00",
+	"endTime" : "14:00",
 	"description" : "멘토링 받으러 오세요~😊"
 }
 
@@ -166,15 +167,15 @@ Authorization: Bearer {{token}}
 
 {
   "company" : "테스트회사",
-  "title" : "백엔드 멘토링 시작",
+  "title" : "백엔드 멘토링 시작합니다! 어서오세요!",
   "field" : "BACKEND",
   "career" : 5,
   "region" : "서울, 경기 남부",
   "price" : 1,
-  "startDate" : "2025-02-01",
-  "endDate" : "2025-02-02",
-  "startTime" : "15:00",
-  "endTime" : "17:00",
+  "startDate" : "2025-02-13",
+  "endDate" : "2025-02-14",
+  "startTime" : "19:00",
+  "endTime" : "20:00",
   "description" : "멘토링 받으러 오세요~😊"
 }
 
@@ -187,7 +188,7 @@ Content-Type: application/json
 }
 
 ### 멘토링 공고 전체 조회하기 - 조건별 검색
-GET localhost:8080/mentoring?title=&nickname=&field=&pageNumber=1
+GET localhost:8080/mentoring?title=&nickname=&field=&pageNumber=
 Content-Type: application/json
 
 {
@@ -199,7 +200,7 @@ GET localhost:8080/mentoring/10
 Content-Type: application/json
 
 ### 멘토링 공고 삭제하기
-PATCH localhost:8080/mentoring/3
+PATCH localhost:8080/mentoring/1
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
