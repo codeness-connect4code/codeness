@@ -8,6 +8,7 @@ import com.connect.codeness.domain.payment.repository.PaymentRepository;
 import com.connect.codeness.domain.payment.dto.PaymentDeleteRequestDto;
 import com.connect.codeness.domain.payment.dto.PaymentRefundRequestDto;
 import com.connect.codeness.domain.payment.dto.PaymentRequestDto;
+import com.connect.codeness.domain.payment.scheduler.PaymentScheduler;
 import com.connect.codeness.domain.paymenthistory.entity.PaymentHistory;
 import com.connect.codeness.domain.paymenthistory.repository.PaymentHistoryRepository;
 import com.connect.codeness.domain.settlement.entity.Settlement;
@@ -52,11 +53,12 @@ public class PaymentServiceImpl implements PaymentService {
 	private final SettlementRepository settlementRepository;
 	private final RedisLockService redisLockService;
 	private final RedissonClient redissonClient;
+	private final PaymentScheduler paymentScheduler;
 
 	public PaymentServiceImpl(IamportClient iamportClient, PaymentRepository paymentRepository,
 		PaymentHistoryRepository paymentHistoryRepository, UserRepository userRepository,
 		MentoringScheduleRepository mentoringScheduleRepository, SettlementRepository settlementRepository,
-		RedisLockService redisLockService, RedissonClient redissonClient) {
+		RedisLockService redisLockService, RedissonClient redissonClient, PaymentScheduler paymentScheduler) {
 		this.iamportClient = iamportClient;
 		this.paymentRepository = paymentRepository;
 		this.paymentHistoryRepository = paymentHistoryRepository;
@@ -65,6 +67,7 @@ public class PaymentServiceImpl implements PaymentService {
 		this.settlementRepository = settlementRepository;
 		this.redisLockService = redisLockService;
 		this.redissonClient = redissonClient;
+		this.paymentScheduler = paymentScheduler;
 	}
 
 
@@ -125,6 +128,9 @@ public class PaymentServiceImpl implements PaymentService {
 			//트랜잭션 완료된 후 락 해제를 실행하는 이벤트 등록
 			unlockEvent(lockKey);
 
+			//멘토링 스케줄 신청 후 결제 확인 스케줄러 실행
+			paymentScheduler.schedulePaymentDeletion(payment.getId());
+
 			return CommonResponseDto.builder().msg("멘토링 스케쥴이 신청 되었습니다.").data(payment.getId()).build();
 		} catch (Exception exception) {
 			log.info("트랜잭션 롤백 발생: " + exception.getMessage());
@@ -152,16 +158,20 @@ public class PaymentServiceImpl implements PaymentService {
 	 * 결제 삭제 서비스 메서드
 	 * - 클라이언트에서 결제 도중 취소하거나 결제 창을 빠져나가 결제가 중단 되었을 경우
 	 * - paymentId만 가지고 데이터 삭제를 진행 -> 데이터 저장해 둘 필요가 없음
-	 * - TODO : 멘토링 상태 변경해줘야함
+	 * - TODO : 멘토링 상태 변경해줘야함 - 완료
 	 */
 	@Transactional
 	@Override
 	public CommonResponseDto<?> deletePaymentOnCancel(Long paymentId) {
 		//결제(멘토링 신청 내역) 확인
 		Payment payment = paymentRepository.findByIdOrElseThrow(paymentId);
-
+		//멘토링 공고 스케줄 조회
+		MentoringSchedule mentoringSchedule = payment.getMentoringSchedule();
+		
 		//해당 결제 삭제
 		paymentRepository.deleteById(paymentId);
+		//멘토링 상태 변경
+		mentoringSchedule.updateBookedStatus(BookedStatus.EMPTY);
 
 		return CommonResponseDto.builder().msg("결제 데이터가 삭제 되었습니다.").build();
 	}
@@ -169,7 +179,7 @@ public class PaymentServiceImpl implements PaymentService {
 	/**
 	 * 결제 삭제 서비스 메서드
 	 * - 결제 진행시, 잔액 부족 등으로 결제가 거절되었을 경우 결제 데이터 삭제
-	 * - TODO : 멘토링 상태 변경해줘야함
+	 * - TODO : 멘토링 상태 변경해줘야함 - 완료
 	 */
 	@Transactional
 	@Override
@@ -190,6 +200,10 @@ public class PaymentServiceImpl implements PaymentService {
 			//결제 실패시 해당 결제 삭제
 			paymentRepository.deleteById(paymentId);
 		}
+
+		//멘토링 스케줄 조회 & 상태 변경
+		MentoringSchedule mentoringSchedule = payment.getMentoringSchedule();
+		mentoringSchedule.updateBookedStatus(BookedStatus.EMPTY);
 
 		return CommonResponseDto.builder().msg("결제 데이터가 삭제 되었습니다.").build();
 	}

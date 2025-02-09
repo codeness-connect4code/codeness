@@ -33,4 +33,5 @@ public class MentoringPostSearchResponseDto {
 		this.career = career;
 		this.starRating = starRating;
 	}
+
 }
