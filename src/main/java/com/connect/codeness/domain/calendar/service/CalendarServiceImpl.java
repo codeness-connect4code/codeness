@@ -24,6 +24,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.List;
@@ -36,7 +39,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class CalendarServiceImpl implements CalendarService {
 	private final UserRepository userRepository;
-	private static final String CREDENTIALS_FILE_PATH = "/credentials.json";
+	private static final String CREDENTIALS_FILE_PATH = "/app/credentials.json";
 	private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
 	private static final String APPLICATION_NAME = "Codeness Calendar";
 	private static final List<String> SCOPES = Collections.singletonList(CalendarScopes.CALENDAR_READONLY);
@@ -140,10 +143,13 @@ public class CalendarServiceImpl implements CalendarService {
 	}
 
 	private Credential getCredentials(String accessToken, final NetHttpTransport HTTP_TRANSPORT) throws IOException {
-		InputStream in = CalendarServiceImpl.class.getResourceAsStream(CREDENTIALS_FILE_PATH);
-		if (in == null) {
-			throw new FileNotFoundException("credentials.json not found");
-		}
+
+		InputStream in = loadCredentials();
+
+//		InputStream in = CalendarServiceImpl.class.getResourceAsStream(CREDENTIALS_FILE_PATH);
+//		if (in == null) {
+//			throw new FileNotFoundException("credentials.json not found");
+//		}
 
 		GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
 
@@ -160,6 +166,17 @@ public class CalendarServiceImpl implements CalendarService {
 		}
 
 		return credential;
+	}
+
+	public InputStream loadCredentials() throws IOException {
+
+		Path path = Paths.get(CREDENTIALS_FILE_PATH);
+		if (!Files.exists(path)) {
+			throw new FileNotFoundException("파일을 찾을 수 없습니다. : " + CREDENTIALS_FILE_PATH);
+		}
+
+		System.out.println("파일이 성공적으로 로드되었습니다.");
+		return Files.newInputStream(path);
 	}
 
 	private CalendarEventDto mapToCalendarEvent(Event event) {
