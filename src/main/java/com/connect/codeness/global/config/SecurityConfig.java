@@ -3,6 +3,7 @@ package com.connect.codeness.global.config;
 import com.connect.codeness.global.handler.OAuth2SuccessHandler;
 import com.connect.codeness.global.jwt.JwtFilter;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.Arrays;
 import java.util.List;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -99,11 +100,13 @@ public class SecurityConfig {
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.setAllowedOriginPatterns(List.of("*"));
-		configuration.addAllowedHeader("*");
-		configuration.addAllowedMethod("*");
+		configuration.setAllowedOrigins(
+			List.of("http://localhost:3000", "https://codeness-front.vercel.app/", "https://www.codeness.kr/"));
+		configuration.setAllowedMethods(
+			Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+		configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Content-Disposition"));
 		configuration.setAllowCredentials(true);
-//		configuration.addExposedHeader("*");
+		configuration.addExposedHeader("Authorization");
 
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", configuration);

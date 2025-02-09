@@ -6,9 +6,12 @@ import com.google.firebase.FirebaseOptions;
 import com.google.firebase.database.FirebaseDatabase;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 
 @Configuration
 public class FirebaseConfig {
@@ -21,8 +24,10 @@ public class FirebaseConfig {
 
 	@Bean
 	public FirebaseDatabase firebaseDatabase() throws IOException {
-		// 🔹 환경 변수에서 직접 파일 경로를 가져와서 사용!
-		FileInputStream serviceAccount = new FileInputStream(configPath);
+//		// 🔹 환경 변수에서 직접 파일 경로를 가져와서 사용!
+//		FileInputStream serviceAccount = new FileInputStream(configPath);
+		Resource resource = new ClassPathResource(configPath);
+		InputStream serviceAccount = resource.getInputStream();
 
 		FirebaseOptions options = FirebaseOptions.builder()
 			.setCredentials(GoogleCredentials.fromStream(serviceAccount))

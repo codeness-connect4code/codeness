@@ -1,4 +1,4 @@
-package com.connect.codeness.domain.mentorrequest.dto;
+package com.connect.codeness.domain.admin.dto;
 
 import com.connect.codeness.domain.mentorrequest.entity.MentorRequest;
 import com.connect.codeness.global.enums.FieldType;
@@ -7,7 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-public class MentorRequestResponseDto {
+public class MentorRequestDetailResponseDto {
 
 	private Long mentorId;
 	private String userName;
@@ -21,7 +21,7 @@ public class MentorRequestResponseDto {
 	private String profileImageLink;
 
 	@Builder
-	public MentorRequestResponseDto(MentorRequest mentorRequest, String profileImageLink) {
+	public MentorRequestDetailResponseDto(MentorRequest mentorRequest, String profileImageLink) {
 		this.mentorId = mentorRequest.getId();
 		this.userName = mentorRequest.getUser().getName();
 		this.createdAt = mentorRequest.getCreatedAt();

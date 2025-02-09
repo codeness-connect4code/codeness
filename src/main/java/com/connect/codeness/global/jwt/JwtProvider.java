@@ -43,13 +43,12 @@ public class JwtProvider {
 	}
 
 	public Claims extractClaims(String token) {
+
 		token = extractBearer(token);
-		try {
-			return Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token)
+
+		return Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token)
 				.getBody();
-		} catch (JwtException e) {
-			throw new BusinessException(ExceptionType.INVALID_TOKEN);
-		}
+
 	}
 
 	public String extractRole(String token) {
