@@ -11,6 +11,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -22,7 +23,10 @@ import lombok.Getter;
 
 @Getter
 @Entity
-@Table(name = "mentoring_post")
+@Table(name = "mentoring_post",
+	indexes = {
+		@Index(name = "idx_mentoring_post_field_created", columnList = "field, created_at")
+	})
 public class MentoringPost extends CreateTimeEntity {
 
 	@Id

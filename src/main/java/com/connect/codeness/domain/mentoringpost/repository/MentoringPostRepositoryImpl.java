@@ -2,17 +2,18 @@ package com.connect.codeness.domain.mentoringpost.repository;
 
 
 import static com.connect.codeness.domain.mentoringpost.entity.QMentoringPost.mentoringPost;
-import static com.connect.codeness.domain.review.entity.QReview.review;
 
 import com.connect.codeness.domain.mentoringpost.dto.MentoringPostSearchResponseDto;
 import com.connect.codeness.global.enums.FieldType;
 import com.connect.codeness.global.enums.MentoringPostStatus;
-import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -23,97 +24,120 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class MentoringPostRepositoryImpl implements MentoringPostRepositoryCustom {
 
-
 	private final JPAQueryFactory jpaQueryFactory;
 
-	public MentoringPostRepositoryImpl(JPAQueryFactory jpaQueryFactory) {
+	@PersistenceContext
+	private EntityManager entityManager;
+
+	public MentoringPostRepositoryImpl(JPAQueryFactory jpaQueryFactory, EntityManager entityManager) {
 		this.jpaQueryFactory = jpaQueryFactory;
+		this.entityManager = entityManager;
 	}
 
-	//QueryDSL 사용
 	@Override
 	public Page<MentoringPostSearchResponseDto> findAllBySearchParameters(String title, String field, String nickname, Pageable pageable) {
+		BooleanExpression condition = Expressions.asBoolean(true).isTrue();
 
-		//조건을 동적으로 추가
-		BooleanExpression condition = Expressions.asBoolean(true).isTrue(); //condition 초기화
+		if (title != null && !title.isEmpty()) {
+			condition = condition.and(filterByTitle(title));
+		}
+		if (field != null && !field.isEmpty()) {
+			condition = condition.and(filterByField(field));
+		}
+		if (nickname != null && !nickname.isEmpty()) {
+			condition = condition.and(filterByNickname(nickname));
+		}
 
-		//개별 조건 추가
-		if (!(title == null || title.isEmpty())) {
-			condition = condition.and(filterByTitle(title)); //제목
-		}
-		if (!(field == null || field.isEmpty())) {
-			condition = condition.and(filterByField(field)); //분야
-		}
-		if (!(nickname == null || nickname.isEmpty())) {
-			condition = condition.and(filterByNickname(nickname)); //닉네임
-		}
-		//상태 조건은 항상 추가
 		condition = condition.and(filterByMentoringPostStatus(MentoringPostStatus.DISPLAYED));
 
-		log.debug("Final Query Condition: {}", condition);
+		// ✅ Native Query 사용 - FULLTEXT INDEX 검색 최적화
+		String sql = """
+			    SELECT m.id AS mentoringPostId, 
+			           u.user_nickname AS userNickname, 
+			           m.title AS title, 
+			           m.field AS field, 
+			           m.career AS career, 
+			           COALESCE(AVG(r.star_rating), 0.0) AS starRating, 
+			           (MATCH(m.title) AGAINST(:title IN BOOLEAN MODE) + 
+			            MATCH(u.user_nickname) AGAINST(:nickname IN BOOLEAN MODE)) AS relevanceScore
+			    FROM mentoring_post m
+			    LEFT JOIN review r ON r.mentoring_post_id = m.id
+			    INNER JOIN user u ON m.mentor_id = u.id
+			    WHERE m.mentoring_post_status = 'DISPLAYED'
+			    GROUP BY m.id, u.user_nickname, m.title, m.field, m.career
+			    ORDER BY relevanceScore DESC, m.created_at DESC
+			    LIMIT :limit OFFSET :offset
+			""";
 
-		//쿼리 생성 & Projections 사용 &  평균 별점 계산 & 상태가 존재인 것만
-		JPQLQuery<MentoringPostSearchResponseDto> jpqlQuery = jpaQueryFactory.select(
-				//Projections.fields - 필드 이름으로 DTO 매핑
-				Projections.fields(MentoringPostSearchResponseDto.class,
-					mentoringPost.id.as("mentoringPostId"),
-					mentoringPost.user.userNickname.as("userNickname"),
-					mentoringPost.title.as("title"),
-					mentoringPost.field.stringValue().as("field"), //enum에서 string으로 변환
-					mentoringPost.career.as("career"),
-					review.starRating.avg().coalesce(0.0).as("starRating")//null 처리하기
-				)
-			).from(mentoringPost)
-			.leftJoin(review).on(review.mentoringPost.eq(mentoringPost))
-			.join(mentoringPost.user)
-			.where(condition) //필터
-			.groupBy(
-				mentoringPost.id,
-				mentoringPost.user.userNickname,
-				mentoringPost.title,
-				mentoringPost.field,
-				mentoringPost.career
-			)
-			.orderBy(mentoringPost.createdAt.desc());//최신순 정렬
+		Query query = entityManager.createNativeQuery(sql)
+			.setParameter("title", title)
+			.setParameter("nickname", nickname)
+			.setParameter("limit", pageable.getPageSize())
+			.setParameter("offset", pageable.getOffset());
 
-		//페이징
-		long total = jpqlQuery.fetchCount();//전체 데이터 개수
+		List<Object[]> resultList = query.getResultList();
 
-		List<MentoringPostSearchResponseDto> content = jpqlQuery
-			.offset(pageable.getOffset()) //현재 페이지 첫번째 데이터 위치 설정
-			.limit(pageable.getPageSize()) //한 페이지에서 가져올 최대 데이터 수
-			.fetch();
+		// ✅ DTO 변환 (Native Query 결과를 MentoringPostSearchResponseDto로 매핑)
+		List<MentoringPostSearchResponseDto> results = resultList.stream()
+			.map(row -> new MentoringPostSearchResponseDto(
+				((Number) row[0]).longValue(),  // mentoringPostId
+				(String) row[1],  // userNickname
+				(String) row[2],  // title
+				(String) row[3],  // field
+				((Number) row[4]).intValue(),  // career
+				row[5] != null ? ((Number) row[5]).doubleValue() : 0.0  // starRating
+			))
+			.toList();
 
-		return new PageImpl<>(content, pageable, total);
+		// ✅ QueryDSL을 활용한 COUNT 최적화
+		long total = jpaQueryFactory.select(mentoringPost.count())
+			.from(mentoringPost)
+			.where(condition)
+			.fetchOne();
+
+		return new PageImpl<>(results, pageable, total);
 	}
 
-	//BooleanExpression 사용 - 닉네임
+	// ✅ 닉네임 검색 (LIKE & FULLTEXT 혼합)
 	private BooleanExpression filterByNickname(String nickname) {
-		return !(nickname == null || nickname.isEmpty()) ? mentoringPost.user.userNickname.containsIgnoreCase(nickname)
-			: Expressions.asBoolean(true).isTrue(); //기본 조건
+		if (nickname == null || nickname.isEmpty()) {
+			return Expressions.asBoolean(true).isTrue();
+		}
+
+		// 2글자 이하이면 LIKE 검색, 3글자 이상이면 FULLTEXT 검색
+		return nickname.length() <= 2
+			? mentoringPost.user.userNickname.contains(nickname)
+			: Expressions.booleanTemplate("MATCH({0}) AGAINST ({1} IN BOOLEAN MODE)",
+				mentoringPost.user.userNickname, nickname);
 	}
 
-	//분야
+	// ✅ 분야 필터링
 	private BooleanExpression filterByField(String field) {
 		try {
-			return !(field == null || field.isEmpty())
-				? mentoringPost.field.eq(FieldType.valueOf(field.toUpperCase()))//대문자 변환 후, enum으로 변환
-				: Expressions.asBoolean(true).isTrue(); //조건 없음
+			return field != null && !field.isEmpty()
+				? mentoringPost.field.eq(FieldType.valueOf(field.toUpperCase()))
+				: Expressions.asBoolean(true).isTrue();
 		} catch (IllegalArgumentException e) {
-			return Expressions.asBoolean(false).isFalse();//값이 잘못 되었거나 매칭이 안될 경우, 결과 반환 x
+			return Expressions.asBoolean(false).isFalse(); // 매칭 실패 시 조건 제거
 		}
 	}
 
-	//제목
+	// ✅ 제목 검색 (LIKE & FULLTEXT 혼합)
 	private BooleanExpression filterByTitle(String title) {
-		return !(title == null || title.isEmpty()) ? mentoringPost.title.containsIgnoreCase(title)
-			: Expressions.asBoolean(true).isTrue();
+		if (title == null || title.isEmpty()) {
+			return Expressions.asBoolean(true).isTrue();
+		}
+
+		return title.length() <= 2
+			? mentoringPost.title.contains(title)
+			: Expressions.booleanTemplate("MATCH({0}) AGAINST ({1} IN BOOLEAN MODE)",
+				mentoringPost.title, title);
 	}
 
-	//멘토링 상태
-	private BooleanExpression filterByMentoringPostStatus(MentoringPostStatus mentoringPostStatus) {
-		return mentoringPost.mentoringPostStatus.eq(mentoringPostStatus);
+	// ✅ 멘토링 상태 필터
+	private BooleanExpression filterByMentoringPostStatus(MentoringPostStatus status) {
+		return mentoringPost.mentoringPostStatus.eq(status);
 	}
-
 }
+
 
