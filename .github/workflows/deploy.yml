@@ -1,9 +1,10 @@
 name: Deploy to AWS EC2
 
+
 on:
   push:
     branches:
-      - hotfix/firebase-config
+      - hotfix/deploy
 
 jobs:
   deploy:
