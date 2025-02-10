@@ -30,10 +30,9 @@
 ### 2025.01.02 - 2025.02.09
 
 ## 🛠️기술 스택 & 🌱 개발 환경
-![Image](https://github.com/user-attachments/assets/243e7e1c-7682-4e30-afb3-6cb958096102)
-![Image](https://github.com/user-attachments/assets/440b73a5-3b37-44dc-bc70-348dab4fe700)
-![Image](https://github.com/user-attachments/assets/f8154444-1f9b-40d4-b28e-95a618ecf588)
-
+<img src="https://github.com/user-attachments/assets/243e7e1c-7682-4e30-afb3-6cb958096102" width="600" height="250"/><br>
+<img src="https://github.com/user-attachments/assets/440b73a5-3b37-44dc-bc70-348dab4fe700" width="600" height="200"/><br>
+<img src="https://github.com/user-attachments/assets/f8154444-1f9b-40d4-b28e-95a618ecf588" width="600" height="300"/><br>
 
 ## 🪧 커밋 컨벤션
 
@@ -128,10 +127,13 @@
 </details>
 
 ## 💿 담당 구현 기능
-<img src="https://github.com/user-attachments/assets/7badf592-2733-4938-ad0b-b706218493df" width="500" height="300"/>
-<img src="https://github.com/user-attachments/assets/4a096e1e-08d1-490b-9bca-f041ab11822f" width="500" height="200"/>
-<img src="https://github.com/user-attachments/assets/9ebd995b-6b9e-4d81-bbb6-419cdd5758de" width="500" height="300"/>
-<img src="https://github.com/user-attachments/assets/bef04f19-ad51-473f-85f1-9c1bcf350e54" width="500" height="300"/>
+<img src="https://github.com/user-attachments/assets/7badf592-2733-4938-ad0b-b706218493df" width="500" height="300"/><br>
+<img src="https://github.com/user-attachments/assets/4a096e1e-08d1-490b-9bca-f041ab11822f" width="500" height="200"/><br>
+
+<img src="https://github.com/user-attachments/assets/9ebd995b-6b9e-4d81-bbb6-419cdd5758de" width="500" height="300"/><br>
+
+<img src="https://github.com/user-attachments/assets/bef04f19-ad51-473f-85f1-9c1bcf350e54" width="500" height="300"/><br>
+
 
 ## 🎙️ 프로젝트 소감
 ![Image](https://github.com/user-attachments/assets/69d7d8ee-c548-4b4e-9a90-1962a97ed1f7)
