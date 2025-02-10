@@ -55,6 +55,21 @@ Content-Type: application/json
   "userRole" : "MENTEE"
 }
 
+### 회원가입 - 멘토 김맹구
+#POST https://api.codeness.kr/signup
+POST localhost:8080/signup
+Content-Type: application/json
+
+{
+  "email" : "a1234@naver.com",
+  "password" : "asdf1234!@",
+  "name" : "김맹구",
+  "nickname" : "맹구맹구",
+  "phoneNumber" : "010 - 1234 - 6328",
+  "field" : "AI",
+  "userRole" : "MENTOR"
+}
+
 ### 회원가입 - 어드민
 POST localhost:8080/signup
 Content-Type: application/json
@@ -83,6 +98,19 @@ Content-Type: application/json
   client.log("Token saved: " + client.global.get("token"));
 %}
 
+### 로그인 - 멘토 김맹구
+POST localhost:8080/login
+Content-Type: application/json
+
+{
+  "email" : "a1234@naver.com",
+  "password" : "asdf1234!@"
+}
+
+> {%
+  client.global.set("token",response.body.data);
+  client.log("Token saved: " + client.global.get("token"));
+%}
 
 ### 로그인 - 멘토 김멘토
 POST localhost:8080/login
@@ -139,6 +167,26 @@ Content-Type: application/json
   client.global.set("token",response.body.data);
   client.log("Token saved: " + client.global.get("token"));
 %}
+
+### 멘토링 공고 생성하기 - AI
+POST localhost:8080/mentoring
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "company" : "테스트회사",
+  "title" : "AI 멘토링 진행합니다~",
+  "field" : "AI",
+  "career" : 5,
+  "region" : "서울",
+  "price" : 1,
+  "startDate" : "2025-02-13",
+  "endDate" : "2025-02-14",
+  "startTime" : "19:00",
+  "endTime" : "20:00",
+  "description" : "멘토링 받으러 오세요~😊"
+}
+
 
 ### 멘토링 공고 생성하기 - 프론트
 POST localhost:8080/mentoring
