@@ -1,6 +1,6 @@
 # 💻 프로젝트 소개
 
-### 코드니스(CodeNess)
+###  코드니스(CodeNess)
 
 <img src="" width="300" height="300"/>
 
@@ -42,8 +42,8 @@
 - **Library** : Lombok, Bcrypt, Junit, QueryDSL
 - **Build Tool** : Gradle, Docker
 - **Database** : MySQL version '8.0.40'
-- **Infra** : AWS EC2, Amazon S3, AWS RD (MySQL '8.0.40')
-- **Tool** : Miro, ERD Cloud, Slack, Github & git, Postman
+- **Infra** : AWS EC2, Amazon S3, AWS RDS (MySQL '8.0.40')
+- **Tool** : Figma, ERD Cloud, Slack, Github & git, Postman
 
 ## 🪧 커밋 컨벤션
 
@@ -55,7 +55,6 @@
 🐛 Fix : 버그 수정<br>
 ✅ Test : 테스트 코드 작성 & 수정<br>
 🚚 Rename : 파일, 경로를 옮기거나 이름 변경<br>
-🎨 Rename : 코드의 구조, 형태 개선<br>
 ♻️ Refactor : 코드 리팩토링<br>
 💡 Comment : 주석 추가, 변경<br>
 🔥 Remove : 파일, 코드 삭제<br>

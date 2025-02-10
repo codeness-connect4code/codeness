@@ -1,0 +1,30 @@
+### 파일 업로드
+POST localhost:8080/files
+Content-Type: multipart/form-data; boundary=cutLine
+Authorization: Bearer {{token}}
+
+--cutLine
+Content-Disposition: form-data; name="file"; filename="testImage.png"
+Content-Type: image/png
+
+<  ./testImage.png
+--cutLine--
+
+> {%
+  client.global.get("auth.token");
+%}
+
+
+### 파일 삭제
+DELETE localhost:8080/files
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "userId" : 1,
+  "fileCategory" : "PROFILE"
+}
+
+> {%
+  client.global.get("auth.token");
+%}

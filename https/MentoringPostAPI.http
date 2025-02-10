@@ -1,0 +1,224 @@
+### 회원가입 - 멘토
+#POST https://api.codeness.kr/signup
+POST localhost:8080/signup
+Content-Type: application/json
+
+{
+  "email" : "a123@naver.com",
+  "password" : "asdf1234!@",
+  "name" : "한철수",
+  "nickname" : "철수철수",
+  "phoneNumber" : "010 - 1234 - 6328",
+  "field" : "BACKEND",
+  "userRole" : "MENTOR"
+}
+
+### 회원가입 - 멘토
+POST localhost:8080/signup
+Content-Type: application/json
+
+{
+  "email" : "b000@naver.com",
+  "password" : "asdf1234!@",
+  "name" : "김멘토",
+  "nickname" : "프론트김멘토",
+  "phoneNumber" : "010 - 1234 - 6328",
+  "field" : "FRONTEND",
+  "userRole" : "MENTOR"
+}
+
+### 회원가입 - 멘티 박짱구
+POST localhost:8080/signup
+Content-Type: application/json
+
+{
+  "email" : "a23@naver.com",
+  "password" : "asdf1234!@",
+  "name" : "박짱구",
+  "nickname" : "짱구짱구",
+  "phoneNumber" : "010 - 1234 - 6328",
+  "field" : "BACKEND",
+  "userRole" : "MENTEE"
+}
+
+### 회원가입 - 멘티 최유리
+POST localhost:8080/signup
+Content-Type: application/json
+
+{
+  "email" : "a123@naver.com",
+  "password" : "asdf1234!@",
+  "name" : "최유리",
+  "nickname" : "유리유리",
+  "phoneNumber" : "010 - 1234 - 6328",
+  "field" : "FRONTEND",
+  "userRole" : "MENTEE"
+}
+
+### 회원가입 - 어드민
+POST localhost:8080/signup
+Content-Type: application/json
+
+{
+  "email" : "a123@naver.com",
+  "password" : "asdf1234!@",
+  "name" : "김어드민",
+  "nickname" : "어드민닉네임",
+  "phoneNumber" : "010 - 1234 - 6328",
+  "field" : "FRONTEND",
+  "userRole" : "ADMIN"
+}
+
+### 로그인 - 멘토 어드민
+POST localhost:8080/login
+Content-Type: application/json
+
+{
+  "email" : "a123@naver.com",
+  "password" : "asdf1234!@"
+}
+
+> {%
+  client.global.set("token",response.body.data);
+  client.log("Token saved: " + client.global.get("token"));
+%}
+
+
+### 로그인 - 멘토 김멘토
+POST localhost:8080/login
+Content-Type: application/json
+
+{
+  "email" : "b000@naver.com",
+  "password" : "asdf1234!@"
+}
+
+> {%
+  client.global.set("token",response.body.data);
+  client.log("Token saved: " + client.global.get("token"));
+%}
+
+### 로그인 - 멘토 한철수
+POST localhost:8080/login
+Content-Type: application/json
+
+{
+  "email" : "a123@naver.com",
+  "password" : "asdf1234!@"
+}
+
+> {%
+  client.global.set("token",response.body.data);
+  client.log("Token saved: " + client.global.get("token"));
+%}
+
+### 로그인 - 멘티 박짱구
+POST localhost:8080/login
+Content-Type: application/json
+
+{
+  "email" : "a23@naver.com",
+  "password" : "asdf1234!@"
+}
+
+> {%
+  client.global.set("token",response.body.data);
+  client.log("Token saved: " + client.global.get("token"));
+%}
+
+### 로그인 - 멘티 최유리
+POST localhost:8080/login
+Content-Type: application/json
+
+{
+  "email" : "a123@naver.com",
+  "password" : "asdf1234!@"
+}
+
+> {%
+  client.global.set("token",response.body.data);
+  client.log("Token saved: " + client.global.get("token"));
+%}
+
+### 멘토링 공고 생성하기 - 프론트
+POST localhost:8080/mentoring
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "company" : "어쩌구회사",
+	"title" : "커리어 10년차 김멘토에게 오세요!",
+	"field" : "FRONTEND",
+	"career" : 10,
+	"region" : "서울, 경기 남부",
+	"price" : 1,
+	"startDate" : "2025-03-10",
+	"endDate" : "2025-03-12",
+	"startTime" : "13:00",
+	"endTime" : "14:00",
+	"description" : "멘토링 받으러 오세요~😊"
+}
+
+
+### 멘토링 공고 생성하기 - 백엔드
+POST localhost:8080/mentoring
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "company" : "테스트회사",
+  "title" : "백엔드 멘토링 시작합니다! 어서오세요!",
+  "field" : "BACKEND",
+  "career" : 5,
+  "region" : "서울, 경기 남부",
+  "price" : 1,
+  "startDate" : "2025-02-13",
+  "endDate" : "2025-02-14",
+  "startTime" : "19:00",
+  "endTime" : "20:00",
+  "description" : "멘토링 받으러 오세요~😊"
+}
+
+### 멘토링 공고 전체 조회하기
+GET localhost:8080/mentoring
+Content-Type: application/json
+
+{
+
+}
+
+### 멘토링 공고 전체 조회하기 - 조건별 검색
+GET localhost:8080/mentoring?title=&nickname=&field=&pageNumber=
+Content-Type: application/json
+
+{
+
+}
+
+### 멘토링 공고 상세 조회하기
+GET localhost:8080/mentoring/10
+Content-Type: application/json
+
+### 멘토링 공고 삭제하기
+PATCH localhost:8080/mentoring/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+### 멘토링 공고 스케쥴 전체 조회 API
+GET localhost:8080/mentoring/5/mentoring-schedule
+Content-Type: application/json
+
+### 유효한 멘토링 공고 스케쥴 전체 조회 API
+GET localhost:8080/mentoring/1/mentoring-schedule/empty-status
+Content-Type: application/json
+
+### 멘티가 결제한 멘토링 공고 조회 API
+GET localhost:8080/mentees/mentoring
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+### 멘토가 생성한 멘토링 공고 조회 API
+GET localhost:8080/mentors/mentoring
+Content-Type: application/json
+Authorization: Bearer {{token}}
+

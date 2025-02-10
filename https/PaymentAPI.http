@@ -1,0 +1,44 @@
+### 로그인 - 멘토
+POST localhost:8080/login
+Content-Type: application/json
+
+{
+  "email" : "asdf132345@naver.com",
+  "password" : "asdf1234!@"
+}
+
+### 로그인 - 멘티
+POST localhost:8080/login
+Content-Type: application/json
+
+{
+  "email" : "a23@naver.com",
+  "password" : "asdf1234!@"
+}
+
+> {%
+  client.global.set("token",response.body.data);
+  client.log("Token saved: " + client.global.get("token"));
+%}
+
+### 멘토링 신청 (결제 생성) API
+POST localhost:8080/payments/mentoring-schedules
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "mentoringScheduleId" : 1,
+  "paymentCost" : 1,
+  "paymentCard" : "신용카드"
+}
+
+
+### 환불 요청 API
+POST localhost:8080/payments/2/refund
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "pgTid" : "StdpayCARDINIpayTest20250123200137302125",
+  "impUid" : "imp_116073023009"
+}

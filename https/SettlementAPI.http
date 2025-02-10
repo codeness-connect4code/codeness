@@ -1,0 +1,45 @@
+### 로그인 - 멘토 한철수
+POST localhost:8080/login
+Content-Type: application/json
+
+{
+  "email" : "a11@naver.com",
+  "password" : "asdf1234!@"
+}
+
+> {%
+  client.global.set("token",response.body.data);
+  client.log("Token saved: " + client.global.get("token"));
+%}
+
+### 로그인 - 멘토 한철수
+POST localhost:8080/login
+Content-Type: application/json
+
+{
+  "email" : "a11@naver.com",
+  "password" : "asdf1234!@"
+}
+
+> {%
+  client.global.set("token",response.body.data);
+  client.log("Token saved: " + client.global.get("token"));
+%}
+
+
+### 멘토 정산 신청
+PATCH localhost:8080/mentors/mentoring/payment-history/settles
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+
+}
+
+### 멘토 정산 내역 조회 - 미정산
+GET localhost:8080/mentors/mentoring/payment-history/settles-unprocessed
+Authorization: Bearer {{token}}
+
+### 멘토 정산 내역 조회 - 정산완료
+GET localhost:8080/mentors/mentoring/payment-history/settles-complete
+Authorization: Bearer {{token}}

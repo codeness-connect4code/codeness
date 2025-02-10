@@ -1,0 +1,109 @@
+### 회원가입
+POST localhost:8080/signup
+Content-Type: application/json
+
+{
+  "email" : "2aaaaaaaa@naver.com",
+  "password" : "asdf1234!@",
+  "name" : "이름",
+  "nickname" : "열일하는 개발자",
+  "phoneNumber" : "010 - 1234 - 6328",
+  "field" : "BACKEND",
+  "userRole" : "MENTEE"
+}
+
+### 로그인 요청
+POST http://localhost:8080/login
+Content-Type: application/json
+
+{
+  "email": "2aaaaaaaa@naver.com",
+  "password": "asdf1234!@"
+}
+
+> {%
+  client.global.set("token",response.body.data);
+  client.log("Token saved: " + client.global.get("token"));
+%}
+
+### 유저 상세 조회 API
+GET localhost:8080/users
+Authorization: Bearer {{token}}
+
+### 유저 정보 수정 API
+PATCH localhost:8080/users
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="nickname"
+
+새로운닉네임
+--boundary
+Content-Disposition: form-data; name="phoneNumber"
+
+010-1234-5678
+--boundary
+Content-Disposition: form-data; name="region"
+
+Seoul
+--boundary
+Content-Disposition: form-data; name="field"
+
+BACKEND
+--boundary
+Content-Disposition: form-data; name="career"
+
+5
+--boundary
+Content-Disposition: form-data; name="mbti"
+
+INTJ
+--boundary
+Content-Disposition: form-data; name="siteLink"
+
+https://github.com/asdfasdfasdf
+
+--boundary
+Content-Disposition: form-data; name="multipartFile"; filename="profile.jpg"
+Content-Type: image/jpeg
+
+<  ./testImage.png
+--boundary--
+
+### 유저 비밀번호 변경 API
+PATCH localhost:8080/users/password
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+	"currentPassword": "asdf1234!@",
+	"newPassword": "abcd123aaaaaa@"
+}
+
+### 유저 계좌 변경 API
+PATCH localhost:8080/users/bank-account
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "bankName" : "농협",
+  "bankAccount" : "123-123-2-32-1"
+}
+
+### 유저 탈퇴 API
+DELETE localhost:8080/users
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+	"password" : "abcd123aaaaaa@"
+}
+
+### 유저 공고 추천 API
+GET localhost:8080/users/mentoring
+Authorization: Bearer {{token}}
+
+### 유저 계좌 조회 API
+GET localhost:8080/users/account
+Authorization: Bearer {{token}}

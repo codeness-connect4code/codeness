@@ -1,0 +1,8 @@
+### 뉴스 조회하기(10개씩)
+
+GET localhost:8080/news
+
+
+### 뉴스 조회하기(페이징 조회) -> 값 설정 필요
+
+GET localhost:8080/news?pageNumber=&pageSize=

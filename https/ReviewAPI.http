@@ -1,0 +1,115 @@
+### 멘티 회원가입
+POST localhost:8080/signup
+Content-Type: application/json
+
+{
+  "email" : "reviewer1@naver.com",
+  "password" : "asdf1234!@",
+  "name" : "리뷰남기는 사람1",
+  "nickname" : "리뷰어1",
+  "phoneNumber" : "010 - 1234 - 6328",
+  "field" : "BACKEND",
+  "userRole" : "MENTEE"
+}
+
+### 멘토 회원가입
+POST localhost:8080/signup
+Content-Type: application/json
+
+{
+"email" : "mentor1@naver.com",
+"password" : "asdf1234!@",
+"name" : "멘토인 사람1",
+"nickname" : "멘토1",
+"phoneNumber" : "010 - 1234 - 6328",
+"field" : "BACKEND",
+"userRole" : "MENTOR"
+}
+
+### 멘티 로그인
+POST localhost:8080/login
+Content-Type: application/json
+
+{
+  "email" : "reviewer1@naver.com",
+  "password" : "asdf1234!@"
+}
+
+> {%
+  client.global.set("token",response.body.data);
+  client.log("Token saved: " + client.global.get("token"));
+%}
+
+### 콘솔 창에 아래의 데이터 추가
+#use codeness;
+#
+##멘토링 공고 추가
+#insert into mentoring_post
+#(career, end_date, end_time, price, start_date, start_time,field, mentor_id, company, description, region, title)
+#values(5,'2025-01-01','13:00',50000,'2025-01-01','13:00','BACKEND',1,'삼성','내용','서울시 도봉구','잘 가르칩니다.');
+#
+##멘토링 스케줄 추가
+#insert into mentoring_schedule
+#(mentoring_date, mentoring_time,mentoring_post_id, booked_status)
+#values('2025-01-01','13:00',1, 'BOOKED');
+#
+##결제 추가
+#insert into payment
+#(payment_cost,mentee_id, mentoring_schedule_id, payment_card, pg_tid, imp_uid)
+#values(50000,1,1,'신한카드','pg12315', 'imp219301491290');
+#
+##결제 내역 추가
+#insert into payment_history
+#(payment_cost, review_status, mentor_id, payment_id,payment_card, pg_tid, payment_status)
+#values(50000,'NOT_YET',2,1,'신한카드','pg12315','COMPLETE')
+
+
+### 리뷰 생성하기
+POST localhost:8080/payment-history/1/reviews
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "mentoringPostId": 1,
+	"content": "리뷰1",
+	"starRating": 5
+}
+
+### 로그 아웃
+POST localhost:8080/logout
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+> {%
+  client.global.set("token", null);
+  client.log("Token removed");
+  client.global.get("token");
+%}
+
+
+### 해당 공고에 대한 리뷰 전체 조회하기
+GET localhost:8080/mentoring/1/reviews
+
+
+### 내 결제내역에서 작성한 후기 조회(단건 조회)
+GET localhost:8080/payment-history/1/reviews
+Authorization: Bearer {{token}}
+
+
+### 해당 공고에 대한 리뷰 페이징 조회하기
+GET localhost:8080/mentoring/1/reviews?pageSize=&pageNumber=
+
+
+### 멘티 로그인(재로그인, for 리뷰 삭제)
+POST localhost:8080/login
+Content-Type: application/json
+
+{
+  "email" : "reviewer1@naver.com",
+  "password" : "asdf1234!@"
+}
+
+
+### 리뷰 삭제하기
+DELETE localhost:8080/reviews/2
+Authorization: Bearer {{token}}
