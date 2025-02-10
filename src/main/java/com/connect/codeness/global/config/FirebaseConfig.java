@@ -24,6 +24,7 @@ public class FirebaseConfig {
 		// 🔹 환경 변수에서 직접 파일 경로를 가져와서 사용!
 		FileInputStream serviceAccount = new FileInputStream(configPath);
 
+
 		FirebaseOptions options = FirebaseOptions.builder()
 			.setCredentials(GoogleCredentials.fromStream(serviceAccount))
 			.setDatabaseUrl(databaseUrl)
