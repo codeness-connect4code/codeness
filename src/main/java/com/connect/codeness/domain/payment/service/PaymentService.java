@@ -36,5 +36,10 @@ public interface PaymentService {
 	 * 결제 환불 메서드
 	 */
 	CommonResponseDto<?> refundPayment(Long userId, Long paymentId, PaymentRefundRequestDto requestDto);
+
+	/**
+	 * 결제 검증 & 채팅방 생성 메서드
+	 */
+	CommonResponseDto<?> verifyPaymentAndCreateChatRoom(Long paymentId, PaymentRequestDto requestDto);
 }
 

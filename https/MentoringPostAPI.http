@@ -46,7 +46,7 @@ POST localhost:8080/signup
 Content-Type: application/json
 
 {
-  "email" : "a123@naver.com",
+  "email" : "a354@naver.com",
   "password" : "asdf1234!@",
   "name" : "최유리",
   "nickname" : "유리유리",
@@ -236,7 +236,7 @@ Content-Type: application/json
 }
 
 ### 멘토링 공고 전체 조회하기 - 조건별 검색
-GET localhost:8080/mentoring?title=&nickname=&field=&pageNumber=
+GET localhost:8080/mentoring?title=&nickname=철수철수&field=&pageNumber=
 Content-Type: application/json
 
 {
