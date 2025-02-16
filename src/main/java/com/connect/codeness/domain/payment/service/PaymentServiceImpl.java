@@ -370,7 +370,7 @@ public class PaymentServiceImpl implements PaymentService {
 	public CommonResponseDto<?> verifyPaymentAndCreateChatRoom(Long paymentId, PaymentRequestDto requestDto){
 		
 		//결제 검증
-		verifyPaymentWithNewTransaction(paymentId, requestDto);
+		verifyAndConfirmPayment(paymentId, requestDto);
 		
 		//결제, 결제 내역 조회
 		Payment payment = paymentRepository.findByIdOrElseThrow(paymentId);
@@ -395,7 +395,7 @@ public class PaymentServiceImpl implements PaymentService {
 	 * - 채팅방 생성 중 예외 발생해도 결제 검증 유지 됨 -> 불필요한 롤백 방지
 	 */
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
-	public void verifyPaymentWithNewTransaction(Long paymentId, PaymentRequestDto requestDto){
+	public void verifyAndConfirmPayment(Long paymentId, PaymentRequestDto requestDto){
 		verifyPayment(paymentId, requestDto);
 	}
 }
