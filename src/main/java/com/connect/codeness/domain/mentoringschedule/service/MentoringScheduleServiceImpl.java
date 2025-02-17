@@ -8,6 +8,7 @@ import com.connect.codeness.domain.mentoringschedule.dto.MentoringScheduleRespon
 import com.connect.codeness.global.dto.CommonResponseDto;
 import com.connect.codeness.global.enums.BookedStatus;
 import com.connect.codeness.global.enums.MentoringPostStatus;
+import com.connect.codeness.global.enums.MentoringScheduleStatus;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
 import java.time.LocalDate;
@@ -59,6 +60,7 @@ public class MentoringScheduleServiceImpl implements MentoringScheduleService {
 	 * 유효한 멘토링 공고 스케쥴 조회 API
 	 * - 상태 empty & 현재 날짜, 시간 이후의 스케쥴
 	 * - DISPLAYED 상태만 조회 - 멘토링 공고에서 걸러지긴 함
+	 * - TODO : DISPLAY 상태만 조회해야함 - 배치로 날짜 지나면 상태 변하게 바꿈
 	 */
 	@Override
 	public CommonResponseDto<List<MentoringScheduleResponseDto>> findMentoringSchedulesByEmptyStatus(Long mentoringPostId) {
@@ -69,9 +71,9 @@ public class MentoringScheduleServiceImpl implements MentoringScheduleService {
 		LocalDate currentDate = LocalDate.now();
 		LocalTime currentTime = LocalTime.now();
 
-		//유효한 멘토링 공고 스케쥴 list 조회 - 상태가 empty이고, 현재 날짜 & 시간 이후의 스케쥴만 조회
+		//유효한 멘토링 공고 스케쥴 list 조회 - 멘토링 스케줄 상태가 DISPLAYED이고, 예약 상태가 EMPTY이며, 현재 날짜 & 시간 이후의 스케쥴만 조회
 		List<MentoringSchedule> validMentoringSchedules = mentoringScheduleRepository.findValidMentoringSchedules(mentoringPostId,
-			BookedStatus.EMPTY, currentDate, currentTime);
+			BookedStatus.EMPTY, MentoringScheduleStatus.DISPLAYED, currentDate, currentTime);
 
 		//유효한 스케쥴이 없을 경우
 		if (validMentoringSchedules.isEmpty()) {

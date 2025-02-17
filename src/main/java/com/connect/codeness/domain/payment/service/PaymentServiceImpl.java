@@ -1,6 +1,8 @@
 package com.connect.codeness.domain.payment.service;
 
 
+import com.connect.codeness.domain.chat.dto.ChatRoomCreateRequestDto;
+import com.connect.codeness.domain.chat.service.ChatService;
 import com.connect.codeness.domain.mentoringschedule.entity.MentoringSchedule;
 import com.connect.codeness.domain.mentoringschedule.repository.MentoringScheduleRepository;
 import com.connect.codeness.domain.payment.entity.Payment;
@@ -54,11 +56,12 @@ public class PaymentServiceImpl implements PaymentService {
 	private final RedisLockService redisLockService;
 	private final RedissonClient redissonClient;
 	private final PaymentScheduler paymentScheduler;
+	private final ChatService chatService;
 
 	public PaymentServiceImpl(IamportClient iamportClient, PaymentRepository paymentRepository,
 		PaymentHistoryRepository paymentHistoryRepository, UserRepository userRepository,
 		MentoringScheduleRepository mentoringScheduleRepository, SettlementRepository settlementRepository,
-		RedisLockService redisLockService, RedissonClient redissonClient, PaymentScheduler paymentScheduler) {
+		RedisLockService redisLockService, RedissonClient redissonClient, PaymentScheduler paymentScheduler, ChatService chatService) {
 		this.iamportClient = iamportClient;
 		this.paymentRepository = paymentRepository;
 		this.paymentHistoryRepository = paymentHistoryRepository;
@@ -68,6 +71,7 @@ public class PaymentServiceImpl implements PaymentService {
 		this.redisLockService = redisLockService;
 		this.redissonClient = redissonClient;
 		this.paymentScheduler = paymentScheduler;
+		this.chatService = chatService;
 	}
 
 
@@ -357,5 +361,42 @@ public class PaymentServiceImpl implements PaymentService {
 		return CommonResponseDto.builder().msg("결제가 환불되었습니다.").build();
 	}
 
+	/**
+	 * 결제 검증 & 채팅방 생성 서비스 메서드
+	 * - 결제 검증이 완료되면 채팅방이 생성된다
+	 */
+	@Transactional
+	@Override
+	public CommonResponseDto<?> verifyPaymentAndCreateChatRoom(Long paymentId, PaymentRequestDto requestDto){
+		
+		//결제 검증
+		verifyAndConfirmPayment(paymentId, requestDto);
+		
+		//결제, 결제 내역 조회
+		Payment payment = paymentRepository.findByIdOrElseThrow(paymentId);
+		PaymentHistory paymentHistory = paymentHistoryRepository.findByPaymentIdOrElseThrow(paymentId);
+
+		//Dto 생성
+		ChatRoomCreateRequestDto chatRoomCreateRequestDto = ChatRoomCreateRequestDto.builder()
+			.paymentHistoryId(paymentHistory.getId())
+			.mentoringDate(payment.getMentoringSchedule().getMentoringDate())
+			.mentoringTime(payment.getMentoringSchedule().getMentoringTime())
+			.build();
+		
+		//채팅방 생성
+		chatService.createChatRoom(payment.getUser().getId(), chatRoomCreateRequestDto);
+
+		return CommonResponseDto.builder().msg("결제 검증과 채팅방 생성이 완료되었습니다.").data(paymentHistory.getId()).build();
+	}
+
+	/**
+	 * 데이터 안정성을 위해 트랜잭션 분리
+	 * - 결제 검증 커밋 후 채팅방 생성을 위해서 생성
+	 * - 채팅방 생성 중 예외 발생해도 결제 검증 유지 됨 -> 불필요한 롤백 방지
+	 */
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	public void verifyAndConfirmPayment(Long paymentId, PaymentRequestDto requestDto){
+		verifyPayment(paymentId, requestDto);
+	}
 }
 

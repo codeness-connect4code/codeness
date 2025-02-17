@@ -95,4 +95,16 @@ public class PaymentController {
 		return new ResponseEntity<>(responseDto, HttpStatus.OK);
 	}
 
+	/**
+	 * 결제 검증 & 채팅방 생성 API
+	 * - 결제 검증이 완료되면 채팅방이 생성된다
+	 */
+	@PostMapping("/payments/{paymentId}/chat-rooms")
+	public ResponseEntity<CommonResponseDto<?>> verifyPaymentAndCreateChatRoom(@PathVariable Long paymentId,
+		@Valid @RequestBody PaymentRequestDto requestDto) {
+		CommonResponseDto<?> responseDto = paymentService.verifyPaymentAndCreateChatRoom(paymentId, requestDto);
+
+		return new ResponseEntity<>(responseDto, HttpStatus.OK);
+	}
 }
+

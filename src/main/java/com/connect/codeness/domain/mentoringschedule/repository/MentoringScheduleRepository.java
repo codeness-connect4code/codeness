@@ -4,6 +4,7 @@ import com.connect.codeness.domain.mentoringpost.dto.MyMentoringPostResponseDto;
 import com.connect.codeness.domain.mentoringschedule.entity.MentoringSchedule;
 import com.connect.codeness.domain.user.entity.User;
 import com.connect.codeness.global.enums.BookedStatus;
+import com.connect.codeness.global.enums.MentoringScheduleStatus;
 import com.connect.codeness.global.exception.BusinessException;
 import com.connect.codeness.global.exception.ExceptionType;
 import java.time.LocalDate;
@@ -32,10 +33,12 @@ public interface MentoringScheduleRepository extends JpaRepository<MentoringSche
 	FROM MentoringSchedule ms
 	WHERE ms.mentoringPost.id = :mentoringPostId
 	AND ms.bookedStatus = :bookedStatus
+	AND ms.mentoringScheduleStatus = :mentoringScheduleStatus
 	AND	(ms.mentoringDate > :currentDate 
 		OR (ms.mentoringDate = :currentDate AND ms.mentoringTime >= :currentTime))
 	""")
-	List<MentoringSchedule> findValidMentoringSchedules(Long mentoringPostId, BookedStatus bookedStatus, LocalDate currentDate, LocalTime currentTime);
+	List<MentoringSchedule> findValidMentoringSchedules(Long mentoringPostId, BookedStatus bookedStatus, MentoringScheduleStatus mentoringScheduleStatus,
+		LocalDate currentDate, LocalTime currentTime);
 
 	@Query("""
 		SELECT DISTINCT new com.connect.codeness.domain.mentoringpost.dto.MyMentoringPostResponseDto(
