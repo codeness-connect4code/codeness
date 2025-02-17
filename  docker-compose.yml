@@ -8,3 +8,4 @@ services:
       - FIREBASE_CONFIG_PATH=/app/firebase-codeness-key.json
     volumes:
       - /home/ubuntu/codeness/firebase-codeness-key.json:/app/firebase-codeness-key.json
+      - /home/ubuntu/codeness/credentials.json:/app/credentials.json

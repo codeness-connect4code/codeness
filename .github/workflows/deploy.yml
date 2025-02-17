@@ -1,15 +1,12 @@
 name: Deploy to AWS EC2
 
 on:
-  pull_request:
+  push:
     branches:
-      - develop
-    types:
-      - closed  # PR이 닫힐 때 실행 (머지 포함)
+      - main
 
 jobs:
   deploy:
-    if: github.event.pull_request.merged == true  # 머지된 경우만 실행
     runs-on: ubuntu-latest  # GitHub Actions가 실행될 환경
 
     steps:
