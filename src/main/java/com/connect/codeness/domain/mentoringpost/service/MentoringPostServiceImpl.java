@@ -300,7 +300,7 @@ public class MentoringPostServiceImpl implements MentoringPostService {
 
 	/**
 	 * 멘티가 결제한 멘토링 공고 조회 서비스 메서드
-	 * - 멘티가 결제한 스케쥴의 멘토링 공고를 조회
+	 * - 멘티가 결제한 스케쥴의 멘토링 공고를 조회 (결제 취소일 컬럼이 NULL인 것만)
 	 * - 같은 멘토링 공고가 조회될 시, 중복 제거 후 단건만 조회
 	 */
 	@Override
@@ -312,7 +312,7 @@ public class MentoringPostServiceImpl implements MentoringPostService {
 		//유저 조회 & 멘토인지 검증(멘티만 가능)
 		User user = getVaildatedUser(userId, UserRole.MENTOR, ExceptionType.UNAUTHORIZED_GET_REQUEST);
 
-		//결제한 스케쥴 조회
+		//결제한 스케쥴 조회 - 취소일 컬럼이 NULL 값인 것만
 		List<Long> mentoringScheduleIds = paymentRepository.findMentoringScheduleByUserId(user.getId());
 
 		//스케쥴에 해당하는 멘토링 공고 조회
