@@ -159,7 +159,7 @@ POST localhost:8080/login
 Content-Type: application/json
 
 {
-  "email" : "a123@naver.com",
+  "email" : "a354@naver.com",
   "password" : "asdf1234!@"
 }
 
@@ -186,7 +186,6 @@ Authorization: Bearer {{token}}
   "endTime" : "20:00",
   "description" : "멘토링 받으러 오세요~😊"
 }
-
 
 ### 멘토링 공고 생성하기 - 프론트
 POST localhost:8080/mentoring
@@ -220,8 +219,8 @@ Authorization: Bearer {{token}}
   "career" : 5,
   "region" : "서울, 경기 남부",
   "price" : 1,
-  "startDate" : "2025-02-13",
-  "endDate" : "2025-02-14",
+  "startDate" : "2025-03-01",
+  "endDate" : "2025-03-02",
   "startTime" : "19:00",
   "endTime" : "20:00",
   "description" : "멘토링 받으러 오세요~😊"

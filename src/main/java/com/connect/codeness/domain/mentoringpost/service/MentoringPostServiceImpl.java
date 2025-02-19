@@ -312,7 +312,7 @@ public class MentoringPostServiceImpl implements MentoringPostService {
 		//유저 조회 & 멘토인지 검증(멘티만 가능)
 		User user = getVaildatedUser(userId, UserRole.MENTOR, ExceptionType.UNAUTHORIZED_GET_REQUEST);
 
-		//결제한 스케쥴 조회 - 취소일 컬럼이 NULL 값인 것만
+		//결제한 스케쥴 조회 - 취소일 컬럼이 NULL 값이고, pgTid가 null이 아닌 것
 		List<Long> mentoringScheduleIds = paymentRepository.findMentoringScheduleByUserId(user.getId());
 
 		//스케쥴에 해당하는 멘토링 공고 조회

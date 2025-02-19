@@ -40,7 +40,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 	@Query("""
 		SELECT p.mentoringSchedule.id
 		FROM Payment p
-		WHERE p.user.id = :userId AND p.canceledAt IS NULL
+		WHERE p.user.id = :userId AND p.canceledAt IS NULL AND p.pgTid IS NOT NULL
 	""")
 	List<Long> findMentoringScheduleByUserId(Long userId);
 
