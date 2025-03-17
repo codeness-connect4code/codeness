@@ -1,57 +1,66 @@
+## 💻 프로젝트 소개
 
-# 💻 프로젝트 소개
+![Image](https://github.com/user-attachments/assets/d5cd8e83-7e1d-4600-a443-504bc6c0a79d)
+
+<div align="center">
+
 ![Image](https://github.com/user-attachments/assets/a997e6ce-cf60-47b2-913c-92bfa8a07ec7)
 
-### 코드니스는 멘토와 멘티가 함께 성장할 수 있도록 **멘토링 프로그램**을 운영하며, 개발자 특화 **멘토링 & 커뮤니티** 플랫폼입니다.
+</div>>
 
-### CodeNess의 의미는 **Code**와 Aware**ness**(인지, 통찰)의 결합어로, 개발자들이 **최신 기술 트렌드**와 깊이 있는 정보를 **빠르고 효율적**으로 얻을 수 있는 중심지를 의미합니다.
-
-### 멘토와 멘티가 함께 기술 성장과 커리어 성공을 이루어가는 것을 목표로, 개발자들이 경험, 통찰, 노하우를 공유하며 **서로 배우고 성장**할 수 있는 커뮤니티 서비스를 제공합니다.
-
-#### 
-
-## 👨‍💻 팀 소개
+## 👩‍💻Team 소개 - Connect4Code‍👨‍💻
 <img src="https://github.com/user-attachments/assets/db929e94-77cd-45ae-ac13-a9739fddcfef" width="600" height="300"/>
 
- ### <span style="font-weight: bold; color: #3C7FCC;">Connect4Code</span>
 
-  
- | name | role |                     Github      |
-  |:----:|:----:|:---------------:|
-  | 한지연  |  팀장  |           <a href="https://github.com/j-hann"><img src="https://img.shields.io/badge/Github-181717?style=for-the-badge&logo=Github&logoColor=white"></a>    |
-  | 박예진  | 부팀장  |                        <a href="https://github.com/hamuck"><img src="https://img.shields.io/badge/Github-181717?style=for-the-badge&logo=Github&logoColor=white"></a>    |
-  | 박무근  |  팀원  |  <a href="https://github.com/parkmookeun"><img src="https://img.shields.io/badge/Github-181717?style=for-the-badge&logo=Github&logoColor=white"></a>  |
- | 이한준  |  팀원  |  <a href="https://github.com/Vaxee03"><img src="https://img.shields.io/badge/Github-181717?style=for-the-badge&logo=Github&logoColor=white"></a>  |
-  
+| name | role |                                                                       Github                                                                        |
+  |:----:|:----:|:---------------------------------------------------------------------------------------------------------------------------------------------------:|
+| 한지연  |  팀장  |   <a href="https://github.com/j-hann"><img src="https://img.shields.io/badge/Github-181717?style=for-the-badge&logo=Github&logoColor=white"></a>    |
+| 박예진  | 부팀장  |   <a href="https://github.com/hamuck"><img src="https://img.shields.io/badge/Github-181717?style=for-the-badge&logo=Github&logoColor=white"></a>    |
+| 박무근  |  팀원  | <a href="https://github.com/parkmookeun"><img src="https://img.shields.io/badge/Github-181717?style=for-the-badge&logo=Github&logoColor=white"></a> |
+| 이한준  |  팀원  |   <a href="https://github.com/Vaxee03"><img src="https://img.shields.io/badge/Github-181717?style=for-the-badge&logo=Github&logoColor=white"></a>   |
+
   <br>
 
 ## 🚀 개발 기간
 
-### 2025.01.02 - 2025.02.09
+### _2025.01.02 - 2025.02.09_
 
 ## 🛠️기술 스택 & 🌱 개발 환경
-<img src="https://github.com/user-attachments/assets/243e7e1c-7682-4e30-afb3-6cb958096102" width="600" height="250"/><br>
-<img src="https://github.com/user-attachments/assets/440b73a5-3b37-44dc-bc70-348dab4fe700" width="600" height="200"/><br>
-<img src="https://github.com/user-attachments/assets/f8154444-1f9b-40d4-b28e-95a618ecf588" width="600" height="300"/><br>
+![Image](https://github.com/user-attachments/assets/3b509697-18e7-4687-a887-b2a3fa65193e)<br>
+![Image](https://github.com/user-attachments/assets/3bbcaeec-24cc-4515-ac9b-c0b76aec2a98)<br>
+![Image](https://github.com/user-attachments/assets/3b2759fa-743b-447d-adf7-525336869597)<br>
 
-## 🪧 커밋 컨벤션
 
-🎉 Begin: 프로젝트 시작 <br>
-✨ Feat : 새로운 기능 추가, 구현<br>
-📝 Docs : 문서 파일 추가 및 수정<br>
-🔧 Add :  파일 추가 & 코드 수정<br>
-✏️ Typos : 단순 오타 수정<br>
-🐛 Fix : 버그 수정<br>
-✅ Test : 테스트 코드 작성 & 수정<br>
-🚚 Rename : 파일, 경로를 옮기거나 이름 변경<br>
-♻️ Refactor : 코드 리팩토링<br>
-💡 Comment : 주석 추가, 변경<br>
-🔥 Remove : 파일, 코드 삭제<br>
-🔀 Branch : 브랜치 추가, 병합 등<br>
-🏗️ Chore : 빌드 업무 수정, 패키지 매니저 수정, 패키지 관리자 구성 등
 
-## 🪐구현 기능
-![Image](https://github.com/user-attachments/assets/9a3167f0-1659-4885-865b-343ad9267f5f)
+## 🪐주요 구현 기능
+
+![Image](https://github.com/user-attachments/assets/37e49087-286e-4484-be6c-02ab3522857f)
+![Image](https://github.com/user-attachments/assets/bdfbc31d-acf1-47a3-9863-24779b859061)
+![Image](https://github.com/user-attachments/assets/63aa0c81-a3c2-4d0f-97a0-ce8c02c5a873)
+![Image](https://github.com/user-attachments/assets/b8506138-45ac-47d5-b06b-46f1d63430b6)
+
+### ✏️ 주요 구현 기능 설명
+![Image](https://github.com/user-attachments/assets/e282af36-e29a-459e-9cec-37bd1f77076e)
+
+
+## 🎥 기능 시연 영상
+
+### 💿비로그인 유저
+
+[![비로그인 유저 - 기능 시연 영상](https://img.youtube.com/vi/7r6B-f6NQfc/0.jpg)](https://youtu.be/7r6B-f6NQfc)
+
+### 💿멘토
+
+[![멘토 - 기능 시연 영상](https://img.youtube.com/vi/z-fogSoKv84/0.jpg)](https://youtu.be/z-fogSoKv84)
+
+### 💿멘티
+
+[![멘티 - 기능 시연 영상](https://img.youtube.com/vi/JLp5xiBBLhI/0.jpg)](https://youtu.be/JLp5xiBBLhI)
+
+
+### 💿관리자
+
+[![관리자 - 기능 시연 영상](https://img.youtube.com/vi/adKZE-ASb_4/0.jpg)](https://youtu.be/adKZE-ASb_4)
 
 ## 📅 와이어 프레임
 
@@ -59,6 +68,7 @@
 <summary>와이어 프레임</summary>
 
 ## [Figma Link](https://www.figma.com/design/ecsfbCWeDDj11qqnbdIIfc/%EC%BD%94%EB%93%9C%EB%8B%88%EC%8A%A4-%EC%99%80%EC%9D%B4%EC%96%B4%ED%94%84%EB%A0%88%EC%9E%84?node-id=11-99&t=L4AL6b7uAWJBZJoa-0)
+
 ![Image](https://github.com/user-attachments/assets/a5fe81ea-d720-493f-94b5-2a4b700e97bb)
 
 </details>
@@ -66,10 +76,22 @@
 ## ⚙️ ERD
 
 <details>
-<summary>ERD</summary>
+<summary>MYSQL ERD</summary>
 
 ## [ERD Cloud Link](https://www.erdcloud.com/d/LFPcrvtkmJLMQfhRb)
+
 ![Image](https://github.com/user-attachments/assets/88f04918-88f3-40e4-8d7a-76b79f1e6871)
+
+</details>
+
+<details>
+<summary>Firebase ERD</summary>
+
+#### 🔵 chatMessages
+![Image](https://github.com/user-attachments/assets/39f82c16-90a7-4421-87ca-60ab1a98e506)
+
+#### 🔵 chatRooms
+![Image](https://github.com/user-attachments/assets/3914f703-fa77-4539-81eb-e6bea5a694b1)
 
 </details>
 
@@ -77,6 +99,8 @@
 
 <details>
 <summary>API 명세서</summary>
+
+## [API 명세서 노션 Link](https://pickle-meal-0f8.notion.site/1a1f1dea6b0d804e84b4fb4aa23e7af1?v=1a1f1dea6b0d81e0b21d000c36fa5444&pvs=4)
 
 ![Image](https://github.com/user-attachments/assets/7015e512-96e4-4246-8abc-dc71d4125798)
 ![Image](https://github.com/user-attachments/assets/6f3868a1-4c8c-4143-9c12-0ad28088dd23)
@@ -96,6 +120,7 @@
 <summary>인프라 설계도</summary>
 
 ### 🎨인프라 설계도
+
 ![Image](https://github.com/user-attachments/assets/6490f8ac-8552-4785-b894-af2c26b8eae6)
 
 </details>
@@ -104,6 +129,7 @@
 <summary>CI/CD 파이프라인</summary>
 
 ### 🎨CI/CD 파이프라인
+
 ![Image](https://github.com/user-attachments/assets/33625318-a55e-4779-b6fd-53f0390495ae)
 
 </details>
@@ -114,6 +140,7 @@
 <summary>OAuth2 로그인 시퀀스 다이어그램</summary>
 
 ### 🎨OAuth2 로그인 시퀀스 다이어그램
+
 ![Image](https://github.com/user-attachments/assets/82c393c7-361f-4afc-baf6-45be80f61269)
 
 </details>
@@ -122,23 +149,94 @@
 <summary>결제 시퀀스 다이어그램</summary>
 
 ### 🎨결제 시퀀스 다이어그램
+
 ![Image](https://github.com/user-attachments/assets/c462e82a-01d9-4fac-a36e-9eabcd181796)
 
 </details>
 
-## 💿 담당 구현 기능
-<img src="https://github.com/user-attachments/assets/7badf592-2733-4938-ad0b-b706218493df" width="500" height="300"/><br>
-<img src="https://github.com/user-attachments/assets/4a096e1e-08d1-490b-9bca-f041ab11822f" width="500" height="200"/><br>
+## 🔊 기술적 의사결정
+<details>
+<summary> 🏗️ 인프라 의사결정</summary>
 
-<img src="https://github.com/user-attachments/assets/9ebd995b-6b9e-4d81-bbb6-419cdd5758de" width="500" height="300"/><br>
+![Image](https://github.com/user-attachments/assets/c1771f79-195b-4b27-ae84-30a89a74e6d6)
+![Image](https://github.com/user-attachments/assets/7fb4d3d8-5153-4896-a8ea-b083f6c0b146)
+![Image](https://github.com/user-attachments/assets/40b54b64-ccfe-4fd6-a533-2cb499f7d618)
+![Image](https://github.com/user-attachments/assets/f7d73459-e160-4190-8d52-16c6acb93ab8)
+![Image](https://github.com/user-attachments/assets/6ffe0b31-7ab3-49f3-ad01-3cb4f2141829)
+![Image](https://github.com/user-attachments/assets/e8f1a7a8-2622-4913-aeca-4c4fea1f80e8)
+![Image](https://github.com/user-attachments/assets/6ec91b9f-e9fc-4a51-a8be-40391755201e)
 
-<img src="https://github.com/user-attachments/assets/bef04f19-ad51-473f-85f1-9c1bcf350e54" width="500" height="300"/><br>
+</details>
+
+<details>
+<summary> 💵 결제 기능 의사결정</summary>
+
+![Image](https://github.com/user-attachments/assets/b852947d-7b9a-44c4-9514-22419ac2c974)
+![Image](https://github.com/user-attachments/assets/9cf6fd93-c2ec-43f4-a209-3380acae02ec)
+
+</details>
+
+<details>
+<summary> 🔒 인증/인가 의사결정</summary>
+
+![Image](https://github.com/user-attachments/assets/6154b6d3-24e4-4a11-9271-5007c878c603)
+![Image](https://github.com/user-attachments/assets/fcbf843c-05b9-49ca-a659-6c45297f584c)
+![Image](https://github.com/user-attachments/assets/8fd97f1e-b2a9-48bd-a2dd-a6efa106b9ca)
+![Image](https://github.com/user-attachments/assets/d0465502-e17b-4e9e-ae1e-91a1a6c4aa64)
+
+</details>
+
+<details>
+<summary> 🗨️ 채팅 기능 의사결정</summary>
+
+![Image](https://github.com/user-attachments/assets/4677bc3e-f85f-4091-82a7-9b810fb6c7a9)
+
+</details>
+
+<details>
+<summary> ⛔ 동시성 문제 의사결정</summary>
+
+![Image](https://github.com/user-attachments/assets/0d96011b-f659-41de-abc2-a5de18f0d239)
+![Image](https://github.com/user-attachments/assets/611dcaa4-6eab-4719-8c71-2b921142ac28)
+
+</details>
+
+<details>
+<summary> 🧺 캐싱 의사결정</summary>
+
+![Image](https://github.com/user-attachments/assets/d3d44c14-6a02-4854-b53c-6a79d8b47ee1)
+![Image](https://github.com/user-attachments/assets/b049c081-9118-4517-84fe-08a5daa15bfb)
+
+</details>
+
+## 🪧 GitHub 커밋 컨벤션
+
+🎉 Begin: 프로젝트 시작 <br>
+✨ Feat : 새로운 기능 추가, 구현<br>
+📝 Docs : 문서 파일 추가 및 수정<br>
+🔧 Add :  파일 추가 & 코드 수정<br>
+✏️ Typos : 단순 오타 수정<br>
+🐛 Fix : 버그 수정<br>
+✅ Test : 테스트 코드 작성 & 수정<br>
+🚚 Rename : 파일, 경로를 옮기거나 이름 변경<br>
+♻️ Refactor : 코드 리팩토링<br>
+💡 Comment : 주석 추가, 변경<br>
+🔥 Remove : 파일, 코드 삭제<br>
+🔀 Branch : 브랜치 추가, 병합 등<br>
+🏗️ Chore : 빌드 업무 수정, 패키지 매니저 수정, 패키지 관리자 구성 등
+
+## 🪧 그 외 컨벤션 정리
+
+![Image](https://github.com/user-attachments/assets/5387a255-e987-4c39-b1aa-afd5b7f239ce)
+
+
+## 💡 담당 구현 기능
+
+![Image](https://github.com/user-attachments/assets/2db4657a-1651-4c09-b126-b65e61d7a7f2)<br>
+![Image](https://github.com/user-attachments/assets/a6953483-d72f-4595-aece-cd2f76561dcd)
 
 
 ## 🎙️ 프로젝트 소감
+
 ![Image](https://github.com/user-attachments/assets/69d7d8ee-c548-4b4e-9a90-1962a97ed1f7)
-
-
-
-
 
