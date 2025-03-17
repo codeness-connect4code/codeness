@@ -6,18 +6,18 @@
 
 ![Image](https://github.com/user-attachments/assets/a997e6ce-cf60-47b2-913c-92bfa8a07ec7)
 
-</div>>
+</div>
 
 ## 👩‍💻Team 소개 - Connect4Code‍👨‍💻
-<img src="https://github.com/user-attachments/assets/db929e94-77cd-45ae-ac13-a9739fddcfef" width="600" height="300"/>
 
+![Image](https://github.com/user-attachments/assets/db929e94-77cd-45ae-ac13-a9739fddcfef)
 
-| name | role |                                                                       Github                                                                        |
-  |:----:|:----:|:---------------------------------------------------------------------------------------------------------------------------------------------------:|
-| 한지연  |  팀장  |   <a href="https://github.com/j-hann"><img src="https://img.shields.io/badge/Github-181717?style=for-the-badge&logo=Github&logoColor=white"></a>    |
-| 박예진  | 부팀장  |   <a href="https://github.com/hamuck"><img src="https://img.shields.io/badge/Github-181717?style=for-the-badge&logo=Github&logoColor=white"></a>    |
-| 박무근  |  팀원  | <a href="https://github.com/parkmookeun"><img src="https://img.shields.io/badge/Github-181717?style=for-the-badge&logo=Github&logoColor=white"></a> |
-| 이한준  |  팀원  |   <a href="https://github.com/Vaxee03"><img src="https://img.shields.io/badge/Github-181717?style=for-the-badge&logo=Github&logoColor=white"></a>   |
+|                                                         🩵                                                          | NAME  | ROLE |                                                                       GITHUB                                                                        |
+  |:-------------------------------------------------------------------------------------------------------------------:|---|:----:|:---------------------------------------------------------------------------------------------------------------------------------------------------:|
+| <img src="https://github.com/user-attachments/assets/a37ac029-e653-4dbd-8128-71abf16ac53a" width="50" height="65"/> | 한지연  |  팀장  |   <a href="https://github.com/j-hann"><img src="https://img.shields.io/badge/Github-181717?style=for-the-badge&logo=Github&logoColor=white"></a>    |
+| <img src="https://github.com/user-attachments/assets/6d093cce-5069-491f-b9a8-15479064d071" width="50" height="60"/> | 박예진  | 부팀장  |   <a href="https://github.com/hamuck"><img src="https://img.shields.io/badge/Github-181717?style=for-the-badge&logo=Github&logoColor=white"></a>    |
+| <img src="https://github.com/user-attachments/assets/69eed7e2-8224-407e-8777-cecd097eb43a" width="50" height="65"/> | 박무근  |  팀원  | <a href="https://github.com/parkmookeun"><img src="https://img.shields.io/badge/Github-181717?style=for-the-badge&logo=Github&logoColor=white"></a> |
+| <img src="https://github.com/user-attachments/assets/0b9576de-80a8-41ea-961e-025b6c151c41" width="50" height="60"/> | 이한준  |  팀원  |   <a href="https://github.com/Vaxee03"><img src="https://img.shields.io/badge/Github-181717?style=for-the-badge&logo=Github&logoColor=white"></a>   |
 
   <br>
 
